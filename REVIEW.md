@@ -45,10 +45,10 @@ Node 24 bleibt die feste Major-Version. Lokal ausgeführt mit Node 24.19.0 und t
 
 Die bisherigen Runtime-Regressionstests bestätigen optionalen Linktext, Escaping, Vorschau, dauerhaft leere Werte, clientlokalen Webhook, Migration, neutrale Speicherfehler und Logout/Setup. Browserprogramme bleiben verfügbar; in diesem Durchlauf nicht erneut ausgeführt, da die Laufzeitdateien gegenüber dem zuvor geprüften Kandidaten unverändert sind.
 
-## Stand der Einrichtung
+## Stand vor dem ersten Push
 
-Die Git-Anmeldung fehlte beim nichtinteraktiven Push-Vorabtest. Die lokale Umsetzung ist unabhängig davon geprüft; der Push und die erste GitHub-CI-Ausführung benötigen eine funktionierende Anmeldung. Der Workflow wird erst nach Übernahme auf main in GitHub sichtbar. Kein persönlicher Token wurde angelegt oder gespeichert.
+Die GitHub-Anmeldung für Ginkgo85 und die Git-Anbindung sind eingerichtet. Der Remote zeigt auf Ginkgo85/foundry-world-status, der Branch ist main und der Arbeitsstand enthält keine fremden Änderungen. Der vorhandene lokale Commit bleibt unverändert. Nach dem Push werden CI und CodeQL für den exakten GitHub-Commit kontrolliert. Der Release-Workflow wird dabei nicht gestartet.
 
-Nicht geprüft: tatsächliche GitHub-Ausführung, echte Discord-Zustellung/Produktivwelt und Rechte möglicher Organisationsrichtlinien. Für den Maintainer-Test siehe [VALIDIERUNG.md](VALIDIERUNG.md).
+Zu diesem Zeitpunkt noch nicht geprüft: tatsächliche GitHub-Ausführung, echte Discord-Zustellung/Produktivwelt und Rechte möglicher Organisationsrichtlinien. Für den Maintainer-Test siehe [VALIDIERUNG.md](VALIDIERUNG.md).
 
 **Release erzeugt: Nein**
