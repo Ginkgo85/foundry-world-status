@@ -1,118 +1,97 @@
 # Foundry World Status
 
-Foundry World Status ermöglicht Spielleitern, die aktive Spielwelt manuell über einen Discord-Webhook als ONLINE oder OFFLINE anzukündigen.
+Version **1.0.0** · Foundry VTT **14.367** · Nur für GMs · Keine Modulabhängigkeiten
 
-Lokale Basisversion **1.0.0**, Änderungen unter **Unreleased** · Foundry VTT **14.367** · Autor **Ginkgo85**
+**Status: In Development / Unreleased**
 
-Das Modul wird privat beziehungsweise manuell als ZIP oder über GitHub weitergegeben. Es ist ein kleines Werkzeug für Ankündigungen, kein Servermonitor. ONLINE wird bewusst per GM-Klick gesendet; es gibt keine automatische Erreichbarkeitsprüfung.
+Das Modul wird privat beziehungsweise manuell als ZIP oder über GitHub weitergegeben. Die aktuellen Änderungen sind noch nicht als neuer Release veröffentlicht.
 
-## Manuelle Installation
+Kündige deine Spielrunde mit einem Klick auf Discord als **ONLINE** oder **OFFLINE** an – mit anpassbarer Nachricht und direktem Link zu deiner Foundry-Spielwelt.
 
-1. Die vom Maintainer bereitgestellte **foundry-world-status.zip** herunterladen.
-2. Nach `Data/modules/foundry-world-status/` entpacken.
-3. Prüfen, dass `module.json` direkt unter `foundry-world-status/` liegt.
-4. Foundry neu starten beziehungsweise die Module neu laden.
-5. In der gewünschten Welt **Foundry World Status** unter **Module verwalten** aktivieren.
+## Funktionen
 
-Die module.json liegt im ZIP-Root, ohne zusätzlichen übergeordneten Ordner. Ein bestehendes Modulverzeichnis vor einem Update sichern und durch den neuen ZIP-Inhalt ersetzen, damit entfernte Dateien nicht liegenbleiben. World-Daten niemals löschen.
+- Discord-Button in der linken Foundry-Werkzeugleiste, sichtbar nur für GMs.
+- Anpassbare Discord-Embeds mit Texten, Farben, Bildern und Serverlink.
+- Optionaler Rollenping bei ONLINE und integrierter Verbindungstest.
+- Optional automatisch OFFLINE vor dem Zurückkehren zum Setup.
+- Einstellungen und Ankündigungsstatus werden pro Welt gespeichert; der Webhook bleibt im jeweiligen Browser.
 
-Es sind keine Node-Pakete für die Nutzung nötig. Die lokale Entwicklungsfassung enthält bewusst keine automatischen Manifest-/Download-Adressen: Im bestehenden GitHub-Repository liegt bisher eine andere Modulidentität. Ein Update-Link dorthin wäre derzeit irreführend.
+**ONLINE wird bewusst per GM-Klick angekündigt.** Es gibt keine automatische Erreichbarkeitsprüfung und keine Nachricht beim Starten der Welt. ON/OFF zeigt den gespeicherten Ankündigungsstatus an.
 
-## Einrichtung
+## Installation
 
-Als GM **Einstellungen → Moduleinstellungen → Foundry World Status → Weltstatus für Discord konfigurieren** öffnen.
+1. Die bereitgestellte **foundry-world-status.zip** herunterladen.
+2. In `Data/modules/foundry-world-status/` entpacken. `module.json` liegt direkt im ZIP-Root und muss anschließend direkt im Modulordner liegen.
+3. Foundry neu starten beziehungsweise die Module neu laden.
+4. Die Welt öffnen und unter **Einstellungen → Module verwalten** das Modul aktivieren. Anschließend die Welt neu laden.
 
-- **Webhook:** In Discord beim gewünschten Textkanal **Kanal bearbeiten → Integrationen → Webhooks** einen Webhook erstellen und seine URL eintragen. Das Auge zeigt oder verdeckt sie; beim erneuten Öffnen ist sie wieder verdeckt.
-- **Foundry Server URL / Wunschdomain:** Die für Mitspieler erreichbare HTTP-/HTTPS-Adresse eintragen, beispielsweise `https://foundry.example.invalid/game` (Platzhalter ersetzen). ONLINE benötigt diese Adresse. `localhost` funktioniert nicht als öffentliche Mitspieleradresse.
-- **Nachrichten:** Titel, Beschreibung, Farbe und Footer für ONLINE/OFFLINE bearbeiten. ONLINE bietet außerdem Linktext, Thumbnail und Bild. Anzeigename und Avatar sind konfigurierbar. Die Vorschau zeigt Text näherungsweise, lädt keine externen Bilder und rendert kein Discord-Markdown.
-- **Rollen-Ping:** Optional eine Rollen-ID mit 17–20 Ziffern eintragen. Discords Entwicklermodus ermöglicht das Kopieren der ID. Nur diese Rolle darf bei ONLINE erwähnt werden; `@everyone`, `@here`, Benutzer und weitere Rollen sind im Versand gesperrt. Discord-Kanalberechtigungen gelten zusätzlich.
-- **Test:** „Discord-Verbindung testen“ sendet eine echte kleine Nachricht mit der aktuell eingetragenen URL, auch vor dem Speichern. Der Ankündigungsstatus bleibt dabei erhalten.
-- **Speichern:** Nachrichten gelten für die Welt; der Webhook wird nur in diesem Browser gespeichert.
+Bei einem Update den bisherigen Modulordner sichern und durch den neuen ZIP-Inhalt ersetzen. **Keine World-Daten löschen.** Diese Fassung wird manuell installiert und enthält keine automatische Manifest-/Download-URL.
 
-## ON/OFF-Button
+## In wenigen Schritten startklar
 
-Der Button erscheint ausschließlich für GMs in den linken Scene Controls. Das weiße Discord-Symbol bleibt unverändert; ON/OFF und der Rahmen tragen die Statusfarbe.
+1. In Discord im gewünschten Textkanal **Kanal bearbeiten → Integrationen → Webhooks → Neuer Webhook** öffnen und die Webhook-URL kopieren.
+2. In Foundrys Moduleinstellungen **Foundry World Status → Weltstatus für Discord konfigurieren** öffnen.
+3. **Discord Webhook URL** und die für deine Spieler erreichbare **Foundry Server URL / Wunschdomain** eintragen.
+   Mit dem Augen-Button lässt sich die Webhook-URL vorübergehend einblenden; beim erneuten Öffnen ist sie wieder verdeckt.
+4. Nachricht nach Wunsch gestalten. **Discord-Verbindung testen** sendet eine echte Testnachricht, ohne den ON/OFF-Status zu ändern.
+5. **Einstellungen speichern** und den Discord-Button in der linken Werkzeugleiste verwenden.
 
-| Anzeige | Nächster Klick |
+Für einen Rollenping die numerische Discord-Rollen-ID eintragen. Nur diese Rolle darf bei ONLINE erwähnt werden; `@everyone`, `@here` und Benutzer-Pings sind gesperrt. Discord-Berechtigungen gelten zusätzlich.
+
+## Der ON/OFF-Button
+
+Das Discord-Logo bleibt immer weiß und unverzerrt. Nur der separate Schriftzug und der Rahmen zeigen die Statusfarbe.
+
+| Anzeige | Ein Klick darauf |
 | --- | --- |
-| OFF | ONLINE senden, nach Discord-Bestätigung ON speichern |
-| ON | OFFLINE senden, danach OFF speichern |
-| ON und OFFLINE-Versand deaktiviert | Nur den gespeicherten Status auf OFF setzen |
+| <img src="icons/discord-off.svg" width="40" height="40" alt="Weißes Discord-Logo, roter OFF-Status"> **OFF** | Sendet die ONLINE-Nachricht und wechselt nach Bestätigung und Speicherung auf ON. |
+| <img src="icons/discord-on.svg" width="40" height="40" alt="Weißes Discord-Logo, grüner ON-Status"> **ON** | Sendet die OFFLINE-Nachricht und wechselt auf OFF. |
 
-ON bedeutet „als ONLINE angekündigt“, nicht „erreichbar geprüft“. Nach einem Serverneustart kann weiterhin ON gespeichert sein. Versandfehler ändern den Status nicht. Wenn die Nachricht ankam, aber die Statusspeicherung scheiterte, meldet das Modul dies gesondert.
+Ist der OFFLINE-Versand deaktiviert, setzt ein Klick auf ON nur den Status auf OFF. Der Button steht am Ende der aktuellen Werkzeuggruppe; dafür muss eine Szene aktiv und die Werkzeugleiste geöffnet sein.
 
-Die Sperre gegen Doppelklicks gilt nur in einem Browser. Zwei GMs können gleichzeitig senden oder Einstellungen überschreiben. Bitte einen GM mit den Ankündigungen betrauen; es gibt keine verteilte Sperre.
+Bei mehreren GMs sollte eine Person die Ankündigungen übernehmen: Die Versandsperre gilt pro Browser und verhindert keine gleichzeitigen Nachrichten aus mehreren GM-Sitzungen.
 
-## Abmelden, Welt schließen und Serverende
+## Automatisch OFFLINE ankündigen
 
-| Aktion | Verhalten |
-| --- | --- |
-| GM meldet sich ab | Keine Nachricht, gemeinsamer Status bleibt unverändert |
-| Zurück zum Setup | Optional OFFLINE **vor dem Schließversuch** |
-| Browser/Tab schließen, Absturz, Verbindung verlieren | Keine automatische Nachricht |
-| Docker/Serverprozess stoppen oder Server herunterfahren | Keine zuverlässige Erkennung, keine automatische Nachricht |
+Unter **OFFLINE Nachricht** beide Optionen aktivieren und speichern:
 
-**Vor „Zurück zum Setup“ OFFLINE ankündigen** ist standardmäßig aus. Die vorhandene Option gilt nur bei ON und aktiviertem OFFLINE-Versand. Sie wartet auf Discord-Bestätigung und Statusspeicherung, bevor sie den Schließversuch auslöst. Bei Versand-/Speicherfehlern hält sie an.
+- **Offline-Nachricht an Discord senden**
+- **Vor „Zurück zum Setup“ OFFLINE ankündigen**
 
-Das ist eine Ankündigung vor einem beabsichtigten Weltende, keine Bestätigung eines abgeschlossenen Shutdowns. Scheitert Foundrys Schließen danach, kann die Welt noch laufen, obwohl OFF gespeichert wurde. Das Modul sendet dann kein automatisches ONLINE. Die einfachste Bedienung bleibt: manuell OFF anklicken und anschließend die Welt schließen.
+Bei gespeichertem Status ON wird die Nachricht vor dem Schließversuch über **„Zurück zum Setup“** gesendet. Die Automatik ist standardmäßig ausgeschaltet. Bei einem Versand- oder Speicherfehler bleibt der Vorgang angehalten.
 
-Für die optionale Setup-Funktion wird weiterhin ein kleiner Wrapper um `game.shutDown` verwendet: Im geprüften 14.367-Ablauf gibt es keinen wartenden Hook vor dem Shutdown. Der Wrapper benötigt keine Dependency; er kann mit anderen Modulen kollidieren, die denselben Ablauf ändern. `game.logOut` wird nicht mehr ersetzt.
+**Abmelden verändert den gemeinsamen Status nicht. Browser-/Tab-Schließen, Abstürze und das Stoppen des Servers werden nicht erfasst.** Scheitert das Schließen der Welt nach der Ankündigung, kann sie trotz OFF weiterlaufen. Die Option bestätigt keine tatsächliche Serverabschaltung; manuelles OFF vor dem Weltende bleibt die einfachste Alternative.
 
-## Webhook-Speicherung und Übernahme
+## Sicherheit und Hilfe
 
-Die technische Modul-ID lautet weiterhin **foundry-world-status**. Konfiguration und Ankündigungsstatus bleiben im bisherigen Namespace erhalten; es findet in dieser Änderung kein ID-Wechsel statt.
+Webhook-URLs geheim halten und niemals auf GitHub veröffentlichen. Der Webhook wird **nur im jeweiligen Browser**, getrennt nach Welt und GM, gespeichert. Andere Browser oder Geräte müssen separat eingerichtet werden. Das Löschen der Browserdaten entfernt auch den lokalen Webhook.
 
-Der Webhook wird als Foundry-Client-Setting `foundry-world-status.webhooks` in diesem Browser gespeichert. Ein Eintrag ist nach Welt-ID und GM-ID getrennt. Er wird nicht als neue World-/User-Einstellung an andere Clients verteilt.
+Das Passwortfeld verdeckt die URL, verschlüsselt sie aber nicht. Skripte, Erweiterungen oder Personen mit Zugriff auf dasselbe Browserprofil können lokalen Speicher auslesen. Für GM und Spieler getrennte Browserprofile verwenden.
 
-Bei einer bereits vorhandenen `foundry-world-status.configuration.webhookUrl`:
+<details>
+<summary>Vorhandene Einstellungen übernehmen</summary>
 
-1. Beim GM-Start beziehungsweise Öffnen der Einstellungen die URL lokal kopieren.
-2. Den lokalen Wert zurücklesen und vergleichen.
-3. Erst danach das Webhook-Feld aus der gemeinsamen Konfiguration entfernen; andere Werte bleiben erhalten.
+Die Modul-ID bleibt `foundry-world-status`; Nachrichtentexte und Weltstatus bleiben erhalten. Einen bisher gemeinsam gespeicherten Webhook kopiert das Modul beim GM-Start beziehungsweise Öffnen der Einstellungen lokal und prüft die Kopie, bevor es den gemeinsamen Wert entfernt. Dafür möglichst nur einen GM anmelden. Andere GM-Browser müssen anschließend separat eingerichtet werden.
 
-Bei Speicherfehlern bleibt die bisherige Kopie erhalten. Fehlgeschlagene Bereinigung lässt sich durch erneutes Öffnen wiederholen. Es wird dabei keine Discord-Nachricht gesendet. Für diese einmalige Übernahme möglichst nur einen GM anmelden.
+Bei Speicherfehlern bleibt die bisherige Kopie erhalten; nach Beheben des Fehlers die Einstellungen erneut öffnen. Bei widersprüchlichen lokalen und gemeinsamen Webhooks wird nichts überschrieben: Mit einem frischen Browserprofil als derselbe GM anmelden und die Einstellungen öffnen, um den gemeinsamen Wert dort zu übernehmen. Der erste Browser behält seinen abweichenden Wert. Vorher keine Browserdaten löschen.
 
-Der erste erfolgreiche GM-Browser übernimmt den früher gemeinsamen Webhook. Andere Browser, Geräte oder GMs müssen die URL danach separat erhalten und eintragen. Das Löschen von Browserdaten löscht auch den lokalen Webhook; Weltstatus und Nachrichtentexte bleiben bestehen.
+Die ältere Installation `foundry-discord-announcer` wird nicht automatisch migriert oder verändert. Beim Wechsel das neue Modul separat installieren, das alte in der Welt deaktivieren und Einstellungen sowie Webhook als GM manuell übertragen. Nicht beide Module gleichzeitig verwenden.
 
-**Bei widersprüchlichen lokalen und gemeinsamen Werten:** Nichts wird überschrieben. Mit einem zweiten, frischen Browserprofil als derselbe GM anmelden und die Einstellungen öffnen. Dort kann der gemeinsame Wert gesichert und bereinigt werden. Der erste Browser behält seinen abweichenden Wert. Anschließend die gewünschte URL in den jeweiligen Browsern festlegen. Vorher keine Browserdaten löschen.
+Bereits verteilte Webhooks und Backups lassen sich durch die Übernahme nicht zurückholen. Einen zuvor offengelegten Webhook in Discord ersetzen.
 
-### Installationen unter dem früheren Modulnamen
+</details>
 
-`foundry-discord-announcer` ist eine andere Installationsidentität. Die Trennung wurde bereits vor diesem Review vorgenommen. Dieses Update liest oder verändert dessen Settings nicht automatisch.
+- [Änderungen](CHANGELOG.md) · Prüfbericht und Entwicklungsanleitung liegen im Projekt unter `VALIDIERUNG.md` und `CONTRIBUTING.md`.
+- [Fehler melden](https://github.com/Ginkgo85/foundry-discord-announcer/issues) – bitte ohne Webhook-URLs oder private World-Daten.
 
-Eine bestehende alte Installation bleibt erhalten. Für einen Wechsel die neue ZIP parallel installieren, das alte Modul in der Welt deaktivieren und die gewünschten Einstellungen sowie den Webhook als GM manuell übertragen. Der neue Status startet unabhängig auf OFF, sofern in diesem neuen Namespace noch kein Status gespeichert war. Nicht beide Module gleichzeitig aktiv verwenden. Keine World-Daten oder alten Einstellungen für den Wechsel löschen.
+Bei **CORS-/Netzwerkfehlern** sendet der GM-Browser direkt an Discord, auch bei Docker-Hosting. Der Formularversand vermeidet eine zusätzliche JSON-OPTIONS-Vorabprüfung; die Antwort muss weiterhin per CORS lesbar sein. Browser-Erweiterungen, DNS, TLS oder eine Content-Security-Policy können die Verbindung blockieren. Ein zweiter Browser hilft beim Eingrenzen. Vor erneutem Senden im Discord-Kanal nachsehen, um doppelte Nachrichten zu vermeiden.
 
-## Sicherheit
+Bei teilweise fehlgeschlagenem Speichern kann der lokale Webhook bereits geändert sein. Foundry-Verbindung prüfen und erneut speichern.
 
-Webhook-URLs sind Zugangsschlüssel. Niemals öffentlich teilen, in Screenshots/HAR-Dateien veröffentlichen oder in Git/Issues eintragen. Bei einer zuvor gemeinsam gespeicherten oder offengelegten URL empfiehlt sich nach der Übernahme ein neuer Discord-Webhook: Die Migration kann bereits verteilte Kopien und Backups nicht zurückholen.
+## Lizenz und Autor
 
-Browserlokal bedeutet **nicht verschlüsselt** und ist keine Geheimnisgrenze gegenüber Skripten, Erweiterungen oder Personen mit Zugriff auf dasselbe Browserprofil beziehungsweise denselben Ursprung. Getrennte Browserprofile für GM und Spieler verwenden. Die Trennung nach Welt und GM verhindert versehentliche Auswahl eines anderen Eintrags, nicht das absichtliche Auslesen lokalen Speichers.
+[MIT-Lizenz](LICENSE) · Copyright (c) 2026 Frank · [Ginkgo85 / Projektseite](https://github.com/Ginkgo85/foundry-discord-announcer)
 
-`scope: "user"` wurde nicht als Secret-Speicher gewählt: Die geprüfte V14-API beschreibt benutzerbezogene Einstellungen, aber keine zugesicherte Geheimhaltung gegenüber anderen Clients. Die clientlokale Variante vermeidet neue Serverübertragung und braucht keine eigene Verschlüsselung oder zusätzlichen Dienst.
+Das GitHub-Repository trägt vorerst noch den früheren Namen.
 
-Das Modul gibt Tokens nicht in eigenen Logs oder Fehlermeldungen aus. Netzwerkwerkzeuge des Browsers können angefragte URLs anzeigen. Die konfigurierte Weltadresse und externe Bildadressen werden beim Versand an Discord übergeben.
-
-## Fehlerbehebung
-
-- **Button fehlt:** GM-Anmeldung, Modulaktivierung und aktive Szene mit Scene Controls prüfen.
-- **Webhook fehlt nach Browserwechsel:** Im verwendeten Browser neu eintragen.
-- **Migration/Browser-Speicher fehlgeschlagen:** Browser-Speicher und Foundry-Verbindung prüfen, Einstellungen erneut öffnen. Keine vorhandenen Daten löschen.
-- **HTTP 401/403/404:** Webhook und Kanalberechtigungen prüfen.
-- **HTTP 429:** Die genannte Wartezeit einhalten.
-- **Netzwerk/CORS/Timeout:** Der GM-Browser sendet, auch bei Docker-Hosting. DNS, TLS, Erweiterungen und Proxy-/CSP-Regeln prüfen. `connect-src` muss den verwendeten Discord-Host zulassen.
-- **Nachricht möglicherweise angekommen:** Vor erneutem Senden den Discord-Kanal kontrollieren. Es gibt keine automatische Wiederholung.
-- **Einstellungen teilweise gespeichert:** Der lokale Webhook kann bereits geändert sein, obwohl das Speichern der Welttexte scheiterte. Verbindung prüfen und erneut speichern.
-
-Multipart-Versand vermeidet den unnötigen JSON-Preflight; eine regulär lesbare CORS-Antwort bleibt erforderlich. Keine öffentlichen Proxys und kein `no-cors`-Versand.
-
-## Entwicklung, Tests und Verteilung
-
-Tests und lokaler Build: [CONTRIBUTING.md](https://github.com/Ginkgo85/foundry-discord-announcer/blob/main/CONTRIBUTING.md). Die Dateien liegen auch im lokalen Projekt; Online-Inhalte können bis zum manuellen Hochladen älter sein. Der genaue aktuelle Prüfstand steht lokal in VALIDIERUNG.md, der technische Bericht in REVIEW.md.
-
-Das bestehende [GitHub-Repository](https://github.com/Ginkgo85/foundry-discord-announcer) trägt noch den früheren Namen. Repository-Umbenennung, Remotes, Tags und Veröffentlichungen erfolgen ausschließlich manuell.
-
-## Lizenz und Marken
-
-Eigener Modulcode: [MIT-Lizenz](LICENSE), Copyright (c) 2026 Frank. Discord und das Discord-Logo sind Marken von Discord Inc.; dieses Modul ist weder offiziell mit Discord Inc. verbunden noch von ihr unterstützt. Siehe [Discord-Markenhinweise](https://discord.com/branding).
-
-Foundry Virtual Tabletop und zugehörige Marken gehören Foundry Gaming LLC. Dieses Community-Modul ist kein offizielles Foundry-Gaming-Produkt. Siehe [Foundry-Markenrichtlinien](https://foundryvtt.com/article/branding/).
+Discord und das Discord-Logo sind Marken von Discord Inc. Dieses Modul ist weder offiziell mit Discord Inc. verbunden noch von ihr unterstützt. Foundry Virtual Tabletop und zugehörige Marken gehören Foundry Gaming LLC; dieses Modul ist kein offizielles Foundry-Gaming-Produkt.
