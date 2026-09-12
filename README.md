@@ -48,6 +48,23 @@ Bei einem manuellen Update den bisherigen Modulordner sichern und durch den neue
 
 Für einen Rollenping die numerische Discord-Rollen-ID eintragen. Nur diese Rolle darf bei ONLINE erwähnt werden; `@everyone`, `@here` und Benutzer-Pings sind gesperrt. Discord-Berechtigungen gelten zusätzlich.
 
+## Einblick in die Einstellungen
+
+**Verbindung und Discord-Vorschau:** Webhook, Serveradresse und Absender lassen sich im Einstellungsfenster konfigurieren.
+
+![Verbindungseinstellungen mit leeren Eingabefeldern und Discord-Vorschau](https://raw.githubusercontent.com/Ginkgo85/foundry-world-status/main/docs/images/settings-connection.png)
+
+<details>
+<summary>OFFLINE-Einstellungen und Vorschau ansehen</summary>
+
+Die zweite Ansicht zeigt die anpassbare OFFLINE-Nachricht sowie die Schaltflächen zum Testen und Speichern.
+
+**Hinweis:** Die Bilder stammen aus einem früheren Stand. Aktuell wird automatisches OFFLINE nur vor **„Zurück zum Setup“** gesendet, nicht beim Abmelden. Die Beschriftung zur Abmelde-Automatik im Bild ist veraltet.
+
+![OFFLINE-Einstellungen und Discord-Vorschau mit Test- und Speichern-Schaltflächen](https://raw.githubusercontent.com/Ginkgo85/foundry-world-status/main/docs/images/settings-offline.png)
+
+</details>
+
 ## Der ON/OFF-Button
 
 Das Discord-Logo bleibt immer weiß und unverzerrt. Nur der separate Schriftzug und der Rahmen zeigen die Statusfarbe.
