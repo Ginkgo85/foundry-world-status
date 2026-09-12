@@ -9,6 +9,14 @@
 - Jede weitere Änderung der Modul-ID erfordert zuerst eine Analyse von Installationen, Settings und Asset-Pfaden sowie einen getesteten Migrationsplan.
 - Keine automatische Übernahme aus anderen Modul-Namespaces ohne ausdrücklichen Auftrag.
 
+## Einstieg auf einem neuen PC
+
+- Zuerst diese AGENTS.md, README.md, CONTRIBUTING.md, VALIDIERUNG.md und PUBLISHING.md lesen; zusätzliche Anweisungen im betroffenen Unterordner beachten. Diese Dateien sind maßgeblich, nicht ein früherer Chat oder ein alter lokaler Pfad.
+- Git für Windows, GitHub CLI sowie Node.js 24 mit npm prüfen und fehlende Werkzeuge im Rahmen des Einrichtungsauftrags einrichten. Keine temporären Laufzeitpfade eines früheren PCs voraussetzen. Normale Tests und Build benötigen weder Paketinstallation noch Foundry; optionale Core-/Browserprüfungen stehen in VALIDIERUNG.md.
+- GitHub-Anmeldung mit gh auth status prüfen und bei Bedarf den Benutzer durch den Browser-Login führen; anschließend gh auth setup-git ausführen. Keine Zugangsdaten ins Projekt schreiben. Das vollständige Repository mit gh repo clone Ginkgo85/foundry-world-status holen, sofern noch kein Checkout existiert.
+- Im Projekt git remote -v, git status und git branch --show-current prüfen. Erwartet sind Ginkgo85/foundry-world-status und main. Den aktuellen Remote-Stand holen; einen sauberen main bei Bedarf nur per git pull --ff-only aktualisieren. Bei fremden Änderungen, abweichendem Repository oder Konflikten nichts überschreiben.
+- Vor Commit und Push npm test, npm run build:release und npm run test:release ausführen und den Diff prüfen. Nach dem Push den GitHub-main gegen den lokalen Commit prüfen und CI sowie CodeQL bis zum Abschluss kontrollieren. Fehler konkret melden; keine Historie umschreiben oder Workflows abschwächen. Ein Einrichtungsauftrag allein erlaubt keine Änderung der Version oder Veröffentlichung.
+
 ## Arbeitsweise
 
 - Bestehenden Code vor Änderungen vollständig verstehen.

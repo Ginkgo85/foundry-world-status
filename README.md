@@ -8,6 +8,8 @@ Dieses Modul wird über GitHub verteilt und ist nicht im offiziellen Foundry-VTT
 
 Kündige deine Spielrunde mit einem Klick auf Discord als **ONLINE** oder **OFFLINE** an – mit anpassbarer Nachricht und direktem Link zu deiner Foundry-Spielwelt.
 
+[Auf einem neuen PC weiterarbeiten](#auf-einem-neuen-pc-weiterarbeiten) – einfache Anleitung zum Weiterentwickeln mit Codex.
+
 ## Funktionen
 
 - Discord-Button in der linken Foundry-Werkzeugleiste, sichtbar nur für GMs.
@@ -95,6 +97,27 @@ Bereits verteilte Webhooks und Backups lassen sich durch die Übernahme nicht zu
 Bei **CORS-/Netzwerkfehlern** sendet der GM-Browser direkt an Discord, auch bei Docker-Hosting. Der Formularversand vermeidet eine zusätzliche JSON-OPTIONS-Vorabprüfung; die Antwort muss weiterhin per CORS lesbar sein. Browser-Erweiterungen, DNS, TLS oder eine Content-Security-Policy können die Verbindung blockieren. Ein zweiter Browser hilft beim Eingrenzen. Vor erneutem Senden im Discord-Kanal nachsehen, um doppelte Nachrichten zu vermeiden.
 
 Bei teilweise fehlgeschlagenem Speichern kann der lokale Webhook bereits geändert sein. Foundry-Verbindung prüfen und erneut speichern.
+
+## Auf einem neuen PC weiterarbeiten
+
+Das Projekt mit allen Programmdateien, Tests und Anleitungen liegt vollständig auf [GitHub](https://github.com/Ginkgo85/foundry-world-status). Du brauchst dafür keine Kenntnisse über Git.
+
+1. Öffne Codex auf dem neuen Windows-PC. Du benötigst **Git für Windows** und **GitHub CLI**. Codex kann dir bei der Einrichtung helfen.
+2. Melde dich einmal über den Browser bei GitHub als **Ginkgo85** an. Codex führt dich durch die Anmeldung.
+3. Lass Codex das vollständige Projekt auf den PC holen. Dafür kannst du diesen Auftrag kopieren:
+
+   ```text
+   Hole das Projekt Ginkgo85/foundry-world-status von GitHub auf diesen PC.
+   Prüfe zuerst, ob Git und GitHub CLI eingerichtet sind, und hilf mir
+   bei Bedarf bei der Installation und der einmaligen GitHub-Anmeldung.
+   Lies im Projekt zuerst AGENTS.md und die weiteren Projektanweisungen.
+   Richte die Werkzeuge für die Tests nach diesen Anweisungen ein.
+   Ändere noch keine Projektdateien und veröffentliche nichts.
+   ```
+
+4. Öffne den heruntergeladenen Ordner **foundry-world-status** als Projekt in Codex. Danach beschreibst du einfach, was du ändern möchtest. Codex erledigt Tests, das Speichern der Änderungen als Commits und das Übertragen auf GitHub (Push) nach den Projektregeln und prüft die automatischen GitHub-Prüfungen.
+
+**Später eine Version veröffentlichen:** Lass Codex zuerst die gewünschte neue Version vorbereiten und alle Prüfungen abschließen. Teste das Modul wie in `PUBLISHING.md` beschrieben. Danach startest du auf GitHub nur noch **Actions → Release → Run workflow** und wählst **main**. GitHub erstellt das fertige Paket automatisch.
 
 ## Lizenz und Autor
 
