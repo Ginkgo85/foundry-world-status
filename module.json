@@ -1,0 +1,39 @@
+{
+  "id": "foundry-world-status",
+  "title": "Foundry World Status",
+  "description": "Den Status der aktiven Foundry-Spielwelt per Discord-Webhook als ONLINE oder OFFLINE ankündigen. Nur für Spielleiter.",
+  "version": "1.0.0",
+  "compatibility": {
+    "minimum": "14.367",
+    "verified": "14.367",
+    "maximum": "14"
+  },
+  "authors": [
+    {
+      "name": "Ginkgo85",
+      "url": "https://github.com/Ginkgo85/foundry-discord-announcer"
+    }
+  ],
+  "esmodules": [
+    "scripts/main.js"
+  ],
+  "styles": [
+    "styles/foundry-world-status.css"
+  ],
+  "languages": [
+    {
+      "lang": "de",
+      "name": "Deutsch",
+      "path": "lang/de.json"
+    },
+    {
+      "lang": "en",
+      "name": "Deutsch (Standard)",
+      "path": "lang/de.json"
+    }
+  ],
+  "readme": "README.md",
+  "url": "https://github.com/Ginkgo85/foundry-discord-announcer",
+  "bugs": "https://github.com/Ginkgo85/foundry-discord-announcer/issues",
+  "license": "LICENSE"
+}

@@ -1,0 +1,58 @@
+<section class="fws-layout">
+  <header class="fws-intro">
+    <p>{{localize "FWS.intro"}}</p>
+    <p class="fws-security"><i class="fa-solid fa-key" aria-hidden="true"></i> {{localize "FWS.securityHint"}}</p>
+  </header>
+  <div class="fws-body">
+    <div class="fws-fields">
+      {{#each groups}}
+      <fieldset>
+        <legend>{{title}}</legend>
+        {{#each fields}}
+        <div class="fws-field">
+          <label for="fws-{{key}}">{{label}}</label>
+          {{#if checkbox}}
+          <input id="fws-{{key}}" name="{{key}}" type="checkbox" {{checked value}} aria-describedby="fws-hint-{{key}}">
+          {{else if textarea}}
+          <textarea id="fws-{{key}}" name="{{key}}" rows="3" maxlength="{{maxLength}}" aria-describedby="fws-hint-{{key}}">{{value}}</textarea>
+          {{else if secret}}
+          <div class="fws-secret-field">
+            <input id="fws-{{key}}" name="{{key}}" type="password" value="{{value}}" maxlength="{{maxLength}}"
+                   autocomplete="off" spellcheck="false" aria-describedby="fws-hint-{{key}}">
+            <button type="button" class="fws-secret-toggle" data-action="toggleWebhook" aria-controls="fws-{{key}}"
+                    aria-pressed="false" aria-label="{{localize 'FWS.showWebhook'}}" title="{{localize 'FWS.showWebhook'}}">
+              <i class="fa-solid fa-eye" aria-hidden="true"></i>
+            </button>
+          </div>
+          {{else}}
+          <input id="fws-{{key}}" name="{{key}}" type="{{type}}" value="{{value}}" maxlength="{{maxLength}}"
+                 autocomplete="off" spellcheck="false" {{#if required}}required{{/if}} aria-describedby="fws-hint-{{key}}">
+          {{/if}}
+          <p id="fws-hint-{{key}}" class="hint">{{hint}}</p>
+        </div>
+        {{/each}}
+      </fieldset>
+      {{/each}}
+    </div>
+    <aside class="fws-preview" aria-label="{{localize 'FWS.preview'}}">
+      <h3>{{localize "FWS.preview"}}</h3>
+      <div class="fws-discord-message">
+        <div class="fws-preview-user"></div>
+        <p class="fws-preview-content"></p>
+        <div class="fws-embed">
+          <h4 class="fws-preview-title"></h4>
+          <p class="fws-preview-description"></p>
+          <strong>🔗 <span class="fws-preview-link-label"></span></strong>
+          <a class="fws-preview-link" target="_blank" rel="noopener noreferrer"></a>
+          <small class="fws-preview-footer"></small>
+        </div>
+      </div>
+      <p class="hint">{{localize "FWS.previewHint"}}</p>
+    </aside>
+  </div>
+  <footer class="fws-actions">
+    <button type="button" data-action="test"><i class="fa-brands fa-discord" aria-hidden="true"></i> {{localize "FWS.test"}}</button>
+    <button type="submit"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> {{localize "FWS.save"}}</button>
+    <p class="hint">{{localize "FWS.testHint"}}</p>
+  </footer>
+</section>
