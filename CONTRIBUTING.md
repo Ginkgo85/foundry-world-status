@@ -47,9 +47,9 @@ Historischer Tag v.1.0.0 bleibt unangetastet. Korrekturen eines veröffentlichte
 
 Beide Hauptworkflows nutzen Node 24, npm test, denselben Build und dieselbe Artefaktprüfung. Es werden keine lizenzierten Foundry-Dateien heruntergeladen.
 
-release.mjs prüft den ausgecheckten Commit gegen GITHUB_SHA und den aktuellen öffentlichen main. Existierende Tags/Releases und unklare API-Antworten stoppen den Vorgang. Anschließend wird der Tag atomar am geprüften SHA angelegt. gh release create verwendet --verify-tag und lädt genau zwei Dateien hoch. Kein Force, kein Überschreiben, kein --clobber.
+release.mjs prüft den ausgecheckten Commit gegen GITHUB_SHA und den aktuellen öffentlichen main. Existierende Releases (einschließlich Entwürfen), abweichende Tag-Ziele und unklare API-Antworten stoppen den Vorgang. Fehlt der Tag, wird er atomar am geprüften SHA angelegt. Ein bereits vorhandener Tag wird nur wiederverwendet, wenn er direkt auf den geprüften GITHUB_SHA zeigt und kein Release existiert. Annotierte oder nicht eindeutig geprüfte Tag-Ziele werden abgelehnt. gh release create verwendet --verify-tag und lädt genau zwei Dateien hoch. Kein Force, kein Überschreiben, kein --clobber.
 
-Bei einem Fehler nach Tag-Erstellung können ein Tag oder ein Release-Entwurf verbleiben. Der Workflow verändert diese bei Wiederholung nicht. Zustand prüfen und eine neue Version vorbereiten; bestehende Historie nicht automatisch bereinigen.
+Bei einem Fehler nach Tag-Erstellung kann derselbe Workflow auf demselben, weiterhin aktuellen main-Commit erneut laufen, sofern noch kein Release existiert. Der passende Tag bleibt unverändert. Ein vorhandener Release-Entwurf blockiert ebenso wie ein veröffentlichter Release. Schlägt die atomare Tag-Erstellung durch ein Rennen fehl, bricht dieser Lauf ohne Release-Erstellung ab; erst ein neuer Lauf prüft den Zustand erneut. Niemals Tags verschieben, löschen oder force-update durchführen.
 
 Der direkte Aufruf von release.mjs ohne --publish prüft nur die Remote-Voraussetzungen innerhalb von GitHub Actions. Der lokale Dry-Run besteht aus den drei npm-Befehlen oben und benötigt keinen Token.
 

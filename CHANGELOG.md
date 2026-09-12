@@ -8,6 +8,7 @@ Version 1.1.0 wird über den manuell gestarteten GitHub-Workflow Release veröff
 
 - GitHub Actions prüft Änderungen auf main und Pull Requests. Ein separat gestarteter Release-Workflow prüft erneut und erzeugt Tag, Release und Assets ohne manuelle Uploads.
 - Version wird aus module.json abgeleitet; vorhandene Tags und Releases werden nicht ersetzt.
+- Release-Wiederholung nach Teilfehler: Ein vorhandener Tag auf demselben geprüften Commit wird ohne Änderung wiederverwendet, sofern noch kein Release existiert. Abweichende Tags und vorhandene Releases einschließlich Entwürfen führen zum Abbruch.
 
 - ONLINE-Linktext ist optional. Mit Text erscheint ein Markdown-Link; ohne Text die Server-URL. Bewusst leere Werte bleiben gespeichert.
 - Sonderzeichen im Linktext werden maskiert, URL-Klammern im Markdown-Ziel kodiert. Embed-Titel und Serverlink zeigen auf dieselbe Welt.

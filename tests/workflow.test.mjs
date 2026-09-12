@@ -25,7 +25,7 @@ function fixture() {
     verify: async () => {}
   };
 }
-const mutations = f => f.calls.filter(c => c.options?.method === "POST" || c.name === "gh");
+const mutations = f => f.calls.filter(c => (c.options?.method && c.options.method !== "GET") || c.name === "gh");
 
 test("release refuses non-main, wrong repository, non-Actions and mismatched checkout", () => {
   const f = fixture();
@@ -54,14 +54,81 @@ test("release creates the tag atomically at checked SHA and uploads exactly two 
     "--verify-tag", "--target", sha, "--title", "v1.1.0", "--generate-notes"]);
 });
 
-for (const target of ["git/ref/tags/v1.1.0", "releases/tags/v1.1.0"]) {
-  test("existing " + target + " aborts without mutations", async () => {
+for (const publish of [false, true]) {
+  test("matching existing tag without release permits " + (publish ? "retry" : "dry run"), async () => {
     const f = fixture(), normal = f.request;
-    f.request = (route, options) => route === target ? {status: 200, data: {}} : normal(route, options);
-    await assert.rejects(release({...f, publish: true}), /already exists/);
+    f.request = (route, options) => {
+      if (route !== "git/ref/tags/v1.1.0") return normal(route, options);
+      f.calls.push({route, options});
+      return {status: 200, data: {object: {type: "commit", sha}}};
+    };
+    assert.equal(await release({...f, publish}), "v1.1.0");
+    assert.equal(f.calls.some(c => c.route === "git/refs"), false);
+    assert.deepEqual(mutations(f).map(c => c.name), publish ? ["gh"] : []);
+    if (publish) assert.deepEqual(mutations(f)[0].args, ["release", "create", "v1.1.0",
+      "release/module.json", "release/foundry-world-status.zip", "--repo",
+      "Ginkgo85/foundry-world-status", "--verify-tag", "--target", sha, "--title",
+      "v1.1.0", "--generate-notes"]);
+  });
+}
+
+for (const object of [{type: "commit", sha: "b".repeat(40)}, {}, {type: "tag", sha}]) {
+  test("unverified or different tag target aborts: " + JSON.stringify(object), async () => {
+    const f = fixture(), normal = f.request;
+    f.request = (route, options) => route === "git/ref/tags/v1.1.0"
+      ? {status: 200, data: {object}} : normal(route, options);
+    await assert.rejects(release({...f, publish: true}), /does not point directly to/);
     assert.equal(mutations(f).length, 0);
   });
 }
+
+for (const draft of [false, true]) {
+  test("existing " + (draft ? "draft" : "published") + " release aborts even with matching tag", async () => {
+    const f = fixture(), normal = f.request;
+    f.request = (route, options) => {
+      if (route === "releases/tags/v1.1.0") return {status: 200, data: {draft}};
+      if (route === "git/ref/tags/v1.1.0") return {status: 200, data: {object: {type: "commit", sha}}};
+      return normal(route, options);
+    };
+    await assert.rejects(release({...f, publish: true}), /Release .* already exists/);
+    assert.equal(mutations(f).length, 0);
+  });
+}
+
+test("release availability errors prevent a retry with an existing matching tag", async () => {
+  const f = fixture(), normal = f.request;
+  f.request = (route, options) => {
+    if (route === "releases/tags/v1.1.0") return {status: 403, data: {}};
+    if (route === "git/ref/tags/v1.1.0") return {status: 200, data: {object: {type: "commit", sha}}};
+    return normal(route, options);
+  };
+  await assert.rejects(release({...f, publish: true}), /Cannot verify/);
+  assert.equal(mutations(f).length, 0);
+});
+
+test("retry after failed release creation reuses the tag without changing it", async () => {
+  const f = fixture(), normal = f.request, command = f.command;
+  let tagExists = false, failUpload = true;
+  f.request = (route, options) => {
+    if (route === "git/ref/tags/v1.1.0" && tagExists) {
+      f.calls.push({route, options});
+      return {status: 200, data: {object: {type: "commit", sha}}};
+    }
+    if (route === "git/refs") tagExists = true;
+    return normal(route, options);
+  };
+  f.command = (name, args) => {
+    const result = command(name, args);
+    if (name === "gh" && failUpload) throw new Error("Synthetic release failure");
+    return result;
+  };
+  await assert.rejects(release({...f, publish: true}), /Synthetic release failure/);
+  assert.equal(tagExists, true);
+  failUpload = false;
+  assert.equal(await release({...f, publish: true}), "v1.1.0");
+  assert.equal(f.calls.filter(c => c.route === "git/refs").length, 1);
+  assert.equal(f.calls.filter(c => c.name === "gh").length, 2);
+});
 
 test("permission/network uncertainty is not mistaken for an absent tag", async () => {
   const f = fixture(), normal = f.request;

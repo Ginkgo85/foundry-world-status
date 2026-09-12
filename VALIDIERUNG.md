@@ -4,14 +4,14 @@ Prüfdatum: 12. September 2026. Release erzeugt: Nein.
 
 ## Ergebnisse dieses Durchlaufs
 
-- Node 24.19.0 / npm 12.0.2 ohne Core: **105 Tests, 101 bestanden, 0 Fehler, 4 erwartete Skips**.
-- Mit lokalem Foundry-Core 14.367: **105 Tests, 105 bestanden, 0 Fehler, 0 Skips**.
+- Node 24.19.0 / npm 12.0.2 ohne Core: **112 Tests, 108 bestanden, 0 Fehler, 4 erwartete Skips**.
+- Mit lokalem Foundry-Core 14.367: **112 Tests, 112 bestanden, 0 Fehler, 0 Skips**.
 - npm-Vorprüfung: JavaScript-Syntax, JSON, Release-Metadaten und bekannte Secret-Muster bestanden.
 - npm run build:release und npm run test:release bestanden: 14 ZIP-Dateien, Root-Manifest und separate Manifest-Kopie.
 - Zweimaliger Build bytegleich; ZIP-Einträge, CRC32 und Quellenvergleich bestanden.
 - CI, Release und CodeQL mit actionlint 1.7.12 bestanden; kein separates ShellCheck.
 
-Die 13 neuen Release-Tests prüfen Branch/Commit, bereits vorhandene Tags und Releases, API-Unsicherheit, main-Änderung, konkurrierende Tag-Erstellung, Artefaktfehler, Versionsableitung, Secret-Muster und Workflow-Reihenfolge. Alle Remote-Zugriffe und Veröffentlichungen sind simuliert.
+Die 20 Release-Tests prüfen zusätzlich den sicheren Wiederholungsfall mit passendem Tag ohne Release, den kompletten simulierten Teilfehler mit anschließendem Wiederholungsversuch, abweichende oder unklare Tag-Ziele und vorhandene Releases einschließlich Entwürfen. Weiterhin geprüft sind Branch/Commit, API-Unsicherheit, main-Änderung, konkurrierende Tag-Erstellung, Artefaktfehler, Versionsableitung, Secret-Muster und Workflow-Reihenfolge. Alle Remote-Zugriffe und Veröffentlichungen sind simuliert.
 
 Die 92 bestehenden Tests bleiben enthalten: optionaler Linktext, Sonderzeichen, leere gespeicherte Werte, Vorschau, clientlokaler Speicher, Migration, Teilfehler und erneutes Speichern, Versand, Status, Logout und Setup sowie Build-/Pfadprüfungen.
 
@@ -53,6 +53,6 @@ Keine Zugangsdaten in Berichte, Screenshots oder Git aufnehmen. Client Storage i
 
 ## Nicht geprüft
 
-Echte Discord-Zustellung und laufende Produktivwelt, konkrete Docker-/Proxy-/TLS-Umgebung, GitHub-Ausführung der neuen Workflows und erste echte automatisierte Veröffentlichung. Lokales actionlint und simulierte Release-Tests ersetzen diese Nachweise nicht.
+Echte Discord-Zustellung und laufende Produktivwelt, konkrete Docker-/Proxy-/TLS-Umgebung, GitHub-Ausführung dieser Änderung und erste echte automatisierte Veröffentlichung. CI und CodeQL des vorherigen Commits 0a89485 waren erfolgreich; die Läufe dieser Änderung werden nach dem Push gesondert geprüft. Lokales actionlint und simulierte Release-Tests ersetzen diese Nachweise nicht.
 
 [Einrichtungsbericht](REVIEW.md) · [Release-Kurzanleitung](PUBLISHING.md)

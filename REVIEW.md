@@ -16,7 +16,7 @@ Künftiger Release: **GitHub → Actions → Release → Run workflow → main**
 
 CI benötigt contents: read; Release erhält ausdrücklich contents: write. Das automatische GITHUB_TOKEN genügt. Keine zusätzlichen persönlichen/Foundry-Tokens und keine pauschale Änderung der Repository-Standardrechte erforderlich. Actions muss erlaubt sein; Organisationseinschränkungen könnten zusätzlich greifen, wurden aber nicht festgestellt oder geändert.
 
-Release wird nur bei erfolgreicher eigener Test-/Build-/Artefaktprüfung ausgeführt. Nicht-main-Starts, ein abweichender oder inzwischen überholter Commit, vorhandene Tags/Releases und API-Fehler stoppen den Ablauf. Atomare Tag-Erstellung verhindert Überschreiben bei einem konkurrierend angelegten Tag. Concurrency lässt nur einen Release-Vorgang gleichzeitig laufen. Nach Teilfehlern werden vorhandene Tags/Entwürfe nicht stillschweigend ersetzt.
+Release wird nur bei erfolgreicher eigener Test-/Build-/Artefaktprüfung ausgeführt. Nicht-main-Starts, ein abweichender oder inzwischen überholter Commit, vorhandene Releases, abweichende Tag-Ziele und API-Fehler stoppen den Ablauf. Ein vorhandener Tag direkt auf GITHUB_SHA ohne zugehörigen Release erlaubt einen sicheren Wiederholungsversuch. Atomare Tag-Erstellung verhindert Überschreiben bei einem konkurrierend angelegten Tag. Concurrency lässt nur einen Release-Vorgang gleichzeitig laufen. Nach Teilfehlern werden vorhandene Tags/Entwürfe nicht stillschweigend ersetzt.
 
 Historischer Tag v.1.0.0 bleibt unverändert. release/ bleibt durch .gitignore ausgeschlossen und wird nicht committed.
 
@@ -34,18 +34,18 @@ Node 24 bleibt die feste Major-Version. Lokal ausgeführt mit Node 24.19.0 und t
 
 ## Testergebnisse
 
-- npm test ohne Core: **105 Tests, 101 bestanden, 0 Fehler, 4 erwartete Core-Skips**.
-- npm test mit lokalem Core 14.367: **105 Tests, 105 bestanden, 0 Fehler, 0 Skips**.
+- npm test ohne Core: **112 Tests, 108 bestanden, 0 Fehler, 4 erwartete Core-Skips**.
+- npm test mit lokalem Core 14.367: **112 Tests, 112 bestanden, 0 Fehler, 0 Skips**.
 - npm test führt die Vorprüfung automatisch aus: 15 JS/MJS-Dateien, 3 Quell-JSON-Dateien, Metadaten und bekannte Secret-Muster.
 - npm run build:release und npm run test:release: bestanden; 14 Dateien, Root-Manifest, separate Manifest-Kopie identisch.
 - Zwei Builds bytegleich; Node prüft Verzeichnis, CRC32 und Inhalte gegen Quellen.
 - Drei Workflow-Dateien mit actionlint 1.7.12: bestanden, ohne separates ShellCheck.
-- Neue Tests simulieren falschen Branch/Commit, vorhandenen Tag/Release, fehlende API-Rechte, veränderten main, Tag-Rennen und ungültige Artefakte ohne echte Veröffentlichung.
+- 20 Release-Tests simulieren unter anderem den Wiederholungsfall nach fehlgeschlagener Release-Erstellung, passende und abweichende Tag-Ziele, vorhandene Releases/Entwürfe, API-Unsicherheit und Tag-Rennen ohne echte Veröffentlichung.
 - Workflow-Reihenfolge und die normale Erfolgsvoraussetzung für den Publish-Schritt sind geprüft; keine continue-on-error-/always-Ausnahme. Ein echter fehlgeschlagener GitHub-Lauf wurde nicht ausgelöst.
 
 Die bisherigen Runtime-Regressionstests bestätigen optionalen Linktext, Escaping, Vorschau, dauerhaft leere Werte, clientlokalen Webhook, Migration, neutrale Speicherfehler und Logout/Setup. Browserprogramme bleiben verfügbar; in diesem Durchlauf nicht erneut ausgeführt, da die Laufzeitdateien gegenüber dem zuvor geprüften Kandidaten unverändert sind.
 
-## Stand vor dem ersten Push
+## Stand vor dem Push der Wiederholungshärtung
 
 Die GitHub-Anmeldung für Ginkgo85 und die Git-Anbindung sind eingerichtet. Der Remote zeigt auf Ginkgo85/foundry-world-status, der Branch ist main und der Arbeitsstand enthält keine fremden Änderungen. Der vorhandene lokale Commit bleibt unverändert. Nach dem Push werden CI und CodeQL für den exakten GitHub-Commit kontrolliert. Der Release-Workflow wird dabei nicht gestartet.
 

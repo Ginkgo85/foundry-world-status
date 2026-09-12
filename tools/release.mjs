@@ -35,16 +35,28 @@ export async function release({publish = false, env = process.env, command = run
   if (main.status !== 200 || main.data.commit?.sha !== env.GITHUB_SHA) {
     throw new Error("main changed or cannot be verified. Start a new workflow on main.");
   }
-  for (const route of ["git/ref/tags/" + tag, "releases/tags/" + tag]) {
-    const result = await request(route);
-    if (result.status === 200) throw new Error(tag + " already exists. Use a new version; nothing will be replaced.");
-    if (result.status !== 404) throw new Error("Cannot verify tag/release availability (HTTP " + result.status + ").");
+  const existingRelease = await request("releases/tags/" + tag);
+  if (existingRelease.status === 200) {
+    throw new Error("Release " + tag + " already exists. Nothing will be replaced.");
+  }
+  if (existingRelease.status !== 404) {
+    throw new Error("Cannot verify release availability (HTTP " + existingRelease.status + ").");
+  }
+  const existingTag = await request("git/ref/tags/" + tag);
+  if (existingTag.status === 200) {
+    if (existingTag.data.object?.type !== "commit" || existingTag.data.object.sha !== env.GITHUB_SHA) {
+      throw new Error("Tag " + tag + " does not point directly to GITHUB_SHA. Nothing will be changed.");
+    }
+  } else if (existingTag.status !== 404) {
+    throw new Error("Cannot verify tag availability (HTTP " + existingTag.status + ").");
   }
   if (!publish) return tag;
-  // Atomic ref creation fails if somebody created this tag since the checks. Never force/update.
-  const created = await request("git/refs", {method: "POST", body: {ref: "refs/tags/" + tag, sha: env.GITHUB_SHA}});
-  if (created.status !== 201 || created.data.object?.sha !== env.GITHUB_SHA) {
-    throw new Error("Tag creation was not confirmed. No release upload attempted.");
+  if (existingTag.status === 404) {
+    // Atomic creation fails on a race. A later run may reuse only this exact commit.
+    const created = await request("git/refs", {method: "POST", body: {ref: "refs/tags/" + tag, sha: env.GITHUB_SHA}});
+    if (created.status !== 201 || created.data.object?.sha !== env.GITHUB_SHA) {
+      throw new Error("Tag creation was not confirmed. No release upload attempted.");
+    }
   }
   command("gh", ["release", "create", tag, "release/module.json", "release/foundry-world-status.zip",
     "--repo", repository, "--verify-tag", "--target", env.GITHUB_SHA, "--title", tag, "--generate-notes"]);

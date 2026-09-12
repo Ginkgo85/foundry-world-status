@@ -21,7 +21,9 @@ GitHub prüft den aktuellen Stand erneut, baut und prüft das Paket, erstellt de
 
 ## Falls der Workflow abbricht
 
-- „Tag/Release bereits vorhanden“: Für eine Korrektur eine neue Version vorbereiten lassen, beispielsweise 1.1.1. Vorhandene Releases bleiben unverändert.
+- Tag vorhanden, Release fehlt: Ein erneuter Lauf darf den Tag unverändert verwenden, wenn er direkt auf denselben geprüften GITHUB_SHA zeigt. Der Commit muss weiterhin der aktuelle main sein.
+- Tag zeigt auf einen anderen Commit: Abbruch. Den Tag niemals verschieben oder löschen; eine neue Version vorbereiten.
+- Release bereits vorhanden, auch als Entwurf: Abbruch. Vorhandene Releases und Assets werden niemals aktualisiert oder ersetzt. Für eine Korrektur eine neue Version vorbereiten.
 - „main changed“: Den Workflow auf main erneut starten.
 - Andere Fehler: Den fehlgeschlagenen Lauf von Codex prüfen lassen. Nach einem teilweise fehlgeschlagenen Upload vorhandene Tags oder Entwürfe nicht eigenständig ersetzen.
 
