@@ -50,20 +50,16 @@ Für einen Rollenping die numerische Discord-Rollen-ID eintragen. Nur diese Roll
 
 ## Einblick in die Einstellungen
 
-**Verbindung und Discord-Vorschau:** Webhook, Serveradresse und Absender lassen sich im Einstellungsfenster konfigurieren.
-
-![Verbindungseinstellungen mit leeren Eingabefeldern und Discord-Vorschau](https://raw.githubusercontent.com/Ginkgo85/foundry-world-status/main/docs/images/settings-connection.png)
+![Vorschau der Moduleinstellungen](https://raw.githubusercontent.com/Ginkgo85/foundry-world-status/main/docs/images/settings-connection.png)
 
 <details>
-<summary>OFFLINE-Einstellungen und Vorschau ansehen</summary>
+<summary>Weitere Vorschau anzeigen</summary>
 
-Die zweite Ansicht zeigt die anpassbare OFFLINE-Nachricht sowie die Schaltflächen zum Testen und Speichern.
-
-**Hinweis:** Die Bilder stammen aus einem früheren Stand. Aktuell wird automatisches OFFLINE nur vor **„Zurück zum Setup“** gesendet, nicht beim Abmelden. Die Beschriftung zur Abmelde-Automatik im Bild ist veraltet.
-
-![OFFLINE-Einstellungen und Discord-Vorschau mit Test- und Speichern-Schaltflächen](https://raw.githubusercontent.com/Ginkgo85/foundry-world-status/main/docs/images/settings-offline.png)
+![Weitere Vorschau der Moduleinstellungen](https://raw.githubusercontent.com/Ginkgo85/foundry-world-status/main/docs/images/settings-offline.png)
 
 </details>
+
+*Die Bilder dienen als Vorschau und können von der aktuellen Version abweichen.*
 
 ## Der ON/OFF-Button
 
