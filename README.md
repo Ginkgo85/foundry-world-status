@@ -20,12 +20,18 @@ Kündige deine Spielrunde mit einem Klick auf Discord als **ONLINE** oder **OFFL
 
 ## Installation
 
-1. Die bereitgestellte **foundry-world-status.zip** herunterladen.
-2. In `Data/modules/foundry-world-status/` entpacken. `module.json` liegt direkt im ZIP-Root und muss anschließend direkt im Modulordner liegen.
-3. Foundry neu starten beziehungsweise die Module neu laden.
-4. Die Welt öffnen und unter **Einstellungen → Module verwalten** das Modul aktivieren. Anschließend die Welt neu laden.
+1. In Foundrys Setup **Add-on-Module → Modul installieren** öffnen.
+2. Den folgenden Manifest-Link kopieren, einfügen und installieren:
 
-Bei einem Update den bisherigen Modulordner sichern und durch den neuen ZIP-Inhalt ersetzen. **Keine World-Daten löschen.** Diese Fassung wird manuell installiert und enthält keine automatische Manifest-/Download-URL.
+   ```text
+   https://github.com/Ginkgo85/foundry-world-status/releases/latest/download/module.json
+   ```
+
+3. Die Welt öffnen und unter **Einstellungen → Module verwalten** das Modul aktivieren. Anschließend die Welt neu laden.
+
+Alternativ: [Release-ZIP herunterladen](https://github.com/Ginkgo85/foundry-world-status/releases/download/v.1.0.0/foundry-world-status.zip) und in `Data/modules/foundry-world-status/` entpacken. `module.json` liegt direkt im ZIP-Root und muss anschließend direkt im Modulordner liegen. Foundry danach neu starten beziehungsweise die Module neu laden.
+
+Bei einem manuellen Update den bisherigen Modulordner sichern und durch den neuen ZIP-Inhalt ersetzen. **Keine World-Daten löschen.**
 
 ## In wenigen Schritten startklar
 
@@ -82,7 +88,7 @@ Bereits verteilte Webhooks und Backups lassen sich durch die Übernahme nicht zu
 </details>
 
 - [Änderungen](CHANGELOG.md) · Prüfbericht und Entwicklungsanleitung liegen im Projekt unter `VALIDIERUNG.md` und `CONTRIBUTING.md`.
-- [Fehler melden](https://github.com/Ginkgo85/foundry-discord-announcer/issues) – bitte ohne Webhook-URLs oder private World-Daten.
+- [Fehler melden](https://github.com/Ginkgo85/foundry-world-status/issues) – bitte ohne Webhook-URLs oder private World-Daten.
 
 Bei **CORS-/Netzwerkfehlern** sendet der GM-Browser direkt an Discord, auch bei Docker-Hosting. Der Formularversand vermeidet eine zusätzliche JSON-OPTIONS-Vorabprüfung; die Antwort muss weiterhin per CORS lesbar sein. Browser-Erweiterungen, DNS, TLS oder eine Content-Security-Policy können die Verbindung blockieren. Ein zweiter Browser hilft beim Eingrenzen. Vor erneutem Senden im Discord-Kanal nachsehen, um doppelte Nachrichten zu vermeiden.
 
@@ -90,8 +96,6 @@ Bei teilweise fehlgeschlagenem Speichern kann der lokale Webhook bereits geände
 
 ## Lizenz und Autor
 
-[MIT-Lizenz](LICENSE) · Copyright (c) 2026 Frank · [Ginkgo85 / Projektseite](https://github.com/Ginkgo85/foundry-discord-announcer)
-
-Das GitHub-Repository trägt vorerst noch den früheren Namen.
+[MIT-Lizenz](LICENSE) · Copyright (c) 2026 Frank · [Ginkgo85 / Projektseite](https://github.com/Ginkgo85/foundry-world-status)
 
 Discord und das Discord-Logo sind Marken von Discord Inc. Dieses Modul ist weder offiziell mit Discord Inc. verbunden noch von ihr unterstützt. Foundry Virtual Tabletop und zugehörige Marken gehören Foundry Gaming LLC; dieses Modul ist kein offizielles Foundry-Gaming-Produkt.
