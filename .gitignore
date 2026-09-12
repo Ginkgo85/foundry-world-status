@@ -1,0 +1,31 @@
+# Generated release assets are uploaded to GitHub Releases, not committed.
+/release/
+*.zip
+
+# Dependencies, test output and local backups
+node_modules/
+/validation/
+/coverage/
+/backups/
+*.log
+*.bak
+*.tmp
+
+# Secrets and Foundry user data never belong in this source repository.
+.env
+.env.*
+/Data/
+/Config/
+/Logs/
+/worlds/
+
+# Local editor and agent state
+.vscode/
+.idea/
+.codex/
+.agents/
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+*.har

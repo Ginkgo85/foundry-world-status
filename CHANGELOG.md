@@ -1,10 +1,13 @@
 # Changelog
 
-## 1.1.0 – Unreleased
+## 1.1.0
 
-Geplanter nächster manueller Release: `v1.1.0`. Noch nicht veröffentlicht.
+Version 1.1.0 wird über den manuell gestarteten GitHub-Workflow Release veröffentlicht; Tag: v1.1.0.
 
 ### Neu und korrigiert
+
+- GitHub Actions prüft Änderungen auf main und Pull Requests. Ein separat gestarteter Release-Workflow prüft erneut und erzeugt Tag, Release und Assets ohne manuelle Uploads.
+- Version wird aus module.json abgeleitet; vorhandene Tags und Releases werden nicht ersetzt.
 
 - ONLINE-Linktext ist optional. Mit Text erscheint ein Markdown-Link; ohne Text die Server-URL. Bewusst leere Werte bleiben gespeichert.
 - Sonderzeichen im Linktext werden maskiert, URL-Klammern im Markdown-Ziel kodiert. Embed-Titel und Serverlink zeigen auf dieselbe Welt.
@@ -22,6 +25,6 @@ Browserlokale Webhook-Speicherung nach Welt und GM, geprüfte Migration, GM-only
 
 Erster manueller Release der Identität Foundry World Status. Der Tag `v.1.0.0` bleibt unverändert. Nachfolgende Repository-Korrekturen an README und Manifest befinden sich auf `main`; Tag und heutiger Hauptzweig sind deshalb nicht identisch.
 
-Ab `v1.1.0` sollen Quellstand, Version, Tag, separates Manifest und ZIP vor der manuellen Veröffentlichung gemeinsam geprüft werden. Historische Release-Dateien werden dafür nicht ersetzt.
+Ab v1.1.0 prüft der manuell gestartete Release-Workflow Quellstand, Version, Tag, separates Manifest und ZIP gemeinsam vor der Veröffentlichung. Historische Release-Dateien werden dafür nicht ersetzt.
 
 Die ältere Modul-ID `foundry-discord-announcer` wird nicht automatisch übernommen. Beim Wechsel Einstellungen und Webhook manuell als GM übertragen.

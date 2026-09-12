@@ -1,0 +1,23 @@
+{
+  "name": "foundry-world-status",
+  "version": "1.1.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "author": "Ginkgo85",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Ginkgo85/foundry-world-status.git"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "test:browser": "node tests/browser-check.mjs",
+    "test:cors": "node tests/cors-browser-check.mjs",
+    "build:release": "node tools/build-release.mjs",
+    "pretest": "node tools/check-project.mjs",
+    "test:release": "node tools/verify-release.mjs"
+  }
+}

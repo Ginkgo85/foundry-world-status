@@ -1,0 +1,8 @@
+# type(scope): summary
+# Types: feat, fix, security, refactor, docs, test, build, ci, chore
+# Imperative; no final period; prefer <50, maximum about 72 characters.
+#
+# After a blank line explain what changed and why.
+# Wrap body lines at 72 characters. Include only tests actually performed.
+# One logical change per commit. No secrets or invented issue numbers.
+# Do not list AI tools as Co-authored-by.

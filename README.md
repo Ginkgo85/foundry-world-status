@@ -1,10 +1,10 @@
 # Foundry World Status
 
-Release-Kandidat **1.1.0** · Foundry VTT **14.367** · Nur für GMs · Keine Modulabhängigkeiten
+Version **1.1.0** · Foundry VTT **14.367** · Nur für GMs · Keine Modulabhängigkeiten
 
 **Status: Community Release / In Development**
 
-Dieses Modul wird über GitHub verteilt und ist nicht im offiziellen Foundry-VTT-Paketverzeichnis gelistet. Version 1.1.0 ist vorbereitet, aber noch nicht veröffentlicht.
+Dieses Modul wird über GitHub verteilt und ist nicht im offiziellen Foundry-VTT-Paketverzeichnis gelistet. Veröffentlichte Pakete findest du auf der GitHub-Releases-Seite.
 
 Kündige deine Spielrunde mit einem Klick auf Discord als **ONLINE** oder **OFFLINE** an – mit anpassbarer Nachricht und direktem Link zu deiner Foundry-Spielwelt.
 
@@ -20,7 +20,7 @@ Kündige deine Spielrunde mit einem Klick auf Discord als **ONLINE** oder **OFFL
 
 ## Installation
 
-Der feste Manifest-Link installiert den jeweils veröffentlichten neuesten Release. Er liefert den Kandidaten 1.1.0 erst nach dessen Veröffentlichung.
+Der feste Manifest-Link installiert den jeweils veröffentlichten neuesten Release. Eine neue Version wird darüber erst nach ihrer Veröffentlichung verfügbar.
 
 1. In Foundrys Setup **Add-on-Module → Modul installieren** öffnen.
 2. Den folgenden Manifest-Link kopieren, einfügen und installieren:

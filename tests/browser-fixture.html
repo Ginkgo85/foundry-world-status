@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><title>Foundry World Status – lokale UI-Prüfung</title>
+<link rel="stylesheet" href="/core/css/foundry2.css">
+<link rel="stylesheet" href="/core/fonts/fontawesome/css/all.min.css">
+<link rel="stylesheet" href="/modules/foundry-world-status/styles/foundry-world-status.css">
+<style>
+body {background: #18181e; margin: 0; font-family: Arial,sans-serif;}
+.fixture-note {position:absolute; top:16px; left:80px; color:#ccc; font-size:13px;}
+#fixture-form {position:absolute; left:80px; top:54px; width:800px; height:760px;}
+#fixture-form .window-content {flex:1; min-height:0; padding:16px;}
+#fixture-form .window-header {padding:12px 16px;}
+#scene-controls {position:absolute; top:80px; left:16px;}
+#scene-controls menu {margin:0; padding:0; list-style:none;}
+#messages {position:absolute; top:825px; left:80px; color:#baffd8; max-width:800px;}
+</style></head>
+<body class="theme-dark"><p class="fixture-note">Lokale UI-Prüfung · echte V14.367-Styles und Formularauswertung · Discord-Anfragen simuliert</p>
+<aside id="scene-controls"></aside>
+<form id="fixture-form" class="application fws-settings"><header class="window-header"><h1 class="window-title">Foundry World Status</h1></header><section class="window-content"></section></form>
+<div id="messages" role="status"></div><button id="fixture-logout" style="position:absolute;left:80px;top:875px;width:200px">Abmelden (Prüfung)</button>
+<script src="/handlebars.js"></script>
+<script type="module">
+import FormDataExtended from "/form-data-extended.mjs";
+const lang = await (await fetch("/modules/foundry-world-status/lang/de.json")).json();
+const localize = key => key.split(".").reduce((o, k) => o?.[k], lang) ?? key;
+const hooks = new Map(), values = new Map(), configs = new Map();
+window.Hooks = {once: (name, fn) => hooks.set(name, fn), on: (name, fn) => hooks.set(name, fn)};
+window.game = {ready: true, world: {id: "test-world"}, user: {id: "test-gm", isGM: true}, users: [], shutDown: async () => {},
+  logOut() {
+    sessionStorage.setItem("logout-check", JSON.stringify({online:values.get("online"), shutdownRequests:window.fixture.shutdownRequests.length}));
+    window.location.href = "/logout-complete";
+  },
+  i18n: {localize, format: (key, data) => localize(key).replace(/\{(\w+)\}/g, (_, k) => data[k])},
+  settings: {
+    register: (_m, key, config) => {configs.set(key, config); if (!values.has(key)) values.set(key, config.default);},
+    registerMenu: () => {}, get: (_m, key) => structuredClone(values.get(key)),
+    set: async (_m, key, value) => {values.set(key, structuredClone(value)); configs.get(key)?.onChange?.(value);}
+  }
+};
+class ApplicationV2 {async _prepareContext() {return {};} async _onRender() {} _canRender() {}}
+window.foundry = {
+  applications: {api: {ApplicationV2, HandlebarsApplicationMixin: cls => class extends cls {}}, elements: {}},
+  data: {fields: {BooleanField: class {}}},
+  utils: {getType: value => Object.prototype.toString.call(value).slice(8,-1), isElementInstanceOf: (value, type) => value instanceof type,
+    getRoute: route => `/prefix/${route}`,
+    fetchWithTimeout: async (url, options) => {window.fixture.shutdownRequests.push({url, options}); return {ok:true};}}
+};
+// FormDataExtended knows native and Foundry custom input classes. This form has native fields only.
+for (const name of ["AbstractFormInputElement", "HTMLMultiSelectElement", "HTMLStringTagsElement", "HTMLDocumentTagsElement", "HTMLFilePickerElement", "HTMLColorPickerElement", "HTMLRangePickerElement", "HTMLProseMirrorElement"]) foundry.applications.elements[name] = class extends HTMLElement {};
+Handlebars.registerHelper("localize", localize);
+Handlebars.registerHelper("checked", value => value ? "checked" : "");
+const toolsTemplate = Handlebars.compile(await (await fetch("/scene-controls-tools.hbs")).text());
+window.ui = {
+  notifications: Object.fromEntries(["info", "error", "warn"].map(level => [level, text => {document.querySelector("#messages").textContent = text;} ])),
+  controls: {controls: {tokens: {name:"tokens",tools:{select:{name:"select", order:0, icon:"fa-solid fa-expand", title:"Auswählen"}}}},
+    async render() {
+      const tools = Object.values(this.controls.tokens.tools);
+      document.querySelector("#scene-controls").innerHTML = toolsTemplate({tools});
+      for (const button of document.querySelectorAll("#scene-controls button")) button.onclick = event => this.controls.tokens.tools[button.dataset.tool].onChange?.(event, true);
+    }
+  }
+};
+const main = await import("/modules/foundry-world-status/scripts/main.js");
+const {WorldStatusSettings} = await import("/modules/foundry-world-status/scripts/settings.js");
+hooks.get("init")(); main.addSceneTools(ui.controls.controls); hooks.get("ready")(); await ui.controls.render();
+const app = new WorldStatusSettings(); app.element = document.querySelector("#fixture-form");
+async function renderSettings() {
+  const context = await app._prepareContext({});
+  const template = Handlebars.compile(await (await fetch("/modules/foundry-world-status/templates/settings.hbs")).text());
+  app.element.querySelector(".window-content").innerHTML = template(context);
+  await app._onRender(context, {});
+  app.element.onsubmit = event => {event.preventDefault(); WorldStatusSettings.save.call(app, event, app.element, new FormDataExtended(app.element));};
+  app.element.onclick = event => {
+    const target = event.target.closest("[data-action]");
+    if (target && !target.disabled) WorldStatusSettings.DEFAULT_OPTIONS.actions[target.dataset.action]?.call(app, event, target);
+  };
+}
+await renderSettings();
+window.fixture = {app, values, renderSettings, shutdownRequests: []};
+document.querySelector("#fixture-logout").onclick = () => game.logOut();
+</script></body></html>
