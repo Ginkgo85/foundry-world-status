@@ -127,7 +127,9 @@ export async function saveConfig(config) {
   const {webhookUrl: secret, ...publicConfig} = config;
   await writeLocalWebhook(secret);
   assertGM();
-  await game.settings.set(MODULE_ID, "configuration", publicConfig);
+  // A failed world write leaves the verified local copy intact; retry is safe.
+  try { await game.settings.set(MODULE_ID, "configuration", publicConfig); }
+  catch { throw new WorldStatusError("settingsSave"); }
 }
 
 export function normalizeConfig(values) {
@@ -144,6 +146,22 @@ export function httpUrl(value, code = "url") {
   } catch {
     throw new WorldStatusError(code);
   }
+}
+
+/** Escape formatting and link delimiters; keep custom labels as plain text. */
+export function escapeLinkText(value) {
+  return value.replace(/([\\\[\]()*_`~|<>])/g, "\\$1").replace(/[\r\n]+/g, " ");
+}
+
+export function onlineDescription(config) {
+  if (!config.serverUrl) return config.onlineDescription;
+  const url = httpUrl(config.serverUrl, "server");
+  if (url.length > LIMITS.serverUrl) throw new WorldStatusError("server");
+  const text = config.onlineLinkText.trim();
+  // Parentheses are valid URL characters but delimit Markdown link destinations.
+  const destination = url.replace(/\(/g, "%28").replace(/\)/g, "%29");
+  const link = text ? `[${escapeLinkText(text)}](${destination})` : url;
+  return [config.onlineDescription, `🔗 ${link}`].filter(Boolean).join("\n\n");
 }
 
 export function webhookUrl(value) {
@@ -177,14 +195,15 @@ export function validateConfig(config) {
   for (const key of ["onlineColor", "offlineColor"]) {
     if (!/^#[0-9a-f]{6}$/i.test(config[key])) throw new WorldStatusError("color");
   }
-  for (const key of ["onlineTitle", "offlineTitle", "onlineLinkText", "username"]) {
+  for (const key of ["onlineTitle", "offlineTitle", "username"]) {
     if (!config[key]) throw new WorldStatusError("required", {field: t(`fields.${key}`)});
   }
   if (config.roleId && !/^\d{17,20}$/.test(config.roleId)) throw new WorldStatusError("role");
   const content = [config.roleId ? `<@&${config.roleId}>` : "", config.content].filter(Boolean).join(" ");
   if (content.length > 2000) throw new WorldStatusError("contentLength");
-  const onlineLength = config.onlineTitle.length + config.onlineDescription.length + config.onlineFooter.length
-    + 3 + config.onlineLinkText.length + (config.serverUrl ? httpUrl(config.serverUrl).length : 0);
+  const description = onlineDescription(config);
+  if (description.length > 4096) throw new WorldStatusError("onlineDescriptionLength");
+  const onlineLength = config.onlineTitle.length + description.length + config.onlineFooter.length;
   const offlineLength = config.offlineTitle.length + config.offlineDescription.length + config.offlineFooter.length;
   if (onlineLength > 6000 || offlineLength > 6000) throw new WorldStatusError("embedLength");
   return config;

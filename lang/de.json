@@ -61,8 +61,8 @@
       "sendOffline": "Deaktiviert: Der zweite Klick setzt nur den gespeicherten Status auf OFF.",
       "autoOfflineOnShutdown": "Nur vor einem Schließversuch über „Zurück zum Setup“, bei Status ON und aktiviertem OFFLINE-Versand. Abmelden verändert den Weltstatus nicht. Kein Monitor für Server oder Browser. Bei Versandfehlern wird das Schließen angehalten. Standard: aus.",
       "onlineTitle": "Maximal 256 Zeichen.",
-      "onlineDescription": "Discord-Markdown ist erlaubt. Maximal 4096 Zeichen.",
-      "onlineLinkText": "Beschriftung über der anklickbaren Serveradresse. Maximal 254 Zeichen.",
+      "onlineDescription": "Discord-Markdown ist erlaubt. Beschreibung und angehängter Serverlink zusammen: maximal 4096 Zeichen.",
+      "onlineLinkText": "Optional. Leer: Die Server-URL wird angezeigt. Maximal 254 Zeichen.",
       "onlineColor": "Farbe der linken Embed-Leiste.",
       "onlineFooter": "Optional. Maximal 2048 Zeichen.",
       "onlineThumbnail": "Optional. Öffentlich erreichbare Bild-URL.",
@@ -102,7 +102,8 @@
       "migrationRequired": "Die bisher gemeinsam gespeicherte Webhook-URL muss zuerst lokal übernommen werden. Moduleinstellungen erneut öffnen.",
       "migrationFailed": "Webhook-Übernahme nicht abgeschlossen. Vorhandene Werte bleiben erhalten. Browser-Speicher und Foundry-Verbindung prüfen; Einstellungen erneut öffnen.",
       "migrationConflict": "Lokaler und gemeinsam gespeicherter Webhook unterscheiden sich. Nichts wurde überschrieben oder entfernt. Migration gemäß README klären.",
-      "localStorage": "Lokaler Webhook-Speicher nicht verfügbar. Browser-Speicher prüfen; die World-Einstellungen bleiben erhalten."
+      "localStorage": "Lokaler Webhook-Speicher nicht verfügbar. Browser-Speicher prüfen; die World-Einstellungen bleiben erhalten.",
+      "onlineDescriptionLength": "ONLINE-Beschreibung und Serverlink einschließlich Discord-Markdown dürfen zusammen maximal 4096 Zeichen enthalten. Bitte Beschreibung oder Link kürzen."
     }
   }
 }

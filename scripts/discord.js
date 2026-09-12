@@ -1,4 +1,4 @@
-import {WorldStatusError, assertGM, httpUrl, validateConfig, webhookUrl} from "./config.js";
+import {WorldStatusError, assertGM, httpUrl, onlineDescription, validateConfig, webhookUrl} from "./config.js";
 
 let busy = false;
 let nextClickAt = 0;
@@ -34,7 +34,7 @@ export function buildPayload(config, online) {
     const url = httpUrl(config.serverUrl, "server");
     if (url.length > 1024) throw new WorldStatusError("server");
     embed.url = url;
-    embed.fields = [{name: `🔗 ${config.onlineLinkText}`, value: url, inline: false}];
+    embed.description = onlineDescription(config);
     if (config.onlineThumbnail) embed.thumbnail = {url: httpUrl(config.onlineThumbnail)};
     if (config.onlineImage) embed.image = {url: httpUrl(config.onlineImage)};
   }

@@ -60,7 +60,7 @@ export class WorldStatusSettings extends HandlebarsApplicationMixin(ApplicationV
         type: key === "webhookUrl" ? "password" : key.endsWith("Color") ? "color"
           : ["serverUrl", "avatarUrl", "onlineThumbnail", "onlineImage"].includes(key) ? "url" : "text",
         maxLength: LIMITS[key],
-        required: ["onlineTitle", "offlineTitle", "onlineLinkText", "username"].includes(key)
+        required: ["onlineTitle", "offlineTitle", "username"].includes(key)
       }))
     }));
     return context;
@@ -99,14 +99,17 @@ export class WorldStatusSettings extends HandlebarsApplicationMixin(ApplicationV
     // Plain text assignments prevent configured HTML from executing in the GM's browser.
     for (const [selector, key] of Object.entries({
       ".fws-preview-user": "username", ".fws-preview-title": "onlineTitle",
-      ".fws-preview-description": "onlineDescription", ".fws-preview-footer": "onlineFooter",
-      ".fws-preview-link-label": "onlineLinkText", ".fws-preview-link": "serverUrl"
+      ".fws-preview-description": "onlineDescription", ".fws-preview-footer": "onlineFooter"
     })) preview.querySelector(selector).textContent = values[key];
     preview.querySelector(".fws-preview-content").textContent =
       [values.roleId ? `<@&${values.roleId}>` : "", values.content].filter(Boolean).join(" ");
     preview.querySelector(".fws-embed").style.borderColor = /^#[0-9a-f]{6}$/i.test(values.onlineColor) ? values.onlineColor : "#2ecc71";
     const link = preview.querySelector(".fws-preview-link");
-    try { link.href = httpUrl(values.serverUrl); } catch { link.removeAttribute("href"); }
+    link.textContent = values.onlineLinkText || values.serverUrl;
+    try {
+      link.href = httpUrl(values.serverUrl);
+      if (!values.onlineLinkText) link.textContent = link.href;
+    } catch { link.removeAttribute("href"); }
   }
 
   static async save(_event, _form, formData) {

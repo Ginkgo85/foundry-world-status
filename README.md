@@ -1,10 +1,10 @@
 # Foundry World Status
 
-Version **1.0.0** · Foundry VTT **14.367** · Nur für GMs · Keine Modulabhängigkeiten
+Release-Kandidat **1.1.0** · Foundry VTT **14.367** · Nur für GMs · Keine Modulabhängigkeiten
 
-**Status: In Development / Unreleased**
+**Status: Community Release / In Development**
 
-Das Modul wird privat beziehungsweise manuell als ZIP oder über GitHub weitergegeben. Die aktuellen Änderungen sind noch nicht als neuer Release veröffentlicht.
+Dieses Modul wird über GitHub verteilt und ist nicht im offiziellen Foundry-VTT-Paketverzeichnis gelistet. Version 1.1.0 ist vorbereitet, aber noch nicht veröffentlicht.
 
 Kündige deine Spielrunde mit einem Klick auf Discord als **ONLINE** oder **OFFLINE** an – mit anpassbarer Nachricht und direktem Link zu deiner Foundry-Spielwelt.
 
@@ -20,6 +20,8 @@ Kündige deine Spielrunde mit einem Klick auf Discord als **ONLINE** oder **OFFL
 
 ## Installation
 
+Der feste Manifest-Link installiert den jeweils veröffentlichten neuesten Release. Er liefert den Kandidaten 1.1.0 erst nach dessen Veröffentlichung.
+
 1. In Foundrys Setup **Add-on-Module → Modul installieren** öffnen.
 2. Den folgenden Manifest-Link kopieren, einfügen und installieren:
 
@@ -29,7 +31,7 @@ Kündige deine Spielrunde mit einem Klick auf Discord als **ONLINE** oder **OFFL
 
 3. Die Welt öffnen und unter **Einstellungen → Module verwalten** das Modul aktivieren. Anschließend die Welt neu laden.
 
-Alternativ: [Release-ZIP herunterladen](https://github.com/Ginkgo85/foundry-world-status/releases/download/v.1.0.0/foundry-world-status.zip) und in `Data/modules/foundry-world-status/` entpacken. `module.json` liegt direkt im ZIP-Root und muss anschließend direkt im Modulordner liegen. Foundry danach neu starten beziehungsweise die Module neu laden.
+Alternativ: [ZIP für v1.1.0](https://github.com/Ginkgo85/foundry-world-status/releases/download/v1.1.0/foundry-world-status.zip) (erst nach Veröffentlichung verfügbar) und in `Data/modules/foundry-world-status/` entpacken. `module.json` liegt direkt im ZIP-Root und muss anschließend direkt im Modulordner liegen. Foundry danach neu starten beziehungsweise die Module neu laden.
 
 Bei einem manuellen Update den bisherigen Modulordner sichern und durch den neuen ZIP-Inhalt ersetzen. **Keine World-Daten löschen.**
 
@@ -39,7 +41,7 @@ Bei einem manuellen Update den bisherigen Modulordner sichern und durch den neue
 2. In Foundrys Moduleinstellungen **Foundry World Status → Weltstatus für Discord konfigurieren** öffnen.
 3. **Discord Webhook URL** und die für deine Spieler erreichbare **Foundry Server URL / Wunschdomain** eintragen.
    Mit dem Augen-Button lässt sich die Webhook-URL vorübergehend einblenden; beim erneuten Öffnen ist sie wieder verdeckt.
-4. Nachricht nach Wunsch gestalten. **Discord-Verbindung testen** sendet eine echte Testnachricht, ohne den ON/OFF-Status zu ändern.
+4. Nachricht nach Wunsch gestalten. Der ONLINE-Linktext ist optional: Mit Text wird dieser anklickbar, ohne Text erscheint die Server-URL. Ein bewusst leer gespeichertes Feld bleibt leer. **Discord-Verbindung testen** sendet eine echte Testnachricht, ohne den ON/OFF-Status zu ändern.
 5. **Einstellungen speichern** und den Discord-Button in der linken Werkzeugleiste verwenden.
 
 Für einen Rollenping die numerische Discord-Rollen-ID eintragen. Nur diese Rolle darf bei ONLINE erwähnt werden; `@everyone`, `@here` und Benutzer-Pings sind gesperrt. Discord-Berechtigungen gelten zusätzlich.
@@ -72,7 +74,7 @@ Bei gespeichertem Status ON wird die Nachricht vor dem Schließversuch über **�
 
 Webhook-URLs geheim halten und niemals auf GitHub veröffentlichen. Der Webhook wird **nur im jeweiligen Browser**, getrennt nach Welt und GM, gespeichert. Andere Browser oder Geräte müssen separat eingerichtet werden. Das Löschen der Browserdaten entfernt auch den lokalen Webhook.
 
-Das Passwortfeld verdeckt die URL, verschlüsselt sie aber nicht. Skripte, Erweiterungen oder Personen mit Zugriff auf dasselbe Browserprofil können lokalen Speicher auslesen. Für GM und Spieler getrennte Browserprofile verwenden.
+Client Storage ist kein Secret Vault. Das Passwortfeld verdeckt die URL, verschlüsselt sie aber nicht. Skripte, Erweiterungen oder Personen mit Zugriff auf dasselbe Browserprofil können lokalen Speicher auslesen. Für GM und Spieler getrennte Browserprofile verwenden.
 
 <details>
 <summary>Vorhandene Einstellungen übernehmen</summary>

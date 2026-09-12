@@ -1,33 +1,27 @@
 # Changelog
 
-## Unreleased
+## 1.1.0 – Unreleased
 
-### Security
-- Webhook browserlokal nach Welt und GM speichern.
-- Gemeinsamen Webhook erst nach geprüftem Kopieren entfernen; Fehler und Konflikte ohne Secret-Ausgabe behandeln.
+Geplanter nächster manueller Release: `v1.1.0`. Noch nicht veröffentlicht.
 
-### Fixed
-- GM-Abmelden verändert den gemeinsamen Ankündigungsstatus nicht mehr.
-- Fehler beim Lesen der Konfiguration vor dem Setup-Schließversuch werden abgefangen.
+### Neu und korrigiert
 
-### Changed
-- Bestehende automatische OFFLINE-Option auf den Schließversuch über „Zurück zum Setup“ begrenzen.
-- Manuelle ZIP-Verteilung dokumentieren und unbestätigte Update-/Download-Adressen entfernen.
-- Lokale GitHub-Verweise verwenden das weiterhin vorhandene Repository Ginkgo85/foundry-discord-announcer.
-- Node-Build ohne zusätzliche Abhängigkeiten ersetzt den PowerShell-Build; automatischer Release-Upload entfällt.
-- Conventional Commits, Editor-Konfiguration und Regeln für zukünftige Arbeiten ergänzen.
+- ONLINE-Linktext ist optional. Mit Text erscheint ein Markdown-Link; ohne Text die Server-URL. Bewusst leere Werte bleiben gespeichert.
+- Sonderzeichen im Linktext werden maskiert, URL-Klammern im Markdown-Ziel kodiert. Embed-Titel und Serverlink zeigen auf dieselbe Welt.
+- Vorschau und Feldhinweise angepasst. Beschreibung einschließlich Serverlink wird gegen 4096 Zeichen, das gesamte Embed gegen 6000 Zeichen geprüft.
+- Falsche englische Sprachdeklaration entfernt; tatsächlich vorhanden ist Deutsch.
+- Fehler beim Speichern der Welteinstellungen werden bereits in saveConfig in einen neutralen Fehler umgewandelt. Teilweise Speicherung und erneuter Versuch sind getestet.
+- Lokale Node-Tests, Browserprüfungen, reproduzierbarer ZIP-Build und Entwicklungsdokumentation für die Übernahme ins Repository konsolidiert.
+- Release-Metadaten auf 1.1.0 abgestimmt. Der feste Manifest-Link bleibt der Updatekanal; die Download-Adresse erwartet den zukünftigen Tag v1.1.0.
 
-### Tests
-- Tests für Webhook-Übernahme, Speicherfehler, Konflikte und GM-/Welttrennung ergänzen.
-- Logout-Regression und wiederholbaren ZIP-Build prüfen; bestehende Versand- und Browserprüfungen anpassen.
+### Beibehaltener Stand
 
-## 1.0.0 – lokale Ausgangsbasis
+Browserlokale Webhook-Speicherung nach Welt und GM, geprüfte Migration, GM-only Bedienung, unveränderte Discord-Icons und manuelle Statusankündigungen bleiben erhalten. GM-Logout sendet nichts; die optionale OFFLINE-Ankündigung gilt nur vor „Zurück zum Setup“. Diese Laufzeitkorrekturen waren bereits im geprüften öffentlichen Ausgangsstand enthalten.
 
-Diese Version war vor diesem Review im lokalen Projekt eingetragen. Eine Veröffentlichung dieser neuen Identität auf GitHub wird damit nicht behauptet.
+## 1.0.0 – historischer Release v.1.0.0
 
-- Das zuvor privat entwickelte Foundry Discord Announcer wurde als Foundry World Status mit der neuen technischen Modul-ID foundry-world-status vorbereitet.
-- Dadurch entstanden getrennte Settings; keine automatische Übernahme aus foundry-discord-announcer.
-- GM-only ON/OFF, Webhook-Test, konfigurierbare Embeds, Rollen-Ping, Statusspeicherung und deutschsprachige Oberfläche für Foundry 14.367.
-- Die damalige gemeinsame Automatik vor Abmelden und Setup wurde im aktuellen Unreleased-Stand fachlich getrennt.
+Erster manueller Release der Identität Foundry World Status. Der Tag `v.1.0.0` bleibt unverändert. Nachfolgende Repository-Korrekturen an README und Manifest befinden sich auf `main`; Tag und heutiger Hauptzweig sind deshalb nicht identisch.
 
-Ältere Release-Serien sind lokal nicht durch Git-Historie belegt und werden nicht erfunden.
+Ab `v1.1.0` sollen Quellstand, Version, Tag, separates Manifest und ZIP vor der manuellen Veröffentlichung gemeinsam geprüft werden. Historische Release-Dateien werden dafür nicht ersetzt.
+
+Die ältere Modul-ID `foundry-discord-announcer` wird nicht automatisch übernommen. Beim Wechsel Einstellungen und Webhook manuell als GM übertragen.

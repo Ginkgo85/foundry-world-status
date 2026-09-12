@@ -35,7 +35,7 @@
 .fws-settings .fws-preview-title { color: #fff; font: bold 15px/1.4 Arial, sans-serif; margin: 0 0 8px; border: 0; }
 .fws-settings .fws-preview-content, .fws-settings .fws-preview-description { white-space: pre-wrap; }
 .fws-settings .fws-preview-content:empty { display: none; }
-.fws-settings .fws-preview-link { display: block; color: #74c5ff; margin-top: 4px; text-decoration: underline; }
+.fws-settings .fws-preview-link { color: #74c5ff; text-decoration: underline; }
 .fws-settings .fws-preview-footer { display: block; color: #b5bac1; font-size: 11px; margin-top: 14px; }
 .fws-settings .fws-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .fws-settings .fws-actions button { flex: 1; white-space: normal; height: auto; min-height: 36px; }
