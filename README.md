@@ -134,6 +134,6 @@ Das Projekt mit allen Programmdateien, Tests und Anleitungen liegt vollständig 
 
 ## Lizenz und Autor
 
-[MIT-Lizenz](LICENSE) · Copyright (c) 2026 Frank · [Ginkgo85 / Projektseite](https://github.com/Ginkgo85/foundry-world-status)
+[MIT-Lizenz](LICENSE) · Copyright (c) 2026 Ginkgo85 · [Ginkgo85 / Projektseite](https://github.com/Ginkgo85/foundry-world-status)
 
 Discord und das Discord-Logo sind Marken von Discord Inc. Dieses Modul ist weder offiziell mit Discord Inc. verbunden noch von ihr unterstützt. Foundry Virtual Tabletop und zugehörige Marken gehören Foundry Gaming LLC; dieses Modul ist kein offizielles Foundry-Gaming-Produkt.
