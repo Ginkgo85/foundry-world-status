@@ -94,7 +94,7 @@ test("manifest, imports, templates, CSS and icon files resolve", async () => {
   assert.equal(manifest.id, MODULE_ID); assert.match(manifest.version, /^\d+\.\d+\.\d+$/);
   assert.equal(manifest.authors[0].name, "Ginkgo85");
   assert.equal(manifest.compatibility.minimum, "14.367");
-  assert.equal(manifest.compatibility.verified, "14.367");
+  assert.equal(manifest.compatibility.verified, "14.368");
   for (const file of [...manifest.esmodules, ...manifest.styles, ...manifest.languages.map(l => l.path), manifest.readme, "templates/settings.hbs"]) await access(path.join(root, file));
   for (const file of await readdir(path.join(root, "scripts"))) {
     const text = await readFile(path.join(root, "scripts", file), "utf8");
@@ -398,11 +398,11 @@ test("every form field has a German label and hint; prepared values stay escaped
   assert.match(html, /type="password"/); assert.match(html, /name="sendOffline" type="checkbox" checked/);
 });
 
-test("actual Foundry 14.367 SceneControls builds, renders and clicks the module tool", async t => {
+test("actual Foundry 14.368 SceneControls builds, renders and clicks the module tool", async t => {
   const foundryRoot = process.env.FOUNDRY_APP_PATH;
   if (!foundryRoot) { t.skip("Set FOUNDRY_APP_PATH to the installed resources/app folder."); return; }
   const release = JSON.parse(await readFile(path.join(foundryRoot, "package.json"), "utf8")).release;
-  assert.equal(release.generation, 14); assert.equal(release.build, 367);
+  assert.equal(release.generation, 14); assert.equal(release.build, 368);
   let source = await readFile(path.join(foundryRoot, "client/applications/ui/scene-controls.mjs"), "utf8");
   // Execute the actual core class with boundary mocks. Proprietary source is neither copied into the module nor shipped.
   source = source.replace(/^import .*;\r?$/gm, "");
@@ -585,7 +585,7 @@ test("changed options or another GM's OFF status during confirmation do not caus
   await game.shutDown(); assert.equal(calls.length, 0); assert.equal(result.setup.length, 1);
 });
 
-test("disabled branch executes the actual 14.367 Game.shutDown implementation", async t => {
+test("disabled branch executes the actual 14.368 Game.shutDown implementation", async t => {
   const core = process.env.FOUNDRY_APP_PATH;
   if (!core) {t.skip("FOUNDRY_APP_PATH required"); return;}
   const source = await readFile(path.join(core, "client/game.mjs"), "utf8");
@@ -614,7 +614,7 @@ test("GM logout retains ON and sends nothing even with shutdown automation enabl
   assert.equal(calls.length, 0); assert.equal(writes.length, 0);
 });
 
-test("native 14.367 logout navigates without announcing OFFLINE", async t => {
+test("native 14.368 logout navigates without announcing OFFLINE", async t => {
   const core = process.env.FOUNDRY_APP_PATH;
   if (!core) {t.skip("FOUNDRY_APP_PATH required"); return;}
   const source = await readFile(path.join(core, "client/game.mjs"), "utf8");

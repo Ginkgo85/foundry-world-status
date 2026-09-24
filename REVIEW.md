@@ -1,5 +1,7 @@
 # GitHub-Actions-Einrichtung – 1.1.0
 
+Historischer Einrichtungsbericht vom 12. September 2026. Der aktuelle Prüfstand für Version 1.1.1 steht in [VALIDIERUNG.md](VALIDIERUNG.md).
+
 Referenz: öffentlicher main **92cb76898d866821e84f6a5bfb123867fb0d30b1**. Die 14 öffentlichen Dateien entsprachen dem lokalen Kandidaten nach Normalisierung der Zeilenenden. Laufzeitfunktionen und Version 1.1.0 bleiben unverändert. Die bisher nur lokalen Entwicklungsdateien wurden in einen echten Git-Checkout übernommen und konsolidiert.
 
 ## Workflows

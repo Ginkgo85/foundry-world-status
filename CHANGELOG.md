@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.1
+
+Vorbereitet für die Veröffentlichung als v1.1.1.
+
+- Kompatibilitätsprüfung auf Foundry VTT 14.368 aktualisiert; Mindestversion bleibt 14.367.
+- Anleitung zum Weiterarbeiten auf einem neuen PC und Vorschaubilder im README ergänzt.
+- Copyright-Anzeige im README auf Ginkgo85 angepasst.
+- Keine Änderungen an den Modul-Funktionen.
+
+
 ## 1.1.0
 
 Version 1.1.0 wird über den manuell gestarteten GitHub-Workflow Release veröffentlicht; Tag: v1.1.0.

@@ -1,6 +1,6 @@
 # Foundry World Status
 
-Version **1.1.0** · Foundry VTT **14.367** · Nur für GMs · Keine Modulabhängigkeiten
+Version **1.1.1** · Foundry VTT **14.368** · Nur für GMs · Keine Modulabhängigkeiten
 
 **Status: Community Release / In Development**
 
@@ -33,7 +33,7 @@ Der feste Manifest-Link installiert den jeweils veröffentlichten neuesten Relea
 
 3. Die Welt öffnen und unter **Einstellungen → Module verwalten** das Modul aktivieren. Anschließend die Welt neu laden.
 
-Alternativ: [ZIP für v1.1.0](https://github.com/Ginkgo85/foundry-world-status/releases/download/v1.1.0/foundry-world-status.zip) (erst nach Veröffentlichung verfügbar) und in `Data/modules/foundry-world-status/` entpacken. `module.json` liegt direkt im ZIP-Root und muss anschließend direkt im Modulordner liegen. Foundry danach neu starten beziehungsweise die Module neu laden.
+Alternativ: [ZIP für v1.1.1](https://github.com/Ginkgo85/foundry-world-status/releases/download/v1.1.1/foundry-world-status.zip) (erst nach Veröffentlichung verfügbar) und in `Data/modules/foundry-world-status/` entpacken. `module.json` liegt direkt im ZIP-Root und muss anschließend direkt im Modulordner liegen. Foundry danach neu starten beziehungsweise die Module neu laden.
 
 Bei einem manuellen Update den bisherigen Modulordner sichern und durch den neuen ZIP-Inhalt ersetzen. **Keine World-Daten löschen.**
 

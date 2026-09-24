@@ -1,11 +1,11 @@
-# Validierung – GitHub Actions und Modul 1.1.0
+# Validierung – GitHub Actions und Modul 1.1.1
 
-Prüfdatum: 12. September 2026. Release erzeugt: Nein.
+Prüfdatum: 24. September 2026. Version 1.1.1 vorbereitet; in diesem Durchlauf kein Release erzeugt.
 
 ## Ergebnisse dieses Durchlaufs
 
 - Node 24.19.0 / npm 12.0.2 ohne Core: **112 Tests, 108 bestanden, 0 Fehler, 4 erwartete Skips**.
-- Mit lokalem Foundry-Core 14.367: **112 Tests, 112 bestanden, 0 Fehler, 0 Skips**.
+- Mit lokalem Foundry-Core 14.368: **112 Tests, 112 bestanden, 0 Fehler, 0 Skips**.
 - npm-Vorprüfung: JavaScript-Syntax, JSON, Release-Metadaten und bekannte Secret-Muster bestanden.
 - npm run build:release und npm run test:release bestanden: 14 ZIP-Dateien, Root-Manifest und separate Manifest-Kopie.
 - Zweimaliger Build bytegleich; ZIP-Einträge, CRC32 und Quellenvergleich bestanden.
@@ -23,7 +23,7 @@ Die 92 bestehenden Tests bleiben enthalten: optionaler Linktext, Sonderzeichen, 
 
 npm test führt über pretest automatisch tools/check-project.mjs aus. Danach laufen alle tests/*.test.mjs. Der zusätzliche test:release-Aufruf prüft die tatsächlich erzeugten Build-Artefakte und veröffentlicht nichts.
 
-Core-Tests sind optional: FOUNDRY_APP_PATH auf resources/app einer eigenen lizenzierten 14.367-Installation setzen. Vier Tests werden ohne Core ausdrücklich übersprungen; zusätzlich meldet der Handlebars-Teil seine Nichtausführung. CI lädt keine Foundry-Dateien.
+Core-Tests sind optional: FOUNDRY_APP_PATH auf resources/app einer eigenen lizenzierten 14.368-Installation setzen. Vier Tests werden ohne Core ausdrücklich übersprungen; zusätzlich meldet der Handlebars-Teil seine Nichtausführung. CI lädt keine Foundry-Dateien.
 
 ## Browserprüfungen für Entwickler
 
@@ -36,7 +36,7 @@ NODE_DEPENDENCIES muss auf einen vorhandenen Playwright-Ordner zeigen. UI benöt
 
 Diese Programme verwenden lokale Fixtures, echte Core-Styles/FormDataExtended und simuliertes Discord beziehungsweise zwei lokale CORS-Ursprünge. Screenshots bleiben unter dem ignorierten validation/.
 
-Im vorigen Kandidaten-Durchlauf bestanden Chrome 153.0.8010.36 und Firefox 153.0 jeweils UI und CORS. In diesem Workflow-Durchlauf wurden sie nicht erneut ausgeführt: Laufzeitdateien, Template, CSS, Icons und Sprache bleiben gegenüber diesem Kandidaten unverändert. Die Node-Core-Prüfungen wurden erneut ausgeführt.
+Chrome 153.0.8010.53 und Firefox 153.0: UI- und CORS-Prüfungen erneut erfolgreich gegen die lokale Foundry-14.368-Installation. Geprüft wurden Formularauswertung, Vorschau, Speichern, Webhook-Auge, Icons, automatisches OFFLINE vor Setup und unveränderter Status beim Abmelden. Alle Discord-Aufrufe wurden simuliert; es lief keine echte Spielwelt.
 
 ## Kurzer manueller Foundry-/Discord-Test
 
@@ -53,6 +53,6 @@ Keine Zugangsdaten in Berichte, Screenshots oder Git aufnehmen. Client Storage i
 
 ## Nicht geprüft
 
-Echte Discord-Zustellung und laufende Produktivwelt, konkrete Docker-/Proxy-/TLS-Umgebung, GitHub-Ausführung dieser Änderung und erste echte automatisierte Veröffentlichung. CI und CodeQL des vorherigen Commits 0a89485 waren erfolgreich; die Läufe dieser Änderung werden nach dem Push gesondert geprüft. Lokales actionlint und simulierte Release-Tests ersetzen diese Nachweise nicht.
+Echte Discord-Zustellung in einer laufenden Spielwelt unter Foundry 14.368 und die konkrete Docker-/Proxy-/TLS-Umgebung. Der manuelle Test oben steht vor der Veröffentlichung noch aus. Die neue Version wurde nicht veröffentlicht. CI und CodeQL werden nach dem Push für den vorbereiteten Commit geprüft; ihre Ergebnisse stehen unter GitHub Actions. Die Tests ersetzen keinen echten Versandtest.
 
 [Einrichtungsbericht](REVIEW.md) · [Release-Kurzanleitung](PUBLISHING.md)

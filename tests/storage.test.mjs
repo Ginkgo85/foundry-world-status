@@ -152,7 +152,7 @@ test("another GM completing cleanup does not turn a verified copy into a conflic
   assert.equal(writes.filter(w => w.key === "configuration").length, 0);
 });
 
-test("Foundry 14.367 client settings use browser storage without a world write", async t => {
+test("Foundry 14.368 client settings use browser storage without a world write", async t => {
   const core = process.env.FOUNDRY_APP_PATH;
   if (!core) {t.skip("FOUNDRY_APP_PATH required"); return;}
   const source = await readFile(path.join(core, "client/helpers/client-settings.mjs"), "utf8");
