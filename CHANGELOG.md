@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.2.1
+
+Vorbereitet für die Veröffentlichung als v1.2.1; geprüft mit Foundry VTT 14.368.
+
+### Geändert
+
+- Deutsche und englische Anleitung stehen in einer gemeinsamen README mit Sprunglinks; die separate englische Datei entfällt auch im Paket.
+- Die manuelle Modulsprache wird ausschließlich GMs angezeigt.
+- Spieler verwenden die automatische Lokalisierung und bleiben von der Sprachwahl eines GMs unbeeinflusst. Frühere lokale Spieler-Präferenzen bleiben gespeichert, werden aber nicht angewendet.
+
 ## 1.2.0
 
 Vorbereitet für die Veröffentlichung als v1.2.0; geprüft mit Foundry VTT 14.368.

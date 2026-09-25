@@ -21,6 +21,7 @@ body {background: #18181e; margin: 0; font-family: Arial,sans-serif;}
 <script type="module">
 import FormDataExtended from "/form-data-extended.mjs";
 import Localization from "/localization.mjs";
+import SettingsConfig from "/settings-config.mjs";
 const query = new URLSearchParams(location.search);
 const language = query.get("lang") ?? "de";
 const userId = query.get("user") ?? "test-gm";
@@ -97,15 +98,39 @@ async function renderSettings() {
 }
 const locale = await import("/modules/foundry-world-status/scripts/localization.js");
 const nativeSetting = configs.get(locale.languageSettingKey());
-const languageControl = document.createElement("select"); languageControl.id = "fixture-language";
-languageControl.setAttribute("aria-label", nativeSetting.name);
-languageControl.style.cssText = "position:absolute;left:300px;top:875px;width:200px";
-for (const [value, label] of Object.entries(nativeSetting.choices)) languageControl.add(new Option(label, value));
-languageControl.value = locale.languagePreference();
-languageControl.onchange = () => game.settings.set("foundry-world-status", locale.languageSettingKey(), languageControl.value);
-document.body.append(languageControl);
+// Use the installed Core's actual category preparation; only the surrounding app is a fixture.
+game.settings.settings = new Map([[locale.languageSettingKey(), Object.assign(nativeSetting, {
+  namespace: "foundry-world-status", key: locale.languageSettingKey()
+})]]);
+game.settings.menus = new Map();
+game.user.can = () => game.user.isGM === true;
+window.CONST = {SETTING_SCOPES: {WORLD: "world"}};
+window._loc = localize;
+foundry.documents = {BaseSetting: {_ALLOWED_ASSISTANT_KEYS: [], _GAMEMASTER_ONLY_KEYS: []}};
+foundry.data.fields.DataField = class {};
+foundry.data.fields.StringField = class {constructor(options) {Object.assign(this, options);}};
+function renderLanguageSetting() {
+  document.querySelector("#fixture-language-section")?.remove();
+  const categories = SettingsConfig.prototype._prepareCategoryData.call({
+    _categorizeEntry: id => ({id, label: "Foundry World Status"})
+  });
+  const entry = categories["foundry-world-status"]?.entries[0];
+  if (!entry) return;
+  const block = document.createElement("section"); block.id = "fixture-language-section";
+  block.style.cssText = "position:absolute;left:300px;top:835px;width:580px";
+  const label = document.createElement("label"); label.htmlFor = "fixture-language"; label.textContent = entry.field.label;
+  const languageControl = document.createElement("select"); languageControl.id = "fixture-language";
+  languageControl.style.width = "200px";
+  for (const [value, text] of Object.entries(entry.field.choices)) languageControl.add(new Option(text, value));
+  languageControl.value = locale.languagePreference();
+  languageControl.onchange = () => game.settings.set("foundry-world-status", locale.languageSettingKey(), languageControl.value);
+  const hint = document.createElement("p"); hint.id = "fixture-language-hint"; hint.textContent = entry.field.hint;
+  hint.style.cssText = "font-size:12px;margin:4px 0";
+  block.append(label, languageControl, hint); document.body.append(block);
+}
+renderLanguageSetting();
 if (isGM) await renderSettings();
 else {app.rendered = false; app.element.hidden = true;}
-window.fixture = {app, values, configs, locale, renderSettings, shutdownRequests: []};
+window.fixture = {app, values, configs, locale, renderSettings, renderLanguageSetting, shutdownRequests: []};
 document.querySelector("#fixture-logout").onclick = () => game.logOut();
 </script></body></html>

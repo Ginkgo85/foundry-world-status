@@ -9,7 +9,7 @@ export function languageSettingKey() {
 }
 
 export function languagePreference() {
-  if (!globalThis.game) return "auto";
+  if (globalThis.game?.user?.isGM !== true) return "auto";
   const key = languageSettingKey();
   if (!key) return "auto";
   try {
@@ -49,7 +49,9 @@ export function registerLanguage(onChange) {
   game.settings.register(MODULE_ID, key, {
     get name() { return t("language.name"); },
     get hint() { return t("language.hint"); },
-    scope: "client", config: true, type: String, default: "auto",
+    scope: "client", type: String, default: "auto",
+    // Evaluated when Foundry renders settings; game.user may not exist during init.
+    get config() { return game.user?.isGM === true; },
     get choices() { return {auto: t("language.auto"), de: t("language.de"), en: t("language.en")}; },
     requiresReload: false,
     onChange

@@ -1,3 +1,102 @@
+# Validierung – Release-Vorbereitung 1.2.1
+
+Prüfdatum: 25. September 2026. **Version 1.2.1 für Foundry 14.368 lokal vorbereitet; noch nicht veröffentlicht.**
+
+## Ausgangszustand und Anweisungen
+
+Repository `Ginkgo85/foundry-world-status`, Branch `main`, Ausgangscommit `48d0c373c19ad63d0b4e8019109ccea0543f0e12`. Die bereits geprüften lokalen Änderungen aus dem GM-only-Auftrag wurden übernommen. Nach erneutem Fetch 0 Commits vor/hinter origin/main. Keine fremden Änderungen. Aktuell veröffentlicht ist v1.2.0.
+
+Vollständig gelesen: AGENTS.md, README.md, CONTRIBUTING.md, VALIDIERUNG.md und PUBLISHING.md. Keine weiteren AGENTS.md in Unterordnern vorhanden. Der aktuelle Auftrag erlaubt die Vorbereitung einer neuen Version. Nach Abschluss der lokalen Prüfungen hat der Benutzer Commit und Push ausdrücklich freigegeben. Ein Release wird in diesem Vorbereitungsschritt nicht gestartet.
+
+## Änderung und Dateien
+
+Nur eine Laufzeitdatei geändert: `scripts/localization.js`.
+
+- Registrierung bleibt nativ über `game.settings.register`, mit `scope: "client"` und unverändertem benutzer-/weltspezifischem Schlüssel.
+- `config` wird als Getter mit `game.user?.isGM === true` ausgewertet. Foundry erzeugt das Einstellungsfeld nur bei true. Die Entscheidung erfolgt beim Aufbau der Oberfläche, ohne CSS-Verstecken und ohne DOM-Manipulation im Modul.
+- Der Getter ist nötig, weil `game.user` bei der bisherigen Registrierung im init-Hook noch fehlen kann. Sobald der Benutzer verfügbar ist, sieht ein GM die Auswahl; ein Spieler nicht.
+- `languagePreference()` liefert für Nicht-GMs automatisch `auto`. Dadurch folgen sichtbare Spielertexte der aktiven Foundry-Sprache.
+- Frühere Spieler-Präferenzen bleiben unangetastet gespeichert. Sie werden nicht angewendet, solange der Benutzer keine GM-Rechte hat. Nach einer späteren Beförderung zum GM ist der gespeicherte Wert wieder nutzbar.
+- Keine neue Berechtigungsschicht: technische Client-Speicherzugriffe werden nicht künstlich gesperrt. Ziel ist ausschließlich die GM-only UI und automatische Spielersprache.
+
+Weitere geänderte Dateien: `tests/localization.test.mjs`, `tests/browser-check.mjs`, `tests/browser-fixture.html`, README.md, CHANGELOG.md und diese VALIDIERUNG.md. Für die Release-Vorbereitung zusätzlich module.json, package.json und PUBLISHING.md auf 1.2.1 abgestimmt; in REVIEW.md ausschließlich den veralteten Versionsbezug im Verweis auf den aktuellen Prüfbericht entfernt. Keine neuen Dateien oder Dependencies. README in beiden Sprachen angepasst; Changelog enthält den vorbereiteten Eintrag 1.2.1; historische Einträge bleiben erhalten.
+
+Unverändert: de.json/en.json, Templates, Styles, Modul-ID, fester Manifest-Link, Foundry-Kompatibilität, Workflows und übriger Laufzeitcode. GM-only Discord-Button, Webhook-Konfiguration, Versand/Payload, Migration, Status, Setup/Shutdown und Logout bleiben unverändert.
+
+## API-Prüfung und Benutzertrennung
+
+Die [öffentliche SettingConfig-API](https://foundryvtt.com/api/interfaces/foundry.types.SettingConfig.html) dokumentiert `config` als Steuerung der Sichtbarkeit in Foundrys Einstellungsfenster. Im lokal installierten Core **14.368** wurde zusätzlich geprüft:
+
+- ClientSettings.register bewahrt die Konfiguration einschließlich Getter.
+- SettingsConfig überspringt Einträge mit falschem `config`, bevor es Kategorie, Feld, Beschriftung oder Hilfetext erzeugt.
+- `restricted` ist hier keine zusätzliche Lösung für einzelne Client-Felder; die bereits vorhandene GM-Beschränkung des Modul-Untermenüs bleibt unverändert.
+
+Der native Category-Aufbau wird zusätzlich direkt aus dem installierten Core getestet. Für Spieler ist sein Ergebnis für dieses Setting leer; für GMs enthält es Auswahl, Titel und Hinweis. Core-Dateien werden nur gelesen, nicht ins Repository kopiert.
+
+Die Sprachwahl von GM A wirkt weder auf GM B noch auf Spieler, auch bei verschiedenen Benutzern im selben Browser. Scope, Schlüssel und Speicherverfahren sind unverändert. Keine Socket-Verteilung, kein World Setting für die Sprachwahl.
+
+## Tests und tatsächliche Ergebnisse
+
+Node 24.19.0, npm 12.0.2; lizenzierter Core 14.368 vorhanden.
+
+| Ausgeführter Befehl | Ergebnis |
+| --- | --- |
+| `node --test tests/localization.test.mjs` mit Core | 33 bestanden, 0 Fehler, 0 Skips |
+| `npm test` ohne Core | **146 Tests: 139 bestanden, 0 Fehler, 7 erwartete Core-Skips** |
+| `npm test` mit Core 14.368 | **146 Tests: 146 bestanden, 0 Fehler, 0 Skips** |
+| `npm run build:release` | Erfolgreich; 16 Dateien, module.json direkt im ZIP-Root |
+| `npm run test:release` | Erfolgreich; CRC32, Quellenvergleich, Manifest-Kopie und Secret-Muster |
+| `node tests/browser-check.mjs`, TEST_BROWSER=chrome | Erfolgreich, Chrome 153.0.8010.54 |
+| `node tests/cors-browser-check.mjs`, TEST_BROWSER=chrome | Erfolgreich |
+| `node tests/browser-check.mjs`, TEST_BROWSER=firefox | Erfolgreich, Firefox 153.0 |
+| `node tests/cors-browser-check.mjs`, TEST_BROWSER=firefox | Erfolgreich |
+| `actionlint -shellcheck= .github/workflows/ci.yml .github/workflows/release.yml .github/workflows/codeql-analysis.yml` | Erfolgreich; kein separates ShellCheck |
+| Vollständiger Diff und `git diff --check` | Geprüft, keine Whitespace-Fehler |
+
+`npm test` führt weiterhin die bestehende Quellenprüfung als pretest aus. Reproduzierbarkeit des Builds und alle bisherigen Versand-, Speicher-, Release- und Sprachregressionen bleiben geprüft.
+
+**Fünf zusätzliche Tests:** späte Benutzerverfügbarkeit nach init, strikt boolesche GM-Prüfung, automatische Spielersprache Deutsch beziehungsweise Englisch mit Erhalt alter Werte und Wiederverwendung nach Beförderung, sowie der tatsächliche Core-Settings-Aufbau ohne Spielerfeld/-hinweis.
+
+Bestehende Tests wurden nicht entfernt. Erwartungen, die bisher einen manuellen Spieler-Override voraussetzten, wurden auf das ausdrücklich gewünschte neue Verhalten geändert; Speichererhalt und Benutzertrennung werden weiter geprüft. GM-Automatik, beide Overrides, gespeicherte Texte/Leerwerte, Entwürfe, Status und ausbleibender Versand bleiben abgedeckt.
+
+## Browserprüfung und Grenzen
+
+Das Fixture verwendet jetzt zusätzlich den echten SettingsConfig-Category-Aufbau aus Core 14.368. Umgebende Anwendung, DataFields und äußeres Fenster bleiben Test-Doubles; die daraus erzeugte Test-UI ist keine vollständige produktive Foundry-Welt.
+
+In Chrome und Firefox geprüft:
+
+- GM sieht Sprachblock samt Auswahl und Hilfetext; auto/de/en funktionieren.
+- Spieler in deutscher und englischer Foundry-Oberfläche erhalten keinen Block, keine Beschriftung, keinen Select und keinen Hinweis – auch nach erneutem Öffnen/Seitenaufruf.
+- Frühere gegensätzliche Spieler-Präferenzen bleiben gespeichert, beeinflussen aber nicht mehr die automatische Spielersprache.
+- GM-Speichern, erneutes Öffnen, lokale Persistenz, GM-A/GM-B/Spieler-Trennung, gespeicherte Inhalte, Vorschau, Tooltips und Webhook-Auge.
+- Keine Discord-Anfrage durch Sprachänderung; bestehende ON/OFF-/Shutdown-/Logout- und CORS-Prüfungen bestanden.
+
+Screenshots unter dem ignorierten `validation/chrome/` und `validation/firefox/`: `language-en.png`, `language-de.png`, `player-language-de.png`, `player-language-en.png`. GM-/Spieler-Screenshots wurden visuell geprüft. Die Spieleraufnahme enthält keinen Sprachblock; die GM-Auswahl bleibt vorhanden. Keine echten Discord-Webhooks verwendet.
+
+**Nicht geprüft:** vollständiges natives Settings-Fenster in einer echten laufenden Foundry-Welt mit mehreren verbundenen Benutzern; echte Discord-Zustellung; konkrete Docker-/Proxy-Umgebungen. CI und CodeQL werden erst nach dem freigegebenen Push gestartet und anschließend geprüft. Keine vollständige Sicherheitsanalyse.
+
+## Manueller Testplan vor einer späteren Veröffentlichung
+
+1. In einer gesicherten 14.368-Testwelt als GM Foundrys normale Moduleinstellungen öffnen. Sprache/Language, alle drei Optionen und Hilfetext sind vorhanden. Speichern und neu öffnen; Präferenz bleibt erhalten.
+2. Als normaler Spieler dieselben Einstellungen öffnen und nach dem Modul suchen. Keine Sprachauswahl, kein Hinweis, kein leerer/deaktivierter Block. Auch das GM-Konfigurationsfenster bleibt unzugänglich.
+3. Foundry Deutsch und Englisch jeweils testen: Spielertexte folgen automatisch der aktiven UI-Sprache. Ein vorhandener älterer Sprachwert darf im Browser gespeichert bleiben.
+4. GM A auf English stellen; GM B und Spieler bleiben unverändert. Danach GM A Deutsch und Automatisch testen.
+5. Eigene Discord-Texte einschließlich Leerwerten, Webhook und ON/OFF vor/nach Sprachwechsel vergleichen. Keine Nachricht darf allein durch Sprachwechsel versandt werden.
+
+Die bestehenden Befehle und Umgebungsvariablen zum Wiederholen stehen im historischen Bericht unten.
+
+## Veröffentlichungsstatus
+
+**Version 1.2.1 ist vorbereitet; Commit und Push sind ausdrücklich freigegeben. Tag und Release bleiben ausstehend.** Release-Workflow nicht gestartet. Foundry Package Management nicht verändert; Package Release API und Package Release Token nicht verwendet. Der lokale Build dient nur der Prüfung und wurde nicht hochgeladen.
+
+Vor Veröffentlichung erforderlich: manuellen Test oben durchführen und nach dem freigegebenen Push erfolgreiche CI-/CodeQL-Läufe auf dem neuen main abwarten. Danach **Actions → Release → Run workflow → main** starten. Der Workflow erstellt den Tag v1.2.1 sowie module.json und foundry-world-status.zip. Keine manuellen Uploads oder Tag-Anlagen nötig.
+
+---
+
+## Frühere Prüfberichte (historisch)
+
+Die folgenden Angaben beschreiben frühere Aufträge und frühere UI-Regeln. Für die aktuelle GM-only-Änderung gilt der Bericht oben.
+
 # Validierung – README und Release 1.2.0
 
 ## Nachtrag: gemeinsame README (25. September 2026)

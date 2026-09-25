@@ -31,4 +31,4 @@ GitHub prüft den aktuellen Stand erneut, baut und prüft das Paket, erstellt de
 
 Die Workflow-Dateien müssen auf main liegen und GitHub Actions muss für das Repository erlaubt sein. Das normale GITHUB_TOKEN erhält seine nötigen Schreibrechte direkt im Release-Workflow. Keine persönlichen Tokens, Foundry-Tokens oder pauschale Umstellung aller Workflows auf Schreibrechte erforderlich.
 
-Jede Veröffentlichung wird separat gestartet. Aktuell ist **1.2.0 für Foundry 14.368** vorbereitet. Vor dem Start den manuellen Test aus [VALIDIERUNG.md](VALIDIERUNG.md) durchführen und erfolgreiche CI-/CodeQL-Läufe auf main prüfen. Anschließend **Actions → Release → Run workflow → main**. Tag, Manifest und ZIP erstellt der Workflow automatisch.
+Jede Veröffentlichung wird separat gestartet. Aktuell ist **1.2.1 für Foundry 14.368** vorbereitet. Vor dem Start den manuellen Test aus [VALIDIERUNG.md](VALIDIERUNG.md) durchführen und erfolgreiche CI-/CodeQL-Läufe auf main prüfen. Anschließend **Actions → Release → Run workflow → main**. Tag, Manifest und ZIP erstellt der Workflow automatisch.

@@ -105,7 +105,7 @@ test("existing installations and missing user identity safely use Automatic", ()
   changeUser(null, false);
   assert.equal(languageSettingKey(), null); assert.equal(languagePreference(), "auto");
 });
-test("native language setting is client-only, visible to players, defaults to Automatic and needs no reload", () => {
+test("native GM language setting stays client-only, defaults to Automatic and needs no reload", () => {
   const config = registrations.get(languageSettingKey());
   assert.equal(config.scope, "client"); assert.equal(config.config, true);
   assert.equal(config.default, "auto"); assert.equal(config.requiresReload, false);
@@ -118,13 +118,14 @@ for (const [first, second, firstGM, secondGM] of [
 ]) {
   test(first + " language changes never affect " + second + " in the same browser", async () => {
     changeUser(first, firstGM); registerLanguage(() => {}); const firstKey = languageSettingKey();
-    await choose("en"); assert.equal(t("save"), dictionaries.en.FWS.save);
+    await choose("en"); assert.equal(t("save"), dictionaries[firstGM ? "en" : "de"].FWS.save);
     changeUser(second, secondGM); registerLanguage(() => {});
     const secondKey = languageSettingKey();
     assert.notEqual(firstKey, secondKey); assert.equal(languagePreference(), "auto");
     assert.equal(t("save"), dictionaries.de.FWS.save);
     await choose("de");
-    changeUser(first, firstGM); assert.equal(languagePreference(), "en"); assert.equal(t("save"), dictionaries.en.FWS.save);
+    changeUser(first, firstGM); assert.equal(languagePreference(), firstGM ? "en" : "auto"); assert.equal(t("save"), dictionaries[firstGM ? "en" : "de"].FWS.save);
+    assert.equal(values.get(firstKey), "en");
     assert.ok(writes.every(write => [firstKey, secondKey].includes(write.key)));
   });
 }
@@ -171,7 +172,7 @@ test("open module windows preserve draft text and rerender through the public AP
   assert.equal(values.get("configuration").onlineTitle, undefined);
   assert.equal(app.title, dictionaries.en.FWS.menuName);
 });
-test("players still cannot open the GM configuration when changing their language", async () => {
+test("players cannot open the GM configuration even with a legacy language override", async () => {
   changeUser("player", false); registerLanguage(() => {}); await choose("en");
   await assert.rejects(new WorldStatusSettings()._prepareContext({}), {code: "gmOnly"});
 });
@@ -284,5 +285,66 @@ test("failed dictionary loading falls back safely and permits a later retry", as
   globalThis.fetch = async () => ({ok: true, json: async () => dictionaries.en});
   await isolated.prepareLanguage();
   assert.equal(isolated.t("save"), dictionaries.en.FWS.save);
+  assert.deepEqual(writes, []);
+});
+
+test("language visibility is resolved after init when the user document becomes available", () => {
+  const user = game.user; delete game.user;
+  registerLanguage(() => {});
+  const setting = registrations.get(languageSettingKey());
+  assert.equal(setting.config, false);
+  game.user = user; assert.equal(setting.config, true);
+  game.user.isGM = false; assert.equal(setting.config, false);
+  assert.equal(setting.scope, "client"); assert.deepEqual(writes, []);
+});
+
+test("language UI requires an explicit true GM flag", () => {
+  const setting = registrations.get(languageSettingKey());
+  for (const value of [false, undefined, null, 0, 1, "true"]) {
+    game.user.isGM = value; assert.equal(setting.config, false);
+    assert.equal(languagePreference(), "auto");
+  }
+  game.user.isGM = true; assert.equal(setting.config, true);
+});
+
+for (const language of ["de", "en"]) test("player uses Foundry " + language + " without erasing an old override", async () => {
+  changeUser("player-old", false); selectFoundry(language); registerLanguage(() => {});
+  const key = languageSettingKey(), stored = language === "de" ? "en" : "de";
+  values.set(key, stored); const before = JSON.stringify([...values]);
+  await prepareLanguage();
+  assert.equal(languagePreference(), "auto");
+  assert.equal(t("save"), dictionaries[language].FWS.save);
+  assert.equal(registrations.get(key).config, false);
+  assert.equal(JSON.stringify([...values]), before);
+  assert.deepEqual(writes, []); assert.deepEqual(requests, []);
+  game.user.isGM = true; await prepareLanguage();
+  assert.equal(languagePreference(), stored);
+  assert.equal(registrations.get(key).config, true);
+  assert.equal(t("save"), dictionaries[stored].FWS.save);
+});
+
+test("actual Core settings category omits the complete player language field and hint", async context => {
+  const core = process.env.FOUNDRY_APP_PATH;
+  if (!core) {context.skip("FOUNDRY_APP_PATH required"); return;}
+  const source = (await readFile(path.join(core, "client/applications/settings/config.mjs"), "utf8"))
+    .replace(/^import CategoryBrowser .*;\r?$/m, "const CategoryBrowser = class {};");
+  const {default: SettingsConfig} = await import("data:text/javascript;base64," + Buffer.from(source).toString("base64"));
+  globalThis.CONST = {SETTING_SCOPES: {WORLD: "world"}};
+  globalThis._loc = key => game.i18n.localize(key);
+  foundry.documents = {BaseSetting: {_ALLOWED_ASSISTANT_KEYS: [], _GAMEMASTER_ONLY_KEYS: []}};
+  foundry.data.fields.DataField = class {};
+  foundry.data.fields.StringField = class {constructor(options) {Object.assign(this, options);}};
+  const setting = registrations.get(languageSettingKey());
+  setting.namespace = MODULE_ID; setting.key = languageSettingKey();
+  game.settings.settings = new Map([[setting.key, setting]]); game.settings.menus = new Map();
+  game.user.can = () => game.user.isGM === true;
+  const app = {_categorizeEntry: id => ({id, label: "Foundry World Status"})};
+  const render = () => SettingsConfig.prototype._prepareCategoryData.call(app);
+  assert.equal(render()[MODULE_ID].entries.length, 1);
+  const field = render()[MODULE_ID].entries[0].field;
+  assert.equal(field.label, t("language.name")); assert.equal(field.hint, t("language.hint"));
+  assert.deepEqual(Object.keys(field.choices), ["auto", "de", "en"]);
+  game.user.isGM = false;
+  assert.deepEqual(render(), {}); // No category, field, label, hint or placeholder.
   assert.deepEqual(writes, []);
 });

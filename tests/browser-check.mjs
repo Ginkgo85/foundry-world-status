@@ -25,6 +25,10 @@ const server = createServer(async (req, res) => {
     }
     if (url.pathname === "/") filename = path.resolve("tests/browser-fixture.html");
     else if (url.pathname === "/handlebars.js") filename = path.join(core, "node_modules/handlebars/dist/handlebars.js");
+    else if (url.pathname === "/settings-config.mjs") {
+      const source = (await readFile(path.join(core, "client/applications/settings/config.mjs"), "utf8")).replace(/^import CategoryBrowser .*;\r?$/m, "const CategoryBrowser = class {};");
+      res.writeHead(200, {"Content-Type": "text/javascript"}); res.end(source); return;
+    }
     else if (url.pathname === "/localization.mjs") {
       const source = (await readFile(path.join(core, "client/helpers/localization.mjs"), "utf8")).replace(/^import .*;\r?$/gm, "");
       res.writeHead(200, {"Content-Type": "text/javascript"}); res.end(source); return;
@@ -233,8 +237,26 @@ try {
   assert.equal(await player.evaluate(() => fixture.locale.t("save")), "Einstellungen speichern");
   assert.equal(await player.locator('button[data-tool="foundry-world-status"]').count(), 0);
   assert.equal(await otherGM.locator('[type="submit"]').innerText(), "Einstellungen speichern");
-  await player.locator("#fixture-language").selectOption("en");
-  await player.waitForFunction(() => fixture.locale.t("save") === "Save Settings");
+  assert.equal(await a.locator("#fixture-language-section").count(), 1);
+  assert.equal(await a.locator("#fixture-language-hint").count(), 1);
+  assert.deepEqual(await a.locator("#fixture-language option").evaluateAll(options => options.map(o => o.value)), ["auto", "de", "en"]);
+  for (const browserLanguage of ["de", "en"]) {
+    const playerTab = browserLanguage === "de" ? player : await openUser("player-en", "en", "player");
+    // Simulate a value retained from an older version, without using a UI to write it.
+    await playerTab.evaluate(value => localStorage.setItem("foundry-world-status." + fixture.locale.languageSettingKey(), JSON.stringify(value)), browserLanguage === "de" ? "en" : "de");
+    await playerTab.reload(); await playerTab.waitForFunction(() => !!window.fixture);
+    for (const selector of ["#fixture-language-section", "#fixture-language", "#fixture-language-hint"]) {
+      assert.equal(await playerTab.locator(selector).count(), 0);
+    }
+    assert.equal(await playerTab.getByText(/Sprache \/ Language|Language \/ Sprache/).count(), 0);
+    assert.equal(await playerTab.evaluate(() => fixture.locale.languagePreference()), "auto");
+    assert.equal(await playerTab.evaluate(() => fixture.locale.t("save")), browserLanguage === "de" ? "Einstellungen speichern" : "Save Settings");
+    const stored = await playerTab.evaluate(() => localStorage.getItem("foundry-world-status." + fixture.locale.languageSettingKey()));
+    await playerTab.evaluate(() => fixture.renderLanguageSetting());
+    assert.equal(await playerTab.locator("#fixture-language-section").count(), 0);
+    assert.equal(await playerTab.evaluate(() => localStorage.getItem("foundry-world-status." + fixture.locale.languageSettingKey())), stored);
+    await playerTab.screenshot({path: path.join(out, "player-language-" + browserLanguage + ".png")});
+  }
   assert.equal(await a.locator('[type="submit"]').innerText(), "Einstellungen speichern");
   assert.equal(await otherGM.evaluate(() => fixture.locale.languagePreference()), "auto");
   await a.locator("#fixture-language").selectOption("auto");
@@ -247,6 +269,9 @@ try {
   await a.evaluate(() => fixture.renderSettings());
   assert.equal(await a.locator('[name="webhookUrl"]').getAttribute("type"), "password");
   await a.locator(".fws-fields").evaluate(el => {el.scrollTop = 0;});
+  await a.evaluate(() => fixture.renderLanguageSetting());
+  assert.equal(await a.locator("#fixture-language").inputValue(), "en");
+  assert.equal(await a.locator('label[for="fixture-language"]').innerText(), "Language / Sprache");
   await a.screenshot({path: path.join(out, "language-en.png")});
   const reloadedA = await openUser("gm-a", "de");
   assert.equal(await reloadedA.locator('[type="submit"]').innerText(), "Save Settings");
@@ -255,13 +280,16 @@ try {
   await automaticEnglish.locator("#fixture-language").selectOption("de");
   await automaticEnglish.getByRole("button", {name: "Einstellungen speichern", exact: true}).waitFor();
   assert.equal(await automaticEnglish.evaluate(() => game.i18n.lang), "en");
+  await automaticEnglish.evaluate(() => fixture.renderLanguageSetting());
+  assert.equal(await automaticEnglish.locator("#fixture-language").inputValue(), "de");
+  assert.equal(await automaticEnglish.locator('label[for="fixture-language"]').innerText(), "Sprache / Language");
   await automaticEnglish.screenshot({path: path.join(out, "language-de.png")});
   const unsupported = await openUser("gm-fallback", "fr");
   assert.equal(await unsupported.locator('[type="submit"]').innerText(), "Save Settings");
   assert.equal(languageSends, 0);
   assert.deepEqual(errors, []);
   await languageContext.close();
-  console.log(`${browserName}: language checks passed: DE/EN, auto, both overrides, fallback, same-browser GM/player isolation, persisted preference, preserved saved and draft values, tooltips, buttons, preview and eye. No Discord traffic.`);
+  console.log(`${browserName}: language checks passed: DE/EN, auto, both overrides, fallback, GM-only native settings category with no player label/select/hint, player auto with legacy values retained, same-browser GM/player isolation, persisted preference, preserved saved and draft values, tooltips, buttons, preview and eye. No Discord traffic.`);
 } finally {
   await browser?.close(); await new Promise(resolve => server.close(resolve));
 }
