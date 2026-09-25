@@ -103,7 +103,25 @@
       "migrationFailed": "Webhook-Übernahme nicht abgeschlossen. Vorhandene Werte bleiben erhalten. Browser-Speicher und Foundry-Verbindung prüfen; Einstellungen erneut öffnen.",
       "migrationConflict": "Lokaler und gemeinsam gespeicherter Webhook unterscheiden sich. Nichts wurde überschrieben oder entfernt. Migration gemäß README klären.",
       "localStorage": "Lokaler Webhook-Speicher nicht verfügbar. Browser-Speicher prüfen; die World-Einstellungen bleiben erhalten.",
-      "onlineDescriptionLength": "ONLINE-Beschreibung und Serverlink einschließlich Discord-Markdown dürfen zusammen maximal 4096 Zeichen enthalten. Bitte Beschreibung oder Link kürzen."
-    }
+      "onlineDescriptionLength": "ONLINE-Beschreibung und Serverlink einschließlich Discord-Markdown dürfen zusammen maximal 4096 Zeichen enthalten. Bitte Beschreibung oder Link kürzen.",
+      "languageLoad": "Die gewählte Modulsprache konnte nicht geladen werden. Foundrys Sprache wird verwendet. Moduleinstellungen erneut öffnen, um es noch einmal zu versuchen."
+    },
+    "language": {
+      "name": "Sprache / Language",
+      "hint": "Automatisch verwendet Foundrys aktive Oberflächensprache. Deutsch oder Englisch gilt nur für diesen Benutzer in diesem Browser und dieser Welt. Andere Benutzer bleiben unbeeinflusst.",
+      "auto": "Automatisch",
+      "de": "Deutsch",
+      "en": "English"
+    },
+    "defaults": {
+      "onlineTitle": "🎲 Spielwelt ist ONLINE",
+      "onlineDescription": "Die Spielwelt ist geöffnet. Ihr könnt euch jetzt verbinden.",
+      "onlineLinkText": "Zur Spielwelt",
+      "offlineTitle": "🔴 Spielwelt ist OFFLINE",
+      "offlineDescription": "Die Spielrunde ist beendet. Die Spielwelt wurde als OFFLINE angekündigt."
+    },
+    "testMessage": "Foundry World Status – Verbindung erfolgreich.",
+    "confirmYes": "Ja",
+    "confirmNo": "Nein"
   }
 }

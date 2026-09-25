@@ -1,13 +1,17 @@
 import {MODULE_ID, DEFAULTS, GROUPS, LIMITS, WorldStatusError, assertGM, httpUrl, normalizeConfig, readConfig, reportError, t, validateConfig, migrateWebhook, saveConfig} from "./config.js";
 import {runExclusive, sendWebhook} from "./discord.js";
+import {prepareLanguage, registerLanguage} from "./localization.js";
+import {LOCALIZED_DEFAULTS} from "./config.js";
 
 const {ApplicationV2, HandlebarsApplicationMixin} = foundry.applications.api;
 
 export function registerSettings(onStatusChange) {
+  registerLanguage(() => { void refreshLanguage(onStatusChange); });
   game.settings.register(MODULE_ID, "webhooks", {
     scope: "client", config: false, type: Object, default: {}
   });
-  const {webhookUrl: _secret, ...sharedDefaults} = DEFAULTS;
+  // Leave translated defaults absent until explicitly saved; existing stored values always win.
+  const sharedDefaults = Object.fromEntries(Object.entries(DEFAULTS).filter(([key]) => key !== "webhookUrl" && !LOCALIZED_DEFAULTS.includes(key)));
   game.settings.register(MODULE_ID, "configuration", {
     name: "FWS.menuName", scope: "world", config: false, type: Object, default: sharedDefaults
   });
@@ -17,9 +21,25 @@ export function registerSettings(onStatusChange) {
     default: false, onChange: onStatusChange
   });
   game.settings.registerMenu(MODULE_ID, "settings", {
-    name: "FWS.menuName", label: "FWS.menuLabel", hint: "FWS.menuHint",
+    get name() { return t("menuName"); }, get label() { return t("menuLabel"); }, get hint() { return t("menuHint"); },
     icon: "fa-brands fa-discord", type: WorldStatusSettings, restricted: true
   });
+}
+
+/** Re-render only this module's open applications, preserving unsaved form values. */
+export async function refreshLanguage(onControlsChange = () => {}) {
+  try {
+    await prepareLanguage();
+    onControlsChange();
+    for (const app of ApplicationV2.instances()) {
+      if (!(app instanceof WorldStatusSettings) || !app.rendered || app._saving || app._testing) continue;
+      app._languageDraft = app.formValues();
+      try { await app.render({force: true}); }
+      finally { delete app._languageDraft; }
+    }
+  } catch {
+    reportError(new WorldStatusError("languageLoad"));
+  }
 }
 
 export class WorldStatusSettings extends HandlebarsApplicationMixin(ApplicationV2) {
@@ -37,6 +57,8 @@ export class WorldStatusSettings extends HandlebarsApplicationMixin(ApplicationV
     content: {template: `modules/${MODULE_ID}/templates/settings.hbs`, scrollable: [".fws-fields"]}
   };
 
+  get title() { return t("menuName"); }
+
   _saving = false;
   _testing = false;
 
@@ -48,8 +70,11 @@ export class WorldStatusSettings extends HandlebarsApplicationMixin(ApplicationV
   async _prepareContext(options) {
     assertGM();
     const context = await super._prepareContext(options);
-    await migrateWebhook();
-    const config = readConfig();
+    try { await prepareLanguage(); }
+    catch { reportError(new WorldStatusError("languageLoad")); }
+    if (!this._languageDraft) await migrateWebhook();
+    const config = this._languageDraft ?? readConfig();
+    context.i18n = Object.fromEntries(["intro", "securityHint", "showWebhook", "preview", "previewHint", "test", "save", "testHint"].map(key => [key, t(key)]));
     context.groups = GROUPS.map(group => ({
       title: t(`groups.${group.id}`),
       fields: group.keys.map(key => ({
@@ -70,15 +95,20 @@ export class WorldStatusSettings extends HandlebarsApplicationMixin(ApplicationV
     await super._onRender(context, options);
     this.element.querySelector(".fws-fields").addEventListener("input", () => this.updatePreview());
     this.updatePreview();
+    delete this._languageDraft;
   }
 
   currentValues() {
+    return normalizeConfig(this.formValues());
+  }
+
+  formValues() {
     assertGM();
     const form = this.element;
-    return normalizeConfig(Object.fromEntries(Object.keys(DEFAULTS).map(key => {
+    return Object.fromEntries(Object.keys(DEFAULTS).map(key => {
       const input = form.querySelector(`[name="${key}"]`);
       return [key, typeof DEFAULTS[key] === "boolean" ? input.checked : input.value];
-    })));
+    }));
   }
 
   static toggleWebhookVisibility(_event, target) {
@@ -140,7 +170,7 @@ export class WorldStatusSettings extends HandlebarsApplicationMixin(ApplicationV
       const values = this.currentValues();
       await runExclusive(async () => {
         await sendWebhook(values.webhookUrl, {
-          content: "Foundry World Status – Verbindung erfolgreich.",
+          content: t("testMessage"),
           allowed_mentions: {parse: [], users: [], roles: [], replied_user: false}
         });
         ui.notifications.info(t("testSuccess"));

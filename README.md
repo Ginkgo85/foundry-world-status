@@ -1,6 +1,8 @@
 # Foundry World Status
 
-Version **1.1.1** · Foundry VTT **14.368** · Nur für GMs · Keine Modulabhängigkeiten
+**Deutsch** | [English](README.en.md)
+
+Version **1.2.0** · Foundry VTT **14.368** · Nur für GMs · Keine Modulabhängigkeiten
 
 **Status: Community Release / In Development**
 
@@ -17,6 +19,7 @@ Kündige deine Spielrunde mit einem Klick auf Discord als **ONLINE** oder **OFFL
 - Optionaler Rollenping bei ONLINE und integrierter Verbindungstest.
 - Optional automatisch OFFLINE vor dem Zurückkehren zum Setup.
 - Einstellungen und Ankündigungsstatus werden pro Welt gespeichert; der Webhook bleibt im jeweiligen Browser.
+- Deutsche und englische Oberfläche mit optionaler lokaler Sprachwahl pro Benutzer.
 
 **ONLINE wird bewusst per GM-Klick angekündigt.** Es gibt keine automatische Erreichbarkeitsprüfung und keine Nachricht beim Starten der Welt. ON/OFF zeigt den gespeicherten Ankündigungsstatus an.
 
@@ -33,9 +36,19 @@ Der feste Manifest-Link installiert den jeweils veröffentlichten neuesten Relea
 
 3. Die Welt öffnen und unter **Einstellungen → Module verwalten** das Modul aktivieren. Anschließend die Welt neu laden.
 
-Alternativ: [ZIP für v1.1.1](https://github.com/Ginkgo85/foundry-world-status/releases/download/v1.1.1/foundry-world-status.zip) (erst nach Veröffentlichung verfügbar) und in `Data/modules/foundry-world-status/` entpacken. `module.json` liegt direkt im ZIP-Root und muss anschließend direkt im Modulordner liegen. Foundry danach neu starten beziehungsweise die Module neu laden.
+Alternativ: [ZIP für v1.2.0](https://github.com/Ginkgo85/foundry-world-status/releases/download/v1.2.0/foundry-world-status.zip) (erst nach Veröffentlichung verfügbar) und in `Data/modules/foundry-world-status/` entpacken. `module.json` liegt direkt im ZIP-Root und muss anschließend direkt im Modulordner liegen. Foundry danach neu starten beziehungsweise die Module neu laden.
 
 Bei einem manuellen Update den bisherigen Modulordner sichern und durch den neuen ZIP-Inhalt ersetzen. **Keine World-Daten löschen.**
+
+## Sprache
+
+Die Moduloberfläche unterstützt **Deutsch und Englisch**. Standardmäßig folgt **Automatisch** der aktiven Foundry-Oberflächensprache. Andere Foundry-Sprachen verwenden Foundrys englischen Fallback.
+
+In Foundrys normalen Moduleinstellungen unter **Foundry World Status → Sprache / Language** kannst du **Automatisch**, **Deutsch** oder **English** auswählen und die Einstellungen speichern. Die Wahl gilt nur für deinen Benutzer, in dieser Welt und diesem Browser. Andere GMs und Spieler bleiben unbeeinflusst – auch wenn sie denselben PC mit einem anderen Foundry-Benutzer verwenden. In einem anderen Browser beginnt die Auswahl wieder mit Automatisch.
+
+Geöffnete Modulfenster und der Button-Tooltip werden aktualisiert, ohne die Welt neu zu laden. Nicht gespeicherte Eingaben bleiben erhalten. Während Speichern oder Verbindungstest läuft, gilt die neue Fensterbeschriftung spätestens beim nächsten Öffnen.
+
+**Deine gespeicherten Discord-Texte werden niemals übersetzt oder überschrieben.** Nur noch nicht gespeicherte Standardtexte können der gewählten Sprache folgen. Ein Sprachwechsel sendet keine Discord-Nachricht und verändert weder Webhook noch ON/OFF-Status. Spieler können ihre Sprache auswählen; die Discord-Bedienung bleibt ausschließlich für GMs sichtbar.
 
 ## In wenigen Schritten startklar
 

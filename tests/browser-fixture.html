@@ -20,27 +20,47 @@ body {background: #18181e; margin: 0; font-family: Arial,sans-serif;}
 <script src="/handlebars.js"></script>
 <script type="module">
 import FormDataExtended from "/form-data-extended.mjs";
-const lang = await (await fetch("/modules/foundry-world-status/lang/de.json")).json();
-const localize = key => key.split(".").reduce((o, k) => o?.[k], lang) ?? key;
+import Localization from "/localization.mjs";
+const query = new URLSearchParams(location.search);
+const language = query.get("lang") ?? "de";
+const userId = query.get("user") ?? "test-gm";
+const isGM = query.get("role") !== "player";
+const languages = Object.fromEntries(await Promise.all(["de", "en"].map(async code => [code, await (await fetch("/modules/foundry-world-status/lang/" + code + ".json")).json()])));
+const localize = key => game.i18n.localize(key);
 const hooks = new Map(), values = new Map(), configs = new Map();
 window.Hooks = {once: (name, fn) => hooks.set(name, fn), on: (name, fn) => hooks.set(name, fn)};
-window.game = {ready: true, world: {id: "test-world"}, user: {id: "test-gm", isGM: true}, users: [], shutDown: async () => {},
+window.game = {ready: true, world: {id: "test-world"}, userId, user: {id: userId, isGM}, users: [], shutDown: async () => {},
   logOut() {
     sessionStorage.setItem("logout-check", JSON.stringify({online:values.get("online"), shutdownRequests:window.fixture.shutdownRequests.length}));
     window.location.href = "/logout-complete";
   },
-  i18n: {localize, format: (key, data) => localize(key).replace(/\{(\w+)\}/g, (_, k) => data[k])},
+  i18n: new Localization(language),
   settings: {
     register: (_m, key, config) => {configs.set(key, config); if (!values.has(key)) values.set(key, config.default);},
-    registerMenu: () => {}, get: (_m, key) => structuredClone(values.get(key)),
-    set: async (_m, key, value) => {values.set(key, structuredClone(value)); configs.get(key)?.onChange?.(value);}
+    registerMenu: () => {},
+    get: (_m, key) => key.startsWith("language-") ? JSON.parse(localStorage.getItem("foundry-world-status." + key) ?? '"auto"') : structuredClone(values.get(key)),
+    set: async (_m, key, value) => {
+      if (key.startsWith("language-")) localStorage.setItem("foundry-world-status." + key, JSON.stringify(value));
+      else values.set(key, structuredClone(value));
+      configs.get(key)?.onChange?.(value);
+    }
   }
 };
-class ApplicationV2 {async _prepareContext() {return {};} async _onRender() {} _canRender() {}}
+const applications = new Set();
+class ApplicationV2 {
+  constructor() {applications.add(this); this.rendered = true;}
+  static instances() {return applications.values();}
+  async _prepareContext() {return {};} async _onRender() {} _canRender() {}
+  async render() {await renderSettings(); return this;}
+}
+window.CONFIG = {debug: {i18n: false}};
+game.i18n.translations = languages[language] ?? {};
+game.i18n._fallback = languages.en; // Test-only setup of native unsupported-language fallback.
 window.foundry = {
+  helpers: {Localization},
   applications: {api: {ApplicationV2, HandlebarsApplicationMixin: cls => class extends cls {}}, elements: {}},
   data: {fields: {BooleanField: class {}}},
-  utils: {getType: value => Object.prototype.toString.call(value).slice(8,-1), isElementInstanceOf: (value, type) => value instanceof type,
+  utils: {getProperty: (object, key) => key.split(".").reduce((value, part) => value?.[part], object), getType: value => Object.prototype.toString.call(value).slice(8,-1), isElementInstanceOf: (value, type) => value instanceof type,
     getRoute: route => `/prefix/${route}`,
     fetchWithTimeout: async (url, options) => {window.fixture.shutdownRequests.push({url, options}); return {ok:true};}}
 };
@@ -61,10 +81,11 @@ window.ui = {
 };
 const main = await import("/modules/foundry-world-status/scripts/main.js");
 const {WorldStatusSettings} = await import("/modules/foundry-world-status/scripts/settings.js");
-hooks.get("init")(); main.addSceneTools(ui.controls.controls); hooks.get("ready")(); await ui.controls.render();
+hooks.get("init")(); main.addSceneTools(ui.controls.controls); await hooks.get("ready")(); await ui.controls.render();
 const app = new WorldStatusSettings(); app.element = document.querySelector("#fixture-form");
 async function renderSettings() {
   const context = await app._prepareContext({});
+  app.element.querySelector(".window-title").textContent = app.title;
   const template = Handlebars.compile(await (await fetch("/modules/foundry-world-status/templates/settings.hbs")).text());
   app.element.querySelector(".window-content").innerHTML = template(context);
   await app._onRender(context, {});
@@ -74,7 +95,17 @@ async function renderSettings() {
     if (target && !target.disabled) WorldStatusSettings.DEFAULT_OPTIONS.actions[target.dataset.action]?.call(app, event, target);
   };
 }
-await renderSettings();
-window.fixture = {app, values, renderSettings, shutdownRequests: []};
+const locale = await import("/modules/foundry-world-status/scripts/localization.js");
+const nativeSetting = configs.get(locale.languageSettingKey());
+const languageControl = document.createElement("select"); languageControl.id = "fixture-language";
+languageControl.setAttribute("aria-label", nativeSetting.name);
+languageControl.style.cssText = "position:absolute;left:300px;top:875px;width:200px";
+for (const [value, label] of Object.entries(nativeSetting.choices)) languageControl.add(new Option(label, value));
+languageControl.value = locale.languagePreference();
+languageControl.onchange = () => game.settings.set("foundry-world-status", locale.languageSettingKey(), languageControl.value);
+document.body.append(languageControl);
+if (isGM) await renderSettings();
+else {app.rendered = false; app.element.hidden = true;}
+window.fixture = {app, values, configs, locale, renderSettings, shutdownRequests: []};
 document.querySelector("#fixture-logout").onclick = () => game.logOut();
 </script></body></html>

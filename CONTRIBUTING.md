@@ -55,7 +55,7 @@ Der direkte Aufruf von release.mjs ohne --publish prüft nur die Remote-Vorausse
 
 ## Build und Dateien
 
-tools/build-release.mjs ist die einzige Build-Implementierung. release/ ist ignorierte Ausgabe mit genau module.json und foundry-world-status.zip. Standard-ZIP mit STORE und festen Zeitstempeln; 14 explizite Laufzeit-/Endbenutzerdateien, Root-Manifest, keine Entwicklungsdateien.
+tools/build-release.mjs ist die einzige Build-Implementierung. release/ ist ignorierte Ausgabe mit genau module.json und foundry-world-status.zip. Standard-ZIP mit STORE und festen Zeitstempeln; 17 explizite Laufzeit-/Endbenutzerdateien einschließlich beider Sprachdateien, beider README-Fassungen und der Lokalisierungsanbindung, Root-Manifest, keine Entwicklungsdateien.
 
 tools/verify-release.mjs prüft echte ZIP-Einträge, CRC32, Quellenvergleich, Manifest-Kopie und Secret-Muster. tools/check-project.mjs prüft die Quellen. Die bekannte Secret-Musterprüfung ersetzt keine allgemeine Sicherheitsanalyse.
 

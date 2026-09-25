@@ -1,7 +1,7 @@
 <section class="fws-layout">
   <header class="fws-intro">
-    <p>{{localize "FWS.intro"}}</p>
-    <p class="fws-security"><i class="fa-solid fa-key" aria-hidden="true"></i> {{localize "FWS.securityHint"}}</p>
+    <p>{{@root.i18n.intro}}</p>
+    <p class="fws-security"><i class="fa-solid fa-key" aria-hidden="true"></i> {{@root.i18n.securityHint}}</p>
   </header>
   <div class="fws-body">
     <div class="fws-fields">
@@ -20,7 +20,7 @@
             <input id="fws-{{key}}" name="{{key}}" type="password" value="{{value}}" maxlength="{{maxLength}}"
                    autocomplete="off" spellcheck="false" aria-describedby="fws-hint-{{key}}">
             <button type="button" class="fws-secret-toggle" data-action="toggleWebhook" aria-controls="fws-{{key}}"
-                    aria-pressed="false" aria-label="{{localize 'FWS.showWebhook'}}" title="{{localize 'FWS.showWebhook'}}">
+                    aria-pressed="false" aria-label="{{@root.i18n.showWebhook}}" title="{{@root.i18n.showWebhook}}">
               <i class="fa-solid fa-eye" aria-hidden="true"></i>
             </button>
           </div>
@@ -34,8 +34,8 @@
       </fieldset>
       {{/each}}
     </div>
-    <aside class="fws-preview" aria-label="{{localize 'FWS.preview'}}">
-      <h3>{{localize "FWS.preview"}}</h3>
+    <aside class="fws-preview" aria-label="{{@root.i18n.preview}}">
+      <h3>{{@root.i18n.preview}}</h3>
       <div class="fws-discord-message">
         <div class="fws-preview-user"></div>
         <p class="fws-preview-content"></p>
@@ -46,12 +46,12 @@
           <small class="fws-preview-footer"></small>
         </div>
       </div>
-      <p class="hint">{{localize "FWS.previewHint"}}</p>
+      <p class="hint">{{@root.i18n.previewHint}}</p>
     </aside>
   </div>
   <footer class="fws-actions">
-    <button type="button" data-action="test"><i class="fa-brands fa-discord" aria-hidden="true"></i> {{localize "FWS.test"}}</button>
-    <button type="submit"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> {{localize "FWS.save"}}</button>
-    <p class="hint">{{localize "FWS.testHint"}}</p>
+    <button type="button" data-action="test"><i class="fa-brands fa-discord" aria-hidden="true"></i> {{@root.i18n.test}}</button>
+    <button type="submit"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> {{@root.i18n.save}}</button>
+    <p class="hint">{{@root.i18n.testHint}}</p>
   </footer>
 </section>

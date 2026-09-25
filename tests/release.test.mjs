@@ -14,7 +14,7 @@ const repo = "https://github.com/Ginkgo85/foundry-world-status";
 test("release version, author, exact description and supported Foundry build are consistent", () => {
   assert.equal(pkg.version, manifest.version);
   assert.equal(manifest.authors[0].name, "Ginkgo85"); assert.equal(manifest.authors[0].url, repo);
-  assert.equal(manifest.description, "Den Status der aktiven Foundry-Spielwelt per Discord-Webhook als ONLINE oder OFFLINE ankündigen. Nur für Spielleiter.");
+  assert.equal(manifest.description, "Den Status der aktiven Foundry-Spielwelt per Discord-Webhook als ONLINE oder OFFLINE ankündigen. Nur für Spielleiter. / Announce the active Foundry game world's status as ONLINE or OFFLINE via a Discord webhook. For GMs only.");
   assert.deepEqual(manifest.compatibility, {minimum:"14.367", verified:"14.368", maximum:"14"});
 });
 
@@ -94,15 +94,15 @@ test("ZIP directory entries match source bytes and checksums", async () => {
   const output = await mkdtemp(path.join(os.tmpdir(), "fws-content-test-"));
   await buildRelease(output);
   const files = await verifyRelease(output);
-  assert.equal(files.length, 14);
+  assert.equal(files.length, 17);
 });
 
-test("only real German localization is declared", () => {
-  assert.deepEqual(manifest.languages, [{lang: "de", name: "Deutsch", path: "lang/de.json"}]);
+test("German and English localization files are declared", () => {
+  assert.deepEqual(manifest.languages, [{lang: "de", name: "Deutsch", path: "lang/de.json"}, {lang: "en", name: "English", path: "lang/en.json"}]);
 });
 
-test("README local links and images resolve in the repository and ZIP", async () => {
-  const source = await readFile(path.join(root, "README.md"), "utf8");
+for (const readmeFile of ["README.md", "README.en.md"]) test(readmeFile + " local links and images resolve in the repository and ZIP", async () => {
+  const source = await readFile(path.join(root, readmeFile), "utf8");
   const files = (await buildRelease(await mkdtemp(path.join(os.tmpdir(), "fws-links-")))).files;
   for (const match of source.matchAll(/\]\(([^)]+)\)|src="([^"]+)"/g)) {
     const target = match[1] ?? match[2];

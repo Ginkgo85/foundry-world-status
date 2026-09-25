@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.2.0
+
+Vorbereitet für die Veröffentlichung als v1.2.0; geprüft mit Foundry VTT 14.368.
+
+### Neu
+
+- Deutsche und englische README mit direkter Sprachauswahl; beide Fassungen sind im Modul-ZIP enthalten.
+- Vollständige englische Übersetzung der Moduloberfläche zusätzlich zu Deutsch.
+- Automatische Sprachwahl anhand der aktiven Foundry-Oberflächensprache.
+- Native lokale Sprachwahl zwischen Automatisch, Deutsch und English, getrennt nach Benutzer, Welt und Browser; ohne Einfluss auf andere GMs oder Spieler.
+- Aktualisierung geöffneter Modulfenster mit Erhalt ungespeicherter Eingaben.
+- Sprachabhängige Standardtexte für noch nicht gespeicherte Werte. Gespeicherte Discord-Inhalte, Webhook und Status bleiben beim Sprachwechsel unverändert.
+
 ## 1.1.1
 
 Vorbereitet für die Veröffentlichung als v1.1.1.

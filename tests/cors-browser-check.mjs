@@ -17,7 +17,7 @@ const received = [], failures = [];
 const listen = server => new Promise(resolve => server.listen(0, "127.0.0.1", resolve));
 const origin = server => `http://127.0.0.1:${server.address().port}`;
 const site = createServer(async (req, res) => {
-  const files = {"/discord.js": "discord.js", "/config.js": "config.js"};
+  const files = {"/discord.js": "discord.js", "/config.js": "config.js", "/localization.js": "localization.js"};
   try {
     if (req.url === "/") {
       res.writeHead(200, {"Content-Type": "text/html"});

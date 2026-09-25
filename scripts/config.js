@@ -1,7 +1,8 @@
 export const MODULE_ID = "foundry-world-status";
 export const TOOL_ID = "foundry-world-status";
-export const t = (key, data) => data
-  ? game.i18n.format(`FWS.${key}`, data) : game.i18n.localize(`FWS.${key}`);
+import {t} from "./localization.js";
+export {t} from "./localization.js";
+export const LOCALIZED_DEFAULTS = ["onlineTitle", "onlineDescription", "onlineLinkText", "offlineTitle", "offlineDescription"];
 
 // Message configuration and status are shared; webhook credentials stay in this browser.
 export const DEFAULTS = Object.freeze({
@@ -9,17 +10,17 @@ export const DEFAULTS = Object.freeze({
   serverUrl: "",
   sendOffline: true,
   autoOfflineOnShutdown: false,
-  onlineTitle: "🎲 Spielwelt ist ONLINE",
-  onlineDescription: "Die Spielwelt ist geöffnet. Ihr könnt euch jetzt verbinden.",
-  onlineLinkText: "Zur Spielwelt",
+  get onlineTitle() { return t("defaults.onlineTitle"); },
+  get onlineDescription() { return t("defaults.onlineDescription"); },
+  get onlineLinkText() { return t("defaults.onlineLinkText"); },
   onlineColor: "#2ecc71",
   onlineFooter: "Foundry Virtual Tabletop",
   onlineThumbnail: "",
   onlineImage: "",
   username: "Foundry VTT",
   avatarUrl: "",
-  offlineTitle: "🔴 Spielwelt ist OFFLINE",
-  offlineDescription: "Die Spielrunde ist beendet. Die Spielwelt wurde als OFFLINE angekündigt.",
+  get offlineTitle() { return t("defaults.offlineTitle"); },
+  get offlineDescription() { return t("defaults.offlineDescription"); },
   offlineColor: "#e74c3c",
   offlineFooter: "Foundry Virtual Tabletop",
   content: "",

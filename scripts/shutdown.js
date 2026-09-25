@@ -32,7 +32,8 @@ export function installShutdownHandler(onBusyChange = () => {}) {
         const others = this.users.filter(user => user.active && !user.isSelf).length;
         if (others > 0) {
           const confirmed = await foundry.applications.api.DialogV2.confirm({
-            window: {title: "FWS.shutdownTitle"},
+            window: {title: t("shutdownTitle")},
+            yes: {label: t("confirmYes")}, no: {label: t("confirmNo")},
             content: `<p>${t("shutdownConfirm", {number: others})}</p>`
           });
           if (!confirmed) return;

@@ -25,6 +25,10 @@ const server = createServer(async (req, res) => {
     }
     if (url.pathname === "/") filename = path.resolve("tests/browser-fixture.html");
     else if (url.pathname === "/handlebars.js") filename = path.join(core, "node_modules/handlebars/dist/handlebars.js");
+    else if (url.pathname === "/localization.mjs") {
+      const source = (await readFile(path.join(core, "client/helpers/localization.mjs"), "utf8")).replace(/^import .*;\r?$/gm, "");
+      res.writeHead(200, {"Content-Type": "text/javascript"}); res.end(source); return;
+    }
     else if (url.pathname === "/form-data-extended.mjs") filename = path.join(core, "client/applications/ux/form-data-extended.mjs");
     else if (url.pathname === "/scene-controls-tools.hbs") filename = path.join(core, "templates/ui/scene-controls-tools.hbs");
     else {
@@ -182,6 +186,82 @@ try {
   assert.equal(logoutResult.shutdownRequests, 1); // Only the earlier shutdown test; logout did not stop the world.
   assert.deepEqual(errors, []);
   console.log(`${browserName} ${browser.version()}: Browser checks passed: native FormDataExtended, preview, settings, eye button, icons, automatic OFF before world shutdown; logout preserves ON; no browser exceptions. All Discord requests simulated.`);
+
+  // Separate tabs share browser storage, exercising per-user isolation on one PC.
+  const languageContext = await browser.newContext({viewport: {width: 1040, height: 920}});
+  let languageSends = 0;
+  await languageContext.route("**/*", route => {
+    if (new URL(route.request().url()).hostname === "127.0.0.1") return route.continue();
+    languageSends++; return route.abort();
+  });
+  const openUser = async (user, language, role = "gm") => {
+    const tab = await languageContext.newPage();
+    tab.on("pageerror", error => errors.push(error.message));
+    await tab.goto(`http://127.0.0.1:${server.address().port}/?user=${user}&lang=${language}&role=${role}`);
+    await tab.waitForFunction(() => !!window.fixture);
+    return tab;
+  };
+  const a = await openUser("gm-a", "de");
+  const player = await openUser("player-b", "de", "player");
+  const otherGM = await openUser("gm-b", "de");
+  assert.equal(await a.locator('[type="submit"]').innerText(), "Einstellungen speichern");
+  await a.locator("#fixture-language").selectOption("en");
+  await a.getByRole("button", {name: "Save Settings", exact: true}).waitFor();
+  assert.equal(await a.evaluate(() => game.i18n.lang), "de");
+  assert.equal(await a.locator('[data-action="test"]').innerText(), "Test Discord Connection");
+  assert.equal(await a.locator('[data-action="toggleWebhook"]').getAttribute("aria-label"), "Show Webhook URL");
+  assert.equal(await a.locator(".fws-preview h3").innerText(), "Discord Preview");
+  assert.equal(await a.locator('button[data-tool="foundry-world-status"]').getAttribute("aria-label"), "Announce the game world as ONLINE on Discord");
+  await a.evaluate(() => fixture.renderSettings());
+  assert.equal(await a.locator('[name="onlineTitle"]').inputValue(), "🎲 Game World is ONLINE");
+  await a.locator('[name="onlineTitle"]').fill("Die Spielrunde beginnt!");
+  await a.locator('[name="onlineLinkText"]').fill("");
+  await a.locator('[name="serverUrl"]').fill("https://foundry.example.invalid/game");
+  await a.locator('[type="submit"]').click();
+  await a.getByRole("status").filter({hasText: "Settings saved."}).waitFor();
+  const saved = await a.evaluate(() => JSON.stringify([...fixture.values]));
+  await a.locator('[name="onlineDescription"]').fill("  Noch nicht gespeichert!  ");
+  await a.locator("#fixture-language").selectOption("de");
+  await a.getByRole("button", {name: "Einstellungen speichern", exact: true}).waitFor();
+  assert.equal(await a.locator('[name="onlineDescription"]').inputValue(), "  Noch nicht gespeichert!  ");
+  assert.equal(await a.evaluate(() => JSON.stringify([...fixture.values])), saved);
+  await a.evaluate(() => fixture.renderSettings());
+  assert.equal(await a.locator('[name="onlineTitle"]').inputValue(), "Die Spielrunde beginnt!");
+  assert.equal(await a.locator('[name="onlineLinkText"]').inputValue(), "");
+  assert.equal(await a.locator(".fws-preview-title").innerText(), "Die Spielrunde beginnt!");
+  assert.equal(await player.evaluate(() => fixture.locale.languagePreference()), "auto");
+  assert.equal(await player.evaluate(() => fixture.locale.t("save")), "Einstellungen speichern");
+  assert.equal(await player.locator('button[data-tool="foundry-world-status"]').count(), 0);
+  assert.equal(await otherGM.locator('[type="submit"]').innerText(), "Einstellungen speichern");
+  await player.locator("#fixture-language").selectOption("en");
+  await player.waitForFunction(() => fixture.locale.t("save") === "Save Settings");
+  assert.equal(await a.locator('[type="submit"]').innerText(), "Einstellungen speichern");
+  assert.equal(await otherGM.evaluate(() => fixture.locale.languagePreference()), "auto");
+  await a.locator("#fixture-language").selectOption("auto");
+  await a.waitForFunction(() => fixture.locale.languagePreference() === "auto");
+  await a.locator("#fixture-language").selectOption("en");
+  await a.getByRole("button", {name: "Save Settings", exact: true}).waitFor();
+  await a.evaluate(() => fixture.renderSettings());
+  await a.locator('[data-action="toggleWebhook"]').click();
+  assert.equal(await a.locator('[data-action="toggleWebhook"]').getAttribute("aria-label"), "Hide Webhook URL");
+  await a.evaluate(() => fixture.renderSettings());
+  assert.equal(await a.locator('[name="webhookUrl"]').getAttribute("type"), "password");
+  await a.locator(".fws-fields").evaluate(el => {el.scrollTop = 0;});
+  await a.screenshot({path: path.join(out, "language-en.png")});
+  const reloadedA = await openUser("gm-a", "de");
+  assert.equal(await reloadedA.locator('[type="submit"]').innerText(), "Save Settings");
+  const automaticEnglish = await openUser("gm-english", "en");
+  assert.equal(await automaticEnglish.locator('[type="submit"]').innerText(), "Save Settings");
+  await automaticEnglish.locator("#fixture-language").selectOption("de");
+  await automaticEnglish.getByRole("button", {name: "Einstellungen speichern", exact: true}).waitFor();
+  assert.equal(await automaticEnglish.evaluate(() => game.i18n.lang), "en");
+  await automaticEnglish.screenshot({path: path.join(out, "language-de.png")});
+  const unsupported = await openUser("gm-fallback", "fr");
+  assert.equal(await unsupported.locator('[type="submit"]').innerText(), "Save Settings");
+  assert.equal(languageSends, 0);
+  assert.deepEqual(errors, []);
+  await languageContext.close();
+  console.log(`${browserName}: language checks passed: DE/EN, auto, both overrides, fallback, same-browser GM/player isolation, persisted preference, preserved saved and draft values, tooltips, buttons, preview and eye. No Discord traffic.`);
 } finally {
   await browser?.close(); await new Promise(resolve => server.close(resolve));
 }

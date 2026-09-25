@@ -6,11 +6,11 @@ import assert from "node:assert/strict";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 export const releaseFiles = [
-  "module.json", "README.md", "CHANGELOG.md", "LICENSE",
+  "module.json", "README.md", "README.en.md", "CHANGELOG.md", "LICENSE",
   "scripts/config.js", "scripts/discord.js", "scripts/main.js",
   "scripts/settings.js", "scripts/shutdown.js",
   "templates/settings.hbs", "styles/foundry-world-status.css",
-  "icons/discord-on.svg", "icons/discord-off.svg", "lang/de.json"
+  "icons/discord-on.svg", "icons/discord-off.svg", "lang/de.json", "lang/en.json", "scripts/localization.js"
 ].sort();
 
 export function validateManifest(manifest, pkg) {

@@ -1,6 +1,7 @@
 import {MODULE_ID, TOOL_ID, WorldStatusError, assertGM, readConfig, reportError, t, webhookUrl, migrateWebhook} from "./config.js";
 import {buildPayload, isBusy, runExclusive, sendWebhook} from "./discord.js";
 import {registerSettings} from "./settings.js";
+import {prepareLanguage} from "./localization.js";
 import {installShutdownHandler} from "./shutdown.js";
 
 /** Update the official V14 control model and re-render only its tools part. No DOM replacement. */
@@ -75,6 +76,7 @@ export function addSceneTools(controls) {
 Hooks.once("init", () => registerSettings(refreshControls));
 Hooks.on("getSceneControlButtons", addSceneTools);
 Hooks.once("ready", async () => {
+  try { await prepareLanguage(); } catch { reportError(new WorldStatusError("languageLoad")); }
   refreshControls();
   installShutdownHandler(refreshControls);
   if (game.user?.isGM) {
