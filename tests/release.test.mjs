@@ -94,15 +94,19 @@ test("ZIP directory entries match source bytes and checksums", async () => {
   const output = await mkdtemp(path.join(os.tmpdir(), "fws-content-test-"));
   await buildRelease(output);
   const files = await verifyRelease(output);
-  assert.equal(files.length, 17);
+  assert.equal(files.length, 16);
 });
 
 test("German and English localization files are declared", () => {
   assert.deepEqual(manifest.languages, [{lang: "de", name: "Deutsch", path: "lang/de.json"}, {lang: "en", name: "English", path: "lang/en.json"}]);
 });
 
-for (const readmeFile of ["README.md", "README.en.md"]) test(readmeFile + " local links and images resolve in the repository and ZIP", async () => {
-  const source = await readFile(path.join(root, readmeFile), "utf8");
+for (const language of ["deutsch", "english"]) test(language + " README section links and images resolve in the repository and ZIP", async () => {
+  const readme = await readFile(path.join(root, "README.md"), "utf8");
+  const anchor = '<a id="' + language + '"></a>';
+  assert.ok(readme.includes(anchor), "Language jump target must exist");
+  assert.ok(readme.includes("](#" + language + ")"), "Language jump link must exist");
+  const source = readme.split(anchor)[1].split('<a id="')[0];
   const files = (await buildRelease(await mkdtemp(path.join(os.tmpdir(), "fws-links-")))).files;
   for (const match of source.matchAll(/\]\(([^)]+)\)|src="([^"]+)"/g)) {
     const target = match[1] ?? match[2];

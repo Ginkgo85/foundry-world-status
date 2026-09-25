@@ -1,4 +1,16 @@
-# Validierung – Release-Vorbereitung 1.2.0
+# Validierung – README und Release 1.2.0
+
+## Nachtrag: gemeinsame README (25. September 2026)
+
+Deutsch steht jetzt oben und Englisch darunter in derselben README.md. Die Sprachwahl oben und die Rücksprunglinks verwenden lokale Anker. README.en.md entfällt; die ursprünglichen Inhalte bleiben erhalten. Die vorhandenen Linkprüfungen prüfen beide Sprachabschnitte einschließlich ihrer Sprungziele.
+
+Version und Laufzeitcode sind unverändert. v1.2.0 ist inzwischen auf GitHub veröffentlicht; das vorhandene Release, sein Tag und seine Assets werden durch diese Dokumentationsänderung nicht ersetzt. Der aktuelle lokale Build enthält 16 Dateien statt 17, einschließlich der gemeinsamen README.
+
+Für diesen Nachtrag erneut ausgeführt: npm test ohne Core (141 Tests, 135 bestanden, 6 erwartete Skips), npm test mit Core 14.368 (141 bestanden, keine Skips), npm run build:release, npm run test:release und git diff --check. Browserprüfungen wurden für diese reine Dokumentationsänderung nicht erneut ausgeführt; die Ergebnisse für den unveränderten Laufzeitcode stehen im ursprünglichen Bericht unten. CI/CodeQL werden für den neuen Commit nach dem Push kontrolliert.
+
+## Ursprünglicher Bericht vor Veröffentlichung von 1.2.0
+
+Die folgenden Angaben dokumentieren den damaligen Vorbereitungsstand einschließlich der damals getrennten README-Dateien und ersetzen nicht den Nachtrag oben.
 
 Prüfdatum: 25. September 2026. Kandidat **1.2.0** für Foundry **14.368**. GitHub veröffentlicht weiterhin 1.1.1; 1.2.0 wurde nicht veröffentlicht. Die ursprünglich genannte 14.687 wurde nach Rückfrage vom Benutzer auf 14.368 korrigiert.
 
