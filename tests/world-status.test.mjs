@@ -62,7 +62,7 @@ const discord = await import("../scripts/discord.js");
 const {buildPayload, sendWebhook, runExclusive, isBusy} = discord;
 const main = await import("../scripts/main.js");
 const {WorldStatusSettings, registerSettings} = await import("../scripts/settings.js");
-const {installShutdownHandler} = await import("../scripts/shutdown.js");
+const {installShutdownHandler, installLogoutHandler, logoutWithAnnouncement} = await import("../scripts/shutdown.js");
 
 hookCallbacks.get("init")();
 const fakeWebhook = `https://discord.com/api/webhooks/${"1".repeat(18)}/${"test_token_".repeat(7)}`;
@@ -484,7 +484,9 @@ test("shutdown auto-announces OFFLINE, persists OFF, then posts to the route-pre
   assert.equal(result.native.length, 0); assert.equal(result.setup.length, 1);
   assert.equal(result.setup[0].url, "/prefix/setup");
   assert.equal(result.setup[0].options.method, "POST");
-  assert.deepEqual(JSON.parse(result.setup[0].options.body), {shutdown:true});
+  assert.ok(result.setup[0].options.body instanceof URLSearchParams);
+  assert.equal(result.setup[0].options.body.toString(), "action=worldShutdown");
+  assert.equal(result.setup[0].options.headers, undefined);
   assert.equal(result.setup[0].options.redirect, "manual");
   clock += 1000; await game.shutDown();
   assert.equal(result.setup.length, 1); assert.equal(calls.length, 1);
@@ -931,4 +933,144 @@ test("startup timeout leaves OFF and releases the send lock without a retry", as
   assert.equal(isBusy(), false); assert.equal(writes.length, 0);
   assert.equal(notifications.at(-1).message, lookup("FWS.errors.timeout"));
   assert.ok(!JSON.stringify({logs, notifications}).includes(fakeWebhook));
+});
+
+test("enabled shutdown sends the same request format as installed Foundry 14.368", async t => {
+  const core = process.env.FOUNDRY_APP_PATH;
+  if (!core) {t.skip("FOUNDRY_APP_PATH required"); return;}
+  const source = await readFile(path.join(core, "client/game.mjs"), "utf8");
+  const start = source.indexOf("  async shutDown() {"), end = source.indexOf("\n  }", start) + 4;
+  assert.ok(start > 0 && end > start);
+  const method = source.slice(start, end).replace("async shutDown()", "async function shutDown()");
+  const nativeRequests = [];
+  const native = new Function("utils", "getRoute", "_loc", "return (" + method + ");")(
+    {fetchWithTimeout: async (url, options) => {nativeRequests.push({url, options});}},
+    route => "/prefix/" + route, key => key);
+  const result = prepareShutdown();
+  await native();
+  await game.shutDown();
+  assert.equal(result.setup.length, 1);
+  const expected = nativeRequests[0], actual = result.setup[0];
+  assert.equal(actual.url, expected.url);
+  assert.equal(actual.options.method, expected.options.method);
+  assert.equal(actual.options.body.toString(), expected.options.body.toString());
+  assert.equal(actual.options.headers, expected.options.headers);
+  assert.equal(actual.options.redirect, expected.options.redirect);
+});
+
+function prepareLogout({auto = true, sendOffline = true, online = true} = {}) {
+  const result = {native: 0};
+  globalThis.game = {...game, logOut() {result.native++;}};
+  storeConfig({...goodConfig(), autoOfflineOnLogout: auto, sendOffline});
+  stored.set("online", online);
+  return result;
+}
+
+test("logout automation defaults off and saving it sends no message", async () => {
+  assert.equal(DEFAULTS.autoOfflineOnLogout, false);
+  const config = goodConfig(); delete config.autoOfflineOnLogout; storeConfig(config);
+  assert.equal(readConfig().autoOfflineOnLogout, false);
+  const app = new WorldStatusSettings(); app.element = {querySelector: () => ({})};
+  await WorldStatusSettings.save.call(app, {}, {}, {object: {...config, autoOfflineOnLogout: true}});
+  const field = (await app._prepareContext({})).groups.flatMap(g => g.fields).find(f => f.key === "autoOfflineOnLogout");
+  assert.equal(field.checkbox, true); assert.equal(field.value, true);
+  assert.equal(calls.length, 0);
+});
+
+test("logout waits for confirmed OFF and status persistence before invoking native logout", async () => {
+  const result = prepareLogout(); let finish;
+  setFetch(() => new Promise(resolve => {finish = resolve;}));
+  const pending = logoutWithAnnouncement();
+  assert.equal(result.native, 0); assert.equal(stored.get("online"), true);
+  await logoutWithAnnouncement(); await main.toggleAnnouncement();
+  assert.equal(calls.length, 1); assert.equal(result.native, 0);
+  finish(response()); await pending;
+  assert.equal(result.native, 1); assert.equal(stored.get("online"), false);
+  assert.deepEqual(writes, [{key: "online", value: false}]);
+  assert.deepEqual(JSON.parse(calls[0][1].body.get("payload_json")), buildPayload(readConfig(), false));
+});
+
+test("players, disabled options and saved OFF keep native logout without sending", async () => {
+  for (const options of [{auto:false}, {sendOffline:false}, {online:false}, {player:true}]) {
+    const result = prepareLogout(options); game.user.isGM = !options.player;
+    await logoutWithAnnouncement();
+    assert.equal(result.native, 1); assert.equal(calls.length, 0); assert.equal(writes.length, 0);
+  }
+});
+
+test("logout during another Discord action stays on the page", async () => {
+  const result = prepareLogout(); let finish;
+  const pending = runExclusive(() => new Promise(resolve => {finish = resolve;}));
+  await logoutWithAnnouncement();
+  assert.equal(result.native, 0); assert.equal(calls.length, 0);
+  assert.equal(notifications.at(-1).message, lookup("FWS.logoutBusy"));
+  finish(); await pending;
+});
+
+for (const failure of ["network", "confirmation", "rateLimit", "storage", "migration", "webhook"])
+test("logout failure " + failure + " does not leave the page or expose secrets", async () => {
+  const result = prepareLogout();
+  if (failure === "network") setFetch(() => {throw new Error(fakeWebhook);});
+  if (failure === "confirmation") setFetch(() => response(200, {}));
+  if (failure === "rateLimit") setFetch(() => response(429, {retry_after: 1}));
+  if (failure === "storage") failWrite = true;
+  if (failure === "migration") stored.get("configuration").webhookUrl = fakeWebhook;
+  if (failure === "webhook") storeConfig({...readConfig(), webhookUrl: ""});
+  await logoutWithAnnouncement();
+  assert.equal(result.native, 0); assert.equal(stored.get("online"), true);
+  assert.equal(isBusy(), false); assert.equal(notifications.at(-1).message, lookup("FWS.logoutStopped"));
+  assert.ok(!JSON.stringify({logs, notifications}).includes(fakeWebhook));
+});
+
+test("failed native logout keeps confirmed OFF and permits a retry without another Discord send", async () => {
+  prepareLogout();
+  game.logOut = () => {throw new Error("private details");};
+  await logoutWithAnnouncement();
+  assert.equal(calls.length, 1); assert.equal(stored.get("online"), false);
+  assert.ok(notifications.some(n => n.message === lookup("FWS.errors.logoutRequest")));
+  let left = 0; game.logOut = () => {left++;};
+  await logoutWithAnnouncement();
+  assert.equal(calls.length, 1); assert.equal(left, 1);
+});
+
+test("logout rechecks opt-in and status after acquiring the shared lock", async () => {
+  for (const change of [
+    () => {stored.get("configuration").autoOfflineOnLogout = false;},
+    () => {stored.set("online", false);}
+  ]) {
+    clock += 1000; const result = prepareLogout();
+    await logoutWithAnnouncement(change);
+    assert.equal(result.native, 1); assert.equal(calls.length, 0);
+  }
+});
+
+test("logout listener installs once on the specific Settings button and leaves forced logout untouched", async () => {
+  const result = prepareLogout();
+  let handler, bindings = 0;
+  const button = {addEventListener: (event, fn, options) => {
+    assert.equal(event, "click"); assert.equal(options.capture, true); handler = fn; bindings++;
+  }};
+  const html = {querySelectorAll: selector => {
+    assert.equal(selector, '[data-action="openApp"][data-app="logout"]'); return [button];
+  }};
+  const original = game.logOut;
+  installLogoutHandler(html); installLogoutHandler(html);
+  assert.equal(bindings, 1); assert.equal(game.logOut, original);
+  game.logOut(); assert.equal(result.native, 1); assert.equal(calls.length, 0);
+  let blocked = 0;
+  const event = {button: 0, preventDefault() {blocked++;}, stopImmediatePropagation() {blocked++;}};
+  stored.set("online", false); handler(event); assert.equal(blocked, 0);
+  stored.set("online", true);
+  let finish; setFetch(() => new Promise(resolve => {finish = resolve;}));
+  handler(event);
+  assert.equal(blocked, 2); assert.equal(calls.length, 1); assert.equal(result.native, 1);
+  finish(response());
+  while (isBusy()) await new Promise(resolve => setImmediate(resolve));
+  assert.equal(result.native, 2); assert.equal(stored.get("online"), false);
+});
+
+test("player Settings never receive a logout interception listener", () => {
+  prepareLogout(); game.user.isGM = false;
+  installLogoutHandler({querySelectorAll() {throw new Error("Player DOM must remain untouched");}});
+  assert.equal(calls.length, 0);
 });

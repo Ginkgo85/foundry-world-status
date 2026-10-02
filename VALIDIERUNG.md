@@ -1,3 +1,59 @@
+# Validierung – Shutdown-Korrektur und Abmelden 1.3.1
+
+Stand: 2. Oktober 2026. **Korrekturstand für die bereits veröffentlichte 1.3.0; noch kein Release 1.3.1.** Dieser Bericht gilt für den aktuellen Stand; ältere Angaben unten sind historisch.
+
+## Nachgewiesener Fehler und Korrektur
+
+Der gemeldete Fehler tritt nach erfolgreicher OFFLINE-Ankündigung beim Anfordern des Welt-Shutdowns auf. Der Modulcode sendete JSON mit shutdown=true. Der tatsächlich installierte Core 14.368 sendet an dieselbe Setup-Route dagegen URLSearchParams mit action=worldShutdown. Ein neuer Test vergleicht den aktiven Modulpfad mit der aus der eigenen lizenzierten Installation geladenen Game.shutDown-Methode: vor der Korrektur nachweislich fehlgeschlagen, danach bestanden.
+
+Die bisherigen Test-Doubles akzeptierten jedes Anfrageformat; der damalige Core-Test prüfte nur den deaktivierten Modulpfad. Diese Prüflücke ist geschlossen. Das Modul sendet jetzt das Core-Formularformat ohne manuell gesetzten JSON-Header. Route-Präfix, Bestätigung bei anderen verbundenen Benutzern, Statusspeicherung vor Shutdown, opaque Weiterleitung und Behandlung echter HTTP-/Netzwerkfehler bleiben erhalten. Der Fehlerhinweis wird nicht einfach unterdrückt.
+
+## Abmelden
+
+Separate Option autoOfflineOnLogout, Standard false, unter OFFLINE Nachricht, auf Deutsch und Englisch. Sie erfordert aktivierten OFFLINE-Versand und gespeicherten Status ON.
+
+Nur ein expliziter GM-Klick auf den Abmelden-Button der Foundry-Settings wird abgefangen. Nach bestätigtem Versand wird OFF gespeichert und dann die unveränderte Game.logOut-Methode aufgerufen. Fehler stoppen das Verlassen der Seite. Die bestehende lokale Versandsperre schützt auch diesen Ablauf vor Doppelklicks und parallelem Versand. Spieler, deaktivierte Optionen und bereits gespeichertes OFF verwenden den normalen Abmeldeweg.
+
+Der renderSettings-Hook bindet den Listener gezielt an den Core-Button data-action=openApp/data-app=logout, einmal pro DOM-Element. Bereits gerenderte Settings werden im ready-Hook berücksichtigt. Game.logOut wird nicht überschrieben: erzwungene Abmeldungen durch Core/Socket bleiben unverändert. Keyboard-Aktivierung des Buttons ist mitgeprüft. Der tatsächliche V14-Settings-Action-Handler und die Render-Hook-/Event-Anbindung im installierten Core wurden gelesen.
+
+**Abmelden beendet ausschließlich die Sitzung, nicht die Welt.** Andere Benutzer können bei angekündigtem OFF weiterspielen. Bei eingeschaltetem automatischem ONLINE kann eine spätere GM-Anmeldung erneut ONLINE auslösen. Browser-Schließen wird nicht erkannt. Die Versandsperre ist weiterhin browserlokal; bei gleichzeitigem Handeln unterschiedlicher GMs ist kein einmaliger Versand über alle Clients garantiert.
+
+## Ausgeführte Prüfungen
+
+Node 24.19.0, npm 12.0.2; lizenzierter Core 14.368. Keine echten Discord-Webhooks verwendet, keine Core-Dateien ins Repository kopiert.
+
+| Prüfung | Ergebnis |
+| --- | --- |
+| Gezielte Core-Regression vor/nach Korrektur | Fehler reproduziert; korrigierter Pfad bestanden |
+| npm test mit Core | 180 bestanden, 0 Fehler, 0 Skips |
+| npm test ohne Core | 171 bestanden, 0 Fehler, 9 erwartete Core-Skips |
+| npm run build:release | Erfolgreich, 16 Dateien; module.json im ZIP-Root |
+| npm run test:release | Erfolgreich; CRC32, Quellenvergleich, Manifest-Kopie, Secret-Muster |
+| Browser + CORS in Chrome 154.0.8037.93 | Erfolgreich |
+| Browser + CORS in Firefox 153.0 | Erfolgreich |
+| actionlint -shellcheck= für alle drei Workflows | Erfolgreich; kein separates ShellCheck |
+| Diff und git diff --check | Geprüft, keine Whitespace-Fehler |
+
+15 zusätzliche Tests decken den Core-Vergleich sowie Logout-Opt-in, Speichern, bestätigten Versand vor Navigation, Spielernutzung, deaktivierte Optionen, OFF, konkurrierende Aktionen, Netz-/Bestätigungs-/Rate-Limit-/Speicher-/Migrationsfehler, nativen Logout-Fehler, erneutes Prüfen des Zustands und idempotente Button-Anbindung ab. Frühere Tests zur unveränderten Game.logOut-Methode bleiben bestehen und sind weiterhin korrekt; nur explizite Button-Klicks mit aktivierter neuer Option lösen OFFLINE aus.
+
+Browserprüfungen nutzen jetzt den tatsächlichen Core-fetchWithTimeout und den tatsächlichen Settings-Action-Handler. Ein lokaler Test-Endpunkt nimmt ausschließlich das erwartete Formularformat entgegen. Das ersetzt keinen echten Foundry-Server, verhindert aber das bisher unbemerkte alte JSON-Format. Der Abmelden-Test prüft Speichern/Wiederöffnen, einen blockierenden Discord-Fehler und danach erfolgreiche Tastatur-Aktivierung mit OFF vor Navigation, ohne Shutdown-Anfrage. Die neue Option wurde anhand eines Screenshots visuell geprüft. CORS-, Sprach-, Startup- und übrige UI-Regressionen bestehen ebenfalls.
+
+## Noch erforderlich
+
+- Praxistest der **neuen 1.3.1** in einer echten 14.368-Welt mit Discord: Setup-Schließen ohne die gemeldete Fehlermeldung; Abmelden mit neuer Option an/aus; keine zweite Nachricht bei OFF; Welt bleibt beim Abmelden geöffnet. Die frühere Benutzerbestätigung zu 1.3.0 ersetzt diesen erneuten Test nicht.
+- CI und CodeQL nach dem Push für den genauen neuen main-Commit prüfen. Der Abschluss wird anschließend im Arbeitsbericht gemeldet.
+- Konkrete Docker-/Proxy-Umgebungen und mehrere gleichzeitig handelnde echte GMs wurden nicht live geprüft.
+
+## Veröffentlichung
+
+Version, Download-Adresse, package.json, README und Changelog sind auf 1.3.1 abgestimmt. Modul-ID, fester Manifest-Link und Foundry-Kompatibilität bleiben unverändert. Nach lokalen Prüfungen Commit und Push gemäß Projektregeln; keine Historie umschreiben und bestehende Releases nicht verändern. Kein Release-Workflow gestartet, kein Tag erstellt, keine Release-Artefakte hochgeladen und keine Foundry-Publikation durchgeführt.
+
+Nach erfolgreichem Praxistest sowie CI/CodeQL kann der Maintainer **Actions → Release → Run workflow → main** starten. Anleitung: [PUBLISHING.md](PUBLISHING.md).
+
+---
+
+## Frühere Prüfberichte (historisch)
+
 # Validierung – optionale Startankündigung 1.3.0
 
 Stand: 2. Oktober 2026. **Version 1.3.0 zur Veröffentlichung vorbereitet; Release noch nicht gestartet.** Dieser Bericht ist maßgeblich; ältere Berichte unten sind historisch.

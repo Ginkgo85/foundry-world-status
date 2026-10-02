@@ -52,7 +52,8 @@
       "offlineFooter": "OFFLINE – Footer Text",
       "content": "Discord Message before the Embed",
       "roleId": "Discord Role ID",
-      "autoOnlineOnStartup": "Automatically announce ONLINE when the world starts"
+      "autoOnlineOnStartup": "Automatically announce ONLINE when the world starts",
+      "autoOfflineOnLogout": "Announce OFFLINE before Log Out"
     },
     "hints": {
       "webhookUrl": "HTTPS webhook from Discord → Edit Channel → Integrations. Stored only in this browser; keep it private.",
@@ -60,7 +61,7 @@
       "username": "Display name of the announcement; up to 80 characters.",
       "avatarUrl": "Optional. Publicly reachable image URL using http:// or https://.",
       "sendOffline": "When disabled, the second click only sets the saved status to OFF.",
-      "autoOfflineOnShutdown": "Only before attempting to close the world through Return to Setup, with status ON and OFFLINE messages enabled. Logging out does not change the world status. Does not monitor the server or browser. Sending errors stop shutdown. Default: off.",
+      "autoOfflineOnShutdown": "Only before attempting to close the world through Return to Setup, with status ON and OFFLINE messages enabled. Does not monitor the server or browser. Sending errors stop shutdown. Default: off.",
       "onlineTitle": "Up to 256 characters.",
       "onlineDescription": "Discord Markdown is supported. Description and appended server link combined: up to 4096 characters.",
       "onlineLinkText": "Optional. Leave empty to display the server URL. Up to 254 characters.",
@@ -74,7 +75,8 @@
       "offlineFooter": "Optional. Up to 2048 characters.",
       "content": "ONLINE only. Optional; up to 2000 characters including the role mention. @everyone and user mentions are disabled.",
       "roleId": "Optional: 17–20 digits. This role is automatically mentioned for ONLINE. Typing an @RoleName does not create a role mention.",
-      "autoOnlineOnStartup": "Automatically sends the configured ONLINE message to Discord when the world starts. Only the active GM announces it. The manual status button remains available. Default: off."
+      "autoOnlineOnStartup": "Automatically sends the configured ONLINE message to Discord when the world starts. Only the active GM announces it. The manual status button remains available. Default: off.",
+      "autoOfflineOnLogout": "Sends the OFFLINE message when a GM clicks Log Out, if the status is ON and OFFLINE messages are enabled. Only your session ends afterward; the world stays open for other users. Sending errors stop logout. Default: off."
     },
     "errors": {
       "gmOnly": "Only GMs can send the world status to Discord.",
@@ -106,7 +108,8 @@
       "migrationConflict": "The local and shared webhooks differ. Nothing was overwritten or removed. Resolve the migration as described in the README.",
       "localStorage": "Local webhook storage is unavailable. Check browser storage; world settings have been kept.",
       "onlineDescriptionLength": "The ONLINE description and server link, including Discord Markdown, may contain up to 4096 characters combined. Shorten the description or link.",
-      "languageLoad": "The selected module language could not be loaded. Foundry's language is being used. Reopen the module settings to try again."
+      "languageLoad": "The selected module language could not be loaded. Foundry's language is being used. Reopen the module settings to try again.",
+      "logoutRequest": "OFFLINE has already been announced, but logout failed. Select Log Out again; no further message is sent while the status is OFF."
     },
     "language": {
       "name": "Language / Sprache",
@@ -124,6 +127,8 @@
     },
     "testMessage": "Foundry World Status – Connection successful.",
     "confirmYes": "Yes",
-    "confirmNo": "No"
+    "confirmNo": "No",
+    "logoutBusy": "A Discord action is running or has just finished. Wait a moment, then select Log Out again.",
+    "logoutStopped": "Logout has been stopped. Check the error or disable the OFFLINE announcement before Log Out."
   }
 }

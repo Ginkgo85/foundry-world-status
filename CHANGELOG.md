@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.1
+
+- Korrigiert das V14-Shutdown-Anfrageformat: Formularfeld action=worldShutdown statt des bisherigen JSON-Inhalts. Dadurch wird die Welt nach erfolgreicher OFFLINE-Ankündigung korrekt zum Schließen angefordert.
+- Separate, standardmäßig ausgeschaltete Option für OFFLINE beim Klick eines GM auf Abmelden. Erst bestätigter Versand und gespeicherter OFF-Status erlauben die anschließende Abmeldung; Fehler halten sie an. Die Welt bleibt geöffnet.
+- Neue Regression gegen den tatsächlichen Foundry-14.368-Shutdown-Code sowie Tests für Abmelden, Fehlerfälle und die echte Settings-Button-Aktion.
+
 ## 1.3.0
 
 - Optionale automatische ONLINE-Ankündigung nach dem Laden der Welt; standardmäßig ausgeschaltet. Nur Foundrys aktiver GM sendet nach erfolgreicher Webhook-Migration, wenn der gespeicherte Status OFF ist.

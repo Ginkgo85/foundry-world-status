@@ -52,7 +52,8 @@
       "offlineFooter": "OFFLINE – Footer Text",
       "content": "Discord Nachricht vor dem Embed",
       "roleId": "Discord Rollen-ID",
-      "autoOnlineOnStartup": "Beim Start der Spielwelt automatisch ONLINE ankündigen"
+      "autoOnlineOnStartup": "Beim Start der Spielwelt automatisch ONLINE ankündigen",
+      "autoOfflineOnLogout": "Vor „Abmelden“ OFFLINE ankündigen"
     },
     "hints": {
       "webhookUrl": "HTTPS-Webhook aus Discord → Kanal bearbeiten → Integrationen. Nur in diesem Browser gespeichert; vertraulich behandeln.",
@@ -60,7 +61,7 @@
       "username": "Anzeigename der Ankündigung; maximal 80 Zeichen.",
       "avatarUrl": "Optional. Öffentlich erreichbare Bild-URL mit http:// oder https://.",
       "sendOffline": "Deaktiviert: Der zweite Klick setzt nur den gespeicherten Status auf OFF.",
-      "autoOfflineOnShutdown": "Nur vor einem Schließversuch über „Zurück zum Setup“, bei Status ON und aktiviertem OFFLINE-Versand. Abmelden verändert den Weltstatus nicht. Kein Monitor für Server oder Browser. Bei Versandfehlern wird das Schließen angehalten. Standard: aus.",
+      "autoOfflineOnShutdown": "Nur vor einem Schließversuch über „Zurück zum Setup“, bei Status ON und aktiviertem OFFLINE-Versand. Kein Monitor für Server oder Browser. Bei Versandfehlern wird das Schließen angehalten. Standard: aus.",
       "onlineTitle": "Maximal 256 Zeichen.",
       "onlineDescription": "Discord-Markdown ist erlaubt. Beschreibung und angehängter Serverlink zusammen: maximal 4096 Zeichen.",
       "onlineLinkText": "Optional. Leer: Die Server-URL wird angezeigt. Maximal 254 Zeichen.",
@@ -74,7 +75,8 @@
       "offlineFooter": "Optional. Maximal 2048 Zeichen.",
       "content": "Nur ONLINE. Optional; mit Rollen-Erwähnung insgesamt maximal 2000 Zeichen. @everyone und Benutzer-Pings sind gesperrt.",
       "roleId": "Optional: 17–20 Ziffern. Diese Rolle wird bei ONLINE automatisch erwähnt. Ein ausgeschriebener @Rollenname erzeugt keinen Rollenping.",
-      "autoOnlineOnStartup": "Sendet beim Start der Spielwelt automatisch die konfigurierte ONLINE-Nachricht an Discord. Nur der aktive Spielleiter führt die Ankündigung aus. Der manuelle Status-Button bleibt weiterhin verfügbar. Standard: aus."
+      "autoOnlineOnStartup": "Sendet beim Start der Spielwelt automatisch die konfigurierte ONLINE-Nachricht an Discord. Nur der aktive Spielleiter führt die Ankündigung aus. Der manuelle Status-Button bleibt weiterhin verfügbar. Standard: aus.",
+      "autoOfflineOnLogout": "Sendet beim Klick auf „Abmelden“ als GM die OFFLINE-Nachricht, wenn der Status ON und der OFFLINE-Versand aktiviert sind. Danach wird nur deine Sitzung beendet; die Welt bleibt geöffnet, auch für andere Benutzer. Bei Versandfehlern wird das Abmelden angehalten. Standard: aus."
     },
     "errors": {
       "gmOnly": "Nur Spielleiter dürfen den Weltstatus an Discord senden.",
@@ -106,7 +108,8 @@
       "migrationConflict": "Lokaler und gemeinsam gespeicherter Webhook unterscheiden sich. Nichts wurde überschrieben oder entfernt. Migration gemäß README klären.",
       "localStorage": "Lokaler Webhook-Speicher nicht verfügbar. Browser-Speicher prüfen; die World-Einstellungen bleiben erhalten.",
       "onlineDescriptionLength": "ONLINE-Beschreibung und Serverlink einschließlich Discord-Markdown dürfen zusammen maximal 4096 Zeichen enthalten. Bitte Beschreibung oder Link kürzen.",
-      "languageLoad": "Die gewählte Modulsprache konnte nicht geladen werden. Foundrys Sprache wird verwendet. Moduleinstellungen erneut öffnen, um es noch einmal zu versuchen."
+      "languageLoad": "Die gewählte Modulsprache konnte nicht geladen werden. Foundrys Sprache wird verwendet. Moduleinstellungen erneut öffnen, um es noch einmal zu versuchen.",
+      "logoutRequest": "OFFLINE ist bereits angekündigt, aber das Abmelden ist fehlgeschlagen. Bitte erneut „Abmelden“ wählen; bei Status OFF wird keine weitere Nachricht gesendet."
     },
     "language": {
       "name": "Sprache / Language",
@@ -124,6 +127,8 @@
     },
     "testMessage": "Foundry World Status – Verbindung erfolgreich.",
     "confirmYes": "Ja",
-    "confirmNo": "Nein"
+    "confirmNo": "Nein",
+    "logoutBusy": "Eine Discord-Aktion läuft oder wurde gerade abgeschlossen. Bitte kurz warten und erneut „Abmelden“ wählen.",
+    "logoutStopped": "Das Abmelden wurde angehalten. Fehler prüfen oder die OFFLINE-Ankündigung vor „Abmelden“ deaktivieren."
   }
 }

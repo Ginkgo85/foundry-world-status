@@ -16,12 +16,14 @@ body {background: #18181e; margin: 0; font-family: Arial,sans-serif;}
 <body class="theme-dark"><p class="fixture-note">Lokale UI-Prüfung · echte V14.368-Styles und Formularauswertung · Discord-Anfragen simuliert</p>
 <aside id="scene-controls"></aside>
 <form id="fixture-form" class="application fws-settings"><header class="window-header"><h1 class="window-title">Foundry World Status</h1></header><section class="window-content"></section></form>
-<div id="messages" role="status"></div><button id="fixture-logout" style="position:absolute;left:80px;top:875px;width:200px">Abmelden (Prüfung)</button>
+<div id="messages" role="status"></div><button id="fixture-logout" type="button" data-action="openApp" data-app="logout" style="position:absolute;left:80px;top:875px;width:200px">Abmelden (Prüfung)</button>
 <script src="/handlebars.js"></script>
 <script type="module">
 import FormDataExtended from "/form-data-extended.mjs";
 import Localization from "/localization.mjs";
 import SettingsConfig from "/settings-config.mjs";
+import SidebarSettings from "/sidebar-settings.mjs";
+import {fetchWithTimeout} from "/http-utils.mjs";
 const query = new URLSearchParams(location.search);
 const language = query.get("lang") ?? "de";
 const userId = query.get("user") ?? "test-gm";
@@ -64,7 +66,7 @@ window.foundry = {
   data: {fields: {BooleanField: class {}}},
   utils: {getProperty: (object, key) => key.split(".").reduce((value, part) => value?.[part], object), getType: value => Object.prototype.toString.call(value).slice(8,-1), isElementInstanceOf: (value, type) => value instanceof type,
     getRoute: route => `/prefix/${route}`,
-    fetchWithTimeout: async (url, options) => {window.fixture.shutdownRequests.push({url, options}); return {ok:true};}}
+    fetchWithTimeout: async (url, options) => {const response = await fetchWithTimeout(url, options); window.fixture.shutdownRequests.push({url, options}); return response;}}
 };
 // FormDataExtended knows native and Foundry custom input classes. This form has native fields only.
 for (const name of ["AbstractFormInputElement", "HTMLMultiSelectElement", "HTMLStringTagsElement", "HTMLDocumentTagsElement", "HTMLFilePickerElement", "HTMLColorPickerElement", "HTMLRangePickerElement", "HTMLProseMirrorElement"]) foundry.applications.elements[name] = class extends HTMLElement {};
@@ -140,5 +142,6 @@ renderLanguageSetting();
 if (isGM) await renderSettings();
 else {app.rendered = false; app.element.hidden = true;}
 window.fixture = {app, values, configs, locale, renderSettings, renderLanguageSetting, shutdownRequests: []};
-document.querySelector("#fixture-logout").onclick = () => game.logOut();
+document.querySelector("#fixture-logout").onclick = event => SidebarSettings.DEFAULT_OPTIONS.actions.openApp(event);
+hooks.get("renderSettings")?.({}, document.body);
 </script></body></html>

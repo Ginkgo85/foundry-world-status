@@ -18,6 +18,22 @@ const server = createServer(async (req, res) => {
   try {
     const url = new URL(req.url, "http://localhost");
     let filename;
+    if (url.pathname === "/prefix/setup" && req.method === "POST") {
+      let body = "";
+      for await (const chunk of req) body += chunk;
+      const valid = body === "action=worldShutdown" && (req.headers["content-type"] ?? "").startsWith("application/x-www-form-urlencoded");
+      res.writeHead(valid ? 200 : 400); res.end(); return;
+    }
+    if (url.pathname === "/http-utils.mjs") {
+      res.writeHead(200, {"Content-Type": "text/javascript"});
+      res.end(await readFile(path.join(core, "common/utils/http.mjs"), "utf8")); return;
+    }
+    if (url.pathname === "/sidebar-settings.mjs") {
+      const source = (await readFile(path.join(core, "client/applications/sidebar/tabs/settings.mjs"), "utf8"))
+        .replace(/^import HandlebarsApplicationMixin .*;\r?$/m, "const HandlebarsApplicationMixin = Base => Base;")
+        .replace(/^import AbstractSidebarTab .*;\r?$/m, "const AbstractSidebarTab = class {};");
+      res.writeHead(200, {"Content-Type": "text/javascript"}); res.end(source); return;
+    }
     if (url.pathname === "/logout-complete") {
       res.writeHead(200, {"Content-Type":"text/html; charset=utf-8"});
       res.end("<!doctype html><html lang='de'><title>Abmeldung geprüft</title><body><p>Abgemeldet</p></body></html>");
@@ -183,6 +199,7 @@ try {
   assert.equal(await page.evaluate(() => fixture.values.get("online")), false);
   assert.equal(await page.evaluate(() => fixture.shutdownRequests.length), 1);
   assert.equal(await page.evaluate(() => fixture.shutdownRequests[0].url), "/prefix/setup");
+  assert.equal(await page.evaluate(() => fixture.shutdownRequests[0].options.body.toString()), "action=worldShutdown");
   await page.waitForTimeout(850);
   await page.evaluate(() => game.settings.set("foundry-world-status", "online", true));
   await page.locator("#fixture-logout").click();
@@ -332,6 +349,51 @@ try {
   assert.deepEqual(errors, []);
   await startupContext.close();
   console.log(browserName + ": startup checks passed: opt-in checkbox DE/EN, elected GM only, player isolation, confirmed ON and reload without another send; requests simulated.");
+
+  // Exercise the real Core Settings action with the scoped logout click interceptor.
+  let logoutSends = 0;
+  const logoutTab = await browser.newPage({viewport: {width: 1040, height: 920}});
+  logoutTab.on("pageerror", error => errors.push(error.message));
+  await logoutTab.route("**/*", route => new URL(route.request().url()).hostname === "127.0.0.1" ? route.continue() : route.abort());
+  await logoutTab.route("https://**/api/webhooks/**", async route => {
+    logoutSends++;
+    await route.fulfill({status: 200, contentType: "application/json", body: JSON.stringify({id: "123456789012345678"})});
+  });
+  await logoutTab.goto("http://127.0.0.1:" + server.address().port + "/");
+  await logoutTab.waitForFunction(() => !!window.fixture);
+  assert.equal(await logoutTab.locator('[name="autoOfflineOnLogout"]').isChecked(), false);
+  await logoutTab.locator('[name="webhookUrl"]').fill(fakeWebhook);
+  await logoutTab.locator('[name="serverUrl"]').fill("https://foundry.example.invalid");
+  await logoutTab.locator('[name="autoOfflineOnLogout"]').check();
+  await logoutTab.locator('button[type="submit"]').click();
+  await logoutTab.getByRole("status").filter({hasText: "Einstellungen wurden gespeichert."}).waitFor();
+  await logoutTab.evaluate(() => fixture.renderSettings());
+  assert.equal(await logoutTab.locator('[name="autoOfflineOnLogout"]').isChecked(), true);
+  await logoutTab.locator('[name="autoOfflineOnLogout"]').locator("..").scrollIntoViewIfNeeded();
+  await logoutTab.screenshot({path: path.join(out, "automatisch-abmelden.png")});
+  await logoutTab.evaluate(() => game.settings.set("foundry-world-status", "online", true));
+  assert.equal(logoutSends, 0);
+  // A rejected send must stop the native Settings action and keep the page ON.
+  await logoutTab.route("https://**/api/webhooks/**", route => route.fulfill({status: 500}));
+  await logoutTab.locator("#fixture-logout").click();
+  await logoutTab.getByRole("status").filter({hasText: "Das Abmelden wurde angehalten."}).waitFor();
+  assert.equal(await logoutTab.evaluate(() => fixture.values.get("online")), true);
+  assert.equal(await logoutTab.evaluate(() => fixture.shutdownRequests.length), 0);
+  await logoutTab.unroute("https://**/api/webhooks/**");
+  await logoutTab.route("https://**/api/webhooks/**", async route => {
+    logoutSends++;
+    await route.fulfill({status: 200, contentType: "application/json", body: JSON.stringify({id: "123456789012345678"})});
+  });
+  await logoutTab.waitForTimeout(850);
+  await logoutTab.locator("#fixture-logout").focus();
+  await logoutTab.keyboard.press("Enter");
+  await logoutTab.waitForURL("**/logout-complete");
+  const logoutState = await logoutTab.evaluate(() => JSON.parse(sessionStorage.getItem("logout-check")));
+  assert.equal(logoutSends, 1); assert.equal(logoutState.online, false);
+  assert.equal(logoutState.shutdownRequests, 0);
+  assert.deepEqual(errors, []);
+  await logoutTab.close();
+  console.log(browserName + ": logout checks passed: native Core Settings action, saved opt-in, failed send stays ON, keyboard click confirms OFF before navigation; no shutdown request.");
 } finally {
   await browser?.close(); await new Promise(resolve => server.close(resolve));
 }

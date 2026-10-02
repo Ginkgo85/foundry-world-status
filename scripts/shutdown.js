@@ -4,9 +4,9 @@ import {buildPayload, runExclusive, sendWebhook} from "./discord.js";
 const installed = new WeakSet();
 
 /**
- * V14.367 has no awaitable pre-shutdown hook. Its shutdown socket event is too late:
+ * V14.368 has no awaitable pre-shutdown hook. Its shutdown socket event is too late:
  * the world is already stopping and core navigates away after one second.
- * Wrap only this Game instance's public shutdown entry point. Logout is intentionally untouched.
+ * Wrap only this Game instance's public shutdown entry point. Game.logOut itself stays untouched.
  * The opt-in branch uses the same setup route and shutdown POST as Game.shutDown.
  */
 export function installShutdownHandler(onBusyChange = () => {}) {
@@ -48,12 +48,7 @@ export function installShutdownHandler(onBusyChange = () => {}) {
             await original.apply(this, args);
             return;
           }
-          await sendWebhook(latest.webhookUrl, buildPayload(latest, false));
-          try {
-            assertGM();
-            await this.settings.set(MODULE_ID, "online", false);
-          } catch { throw new WorldStatusError("stateAfterSend"); }
-          ui.notifications.info(t("offlineSent"));
+          await announceOffline(latest, this);
         }
 
         // Save the status while the world's database is still available, then request shutdown.
@@ -61,8 +56,7 @@ export function installShutdownHandler(onBusyChange = () => {}) {
           assertGM();
           const response = await foundry.utils.fetchWithTimeout(foundry.utils.getRoute("setup"), {
             method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({shutdown: true}),
+            body: new URLSearchParams({action: "worldShutdown"}),
             redirect: "manual"
           });
           // A manual browser redirect is opaque (status 0); core uses redirect:manual as well.
@@ -77,4 +71,53 @@ export function installShutdownHandler(onBusyChange = () => {}) {
     }
   };
   installed.add(game);
+}
+
+/** Announce OFF before an explicit GM logout click; never stop the world. */
+export async function logoutWithAnnouncement(onBusyChange = () => {}) {
+  try {
+    if (!shouldAnnounceOnLogout()) return game.logOut();
+    const ran = await runExclusive(async () => {
+      // The option, role or status may have changed since the button was clicked.
+      if (shouldAnnounceOnLogout()) await announceOffline(readConfig());
+      try { await game.logOut(); }
+      catch { throw new WorldStatusError("logoutRequest"); }
+    }, onBusyChange);
+    if (!ran) ui.notifications.warn(t("logoutBusy"));
+  } catch (error) {
+    reportError(error);
+    ui.notifications.warn(t("logoutStopped"));
+  }
+}
+
+function shouldAnnounceOnLogout() {
+  if (game.user?.isGM !== true || game.settings.get(MODULE_ID, "online") !== true) return false;
+  const config = game.settings.get(MODULE_ID, "configuration");
+  return config?.autoOfflineOnLogout === true && config.sendOffline !== false;
+}
+
+const logoutButtons = new WeakSet();
+
+/** Capture only the Settings logout button, not forced/socket-driven Game.logOut calls. */
+export function installLogoutHandler(html, onBusyChange = () => {}) {
+  if (game.user?.isGM !== true) return;
+  for (const button of html?.querySelectorAll?.('[data-action="openApp"][data-app="logout"]') ?? []) {
+    if (logoutButtons.has(button)) continue;
+    button.addEventListener("click", event => {
+      if (event.button !== 0 || !shouldAnnounceOnLogout()) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      void logoutWithAnnouncement(onBusyChange);
+    }, {capture: true});
+    logoutButtons.add(button);
+  }
+}
+
+async function announceOffline(config, context = game) {
+  await sendWebhook(config.webhookUrl, buildPayload(config, false));
+  try {
+    assertGM();
+    await context.settings.set(MODULE_ID, "online", false);
+  } catch { throw new WorldStatusError("stateAfterSend"); }
+  ui.notifications.info(t("offlineSent"));
 }
