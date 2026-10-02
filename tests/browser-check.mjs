@@ -28,6 +28,20 @@ const server = createServer(async (req, res) => {
       res.writeHead(200, {"Content-Type": "text/javascript"});
       res.end(await readFile(path.join(core, "common/utils/http.mjs"), "utf8")); return;
     }
+    if (url.pathname === "/main-menu.hbs") {
+      res.writeHead(200, {"Content-Type": "text/html"});
+      res.end(await readFile(path.join(core, "templates/ui/main-menu.hbs"), "utf8")); return;
+    }
+    if (url.pathname === "/main-menu.mjs") {
+      const source = (await readFile(path.join(core, "client/applications/ui/main-menu.mjs"), "utf8"))
+        .replace(/^import ApplicationV2 .*;\r?$/m, "const ApplicationV2 = class {};")
+        .replace(/^import HandlebarsApplicationMixin .*;\r?$/m, "const HandlebarsApplicationMixin = Base => Base;");
+      res.writeHead(200, {"Content-Type": "text/javascript"}); res.end(source); return;
+    }
+    if (url.pathname === "/sidebar-settings.hbs") {
+      res.writeHead(200, {"Content-Type": "text/html"});
+      res.end(await readFile(path.join(core, "templates/sidebar/tabs/settings.hbs"), "utf8")); return;
+    }
     if (url.pathname === "/sidebar-settings.mjs") {
       const source = (await readFile(path.join(core, "client/applications/sidebar/tabs/settings.mjs"), "utf8"))
         .replace(/^import HandlebarsApplicationMixin .*;\r?$/m, "const HandlebarsApplicationMixin = Base => Base;")
@@ -202,7 +216,7 @@ try {
   assert.equal(await page.evaluate(() => fixture.shutdownRequests[0].options.body.toString()), "action=worldShutdown");
   await page.waitForTimeout(850);
   await page.evaluate(() => game.settings.set("foundry-world-status", "online", true));
-  await page.locator("#fixture-logout").click();
+  await page.locator('#settings [data-app="logout"]').click();
   await page.waitForURL("**/logout-complete");
   assert.equal(sends, 3);
   const logoutResult = await page.evaluate(() => JSON.parse(sessionStorage.getItem("logout-check")));
@@ -371,11 +385,24 @@ try {
   assert.equal(await logoutTab.locator('[name="autoOfflineOnLogout"]').isChecked(), true);
   await logoutTab.locator('[name="autoOfflineOnLogout"]').locator("..").scrollIntoViewIfNeeded();
   await logoutTab.screenshot({path: path.join(out, "automatisch-abmelden.png")});
-  await logoutTab.evaluate(() => game.settings.set("foundry-world-status", "online", true));
+  await logoutTab.evaluate(async () => {
+    await game.settings.set("foundry-world-status", "online", true);
+    await fixture.renderSidebar();
+  });
+  await logoutTab.evaluate(() => {
+    const other = document.createElement("button"); other.id = "unrelated-logout";
+    other.dataset.action = "openApp"; other.dataset.app = "logout"; other.textContent = "Unrelated control";
+    other.style.cssText = "position:fixed;right:0;top:0";
+    fixture.unrelatedClicks = 0;
+    other.onclick = () => fixture.unrelatedClicks++;
+    document.body.append(other);
+  });
+  await logoutTab.locator("#unrelated-logout").click();
+  assert.equal(await logoutTab.evaluate(() => fixture.unrelatedClicks), 1);
   assert.equal(logoutSends, 0);
   // A rejected send must stop the native Settings action and keep the page ON.
   await logoutTab.route("https://**/api/webhooks/**", route => route.fulfill({status: 500}));
-  await logoutTab.locator("#fixture-logout").click();
+  await logoutTab.locator('#settings [data-app="logout"]').click();
   await logoutTab.getByRole("status").filter({hasText: "Das Abmelden wurde angehalten."}).waitFor();
   assert.equal(await logoutTab.evaluate(() => fixture.values.get("online")), true);
   assert.equal(await logoutTab.evaluate(() => fixture.shutdownRequests.length), 0);
@@ -385,7 +412,12 @@ try {
     await route.fulfill({status: 200, contentType: "application/json", body: JSON.stringify({id: "123456789012345678"})});
   });
   await logoutTab.waitForTimeout(850);
-  await logoutTab.locator("#fixture-logout").focus();
+  // The popout has its own Core ID; replacing its buttons must retain interception.
+  await logoutTab.evaluate(async () => {
+    document.querySelector("#settings").id = "settings-popout";
+    await fixture.renderSidebar();
+  });
+  await logoutTab.locator('#settings-popout [data-app="logout"]').focus();
   await logoutTab.keyboard.press("Enter");
   await logoutTab.waitForURL("**/logout-complete");
   const logoutState = await logoutTab.evaluate(() => JSON.parse(sessionStorage.getItem("logout-check")));
@@ -394,6 +426,34 @@ try {
   assert.deepEqual(errors, []);
   await logoutTab.close();
   console.log(browserName + ": logout checks passed: native Core Settings action, saved opt-in, failed send stays ON, keyboard click confirms OFF before navigation; no shutdown request.");
+
+  // Render Core's actual Esc menu template and invoke its original action.
+  const menuTab = await browser.newPage({viewport: {width: 1040, height: 920}});
+  menuTab.on("pageerror", error => errors.push(error.message));
+  let menuSends = 0;
+  await menuTab.route("**/*", route => new URL(route.request().url()).hostname === "127.0.0.1" ? route.continue() : route.abort());
+  await menuTab.route("https://**/api/webhooks/**", async route => {
+    menuSends++;
+    await route.fulfill({status: 200, contentType: "application/json", body: JSON.stringify({id: "123456789012345678"})});
+  });
+  await menuTab.goto("http://127.0.0.1:" + server.address().port + "/?menu=1");
+  await menuTab.waitForFunction(() => !!window.fixture?.renderMainMenu);
+  await menuTab.evaluate(async webhook => {
+    await game.settings.set("foundry-world-status", "configuration", {
+      ...fixture.values.get("configuration"), autoOfflineOnLogout: true
+    });
+    await game.settings.set("foundry-world-status", "webhooks", {[JSON.stringify(["test-world", "test-gm"])]: webhook});
+    await game.settings.set("foundry-world-status", "online", true);
+    await fixture.renderMainMenu(); // Also cover a new DOM tree after reopening the menu.
+  }, fakeWebhook);
+  await menuTab.locator('[data-menu-item="logout"] h2').click();
+  await menuTab.waitForURL("**/logout-complete");
+  assert.equal(menuSends, 1, "Esc logout must announce OFFLINE");
+  const menuState = await menuTab.evaluate(() => JSON.parse(sessionStorage.getItem("logout-check")));
+  assert.equal(menuState.online, false); assert.equal(menuState.shutdownRequests, 0);
+  assert.deepEqual(errors, []);
+  await menuTab.close();
+  console.log(browserName + ": native Esc menu logout sends once before leaving, including clicks on the label and reopening the menu.");
 } finally {
   await browser?.close(); await new Promise(resolve => server.close(resolve));
 }

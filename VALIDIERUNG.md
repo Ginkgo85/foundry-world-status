@@ -1,6 +1,18 @@
 # Validierung – Shutdown-Korrektur und Abmelden 1.3.1
 
-Stand: 2. Oktober 2026. **Korrekturstand für die bereits veröffentlichte 1.3.0; noch kein Release 1.3.1.** Dieser Bericht gilt für den aktuellen Stand; ältere Angaben unten sind historisch.
+Stand: 3. Oktober 2026. **Korrekturstand für die bereits veröffentlichte 1.3.0; noch kein Release 1.3.1.** Dieser Bericht gilt für den aktuellen Stand; ältere Angaben unten sind historisch.
+
+## Nachprüfung: Abmelden
+
+Der Benutzer meldet, dass Zurück-zum-Setup funktioniert, Abmelden aber weiterhin nichts sendet: lokale Foundry-Anwendung, installierte 1.3.1, separate Abmeldeoption eingeschaltet und Status ON. Die installierten main.js/shutdown.js-Dateien entsprachen dem bisherigen Repository-Stand. Die laufende Electron-Sitzung konnte nicht direkt geprüft werden; die konkrete Ursache dieses Live-Falls ist deshalb noch nicht bestätigt.
+
+Zwei Lücken wurden in lokalen Browser-Fixtures belegt: Das echte Esc-Menü war überhaupt nicht angebunden. Später eingefügte/ersetzte Sidebar-Buttons ohne erneute renderSettings-Bindung wurden ebenfalls nicht abgefangen. Beide neuen Regressionen schlugen vor der Korrektur fehl. Dies belegt die Schwäche der bisherigen Anbindung, aber nicht, dass genau dieser Render-Ablauf in der Benutzerwelt auftrat.
+
+Die Klick-Erfassung wird jetzt einmal im ready-Hook am Dokument registriert und auf die konkreten Core-Abmelden-Controls unter #settings, #settings-popout und #menu begrenzt. Sie erkennt auch Klicks auf Unterelemente. Damit hängt sie nicht mehr von einzelnen Button-Instanzen oder renderSettings ab. Weiterhin nur GM, aktivierte Abmeldeoption, aktivierter OFFLINE-Versand und ON; Game.logOut bleibt unverändert.
+
+Erneut bestanden: 180 Tests mit Core; Browser- und CORS-Suiten in Chrome 154.0.8037.93 und Firefox 153.0, jeweils mit simuliertem Discord. Die Sidebar-Fixture nutzt nun das echte Core-Template und den nativen Action-Handler statt eines nachgebauten Buttons. Geprüft: Erzeugung nach ready, Austausch der Buttons ohne Render-Hook, Fehler hält die Sitzung an, Popout, Tastatur, Esc-Label, wieder geöffnetes Menü und ähnlich beschrifteter fremder Button ohne Abfangen. Keine echten Discord-Nachrichten versendet.
+
+**Noch offen:** Benutzer-Praxistest des korrigierten Pakets in der betroffenen lokalen Welt. Der erfolgreiche Setup-Weg wurde vom Benutzer bestätigt; Abmelden wird hier noch nicht als live behoben ausgewiesen.
 
 ## Nachgewiesener Fehler und Korrektur
 
@@ -12,9 +24,9 @@ Die bisherigen Test-Doubles akzeptierten jedes Anfrageformat; der damalige Core-
 
 Separate Option autoOfflineOnLogout, Standard false, unter OFFLINE Nachricht, auf Deutsch und Englisch. Sie erfordert aktivierten OFFLINE-Versand und gespeicherten Status ON.
 
-Nur ein expliziter GM-Klick auf den Abmelden-Button der Foundry-Settings wird abgefangen. Nach bestätigtem Versand wird OFF gespeichert und dann die unveränderte Game.logOut-Methode aufgerufen. Fehler stoppen das Verlassen der Seite. Die bestehende lokale Versandsperre schützt auch diesen Ablauf vor Doppelklicks und parallelem Versand. Spieler, deaktivierte Optionen und bereits gespeichertes OFF verwenden den normalen Abmeldeweg.
+Nur ein expliziter GM-Klick auf einen der oben genannten Abmelden-Controls wird abgefangen. Nach bestätigtem Versand wird OFF gespeichert und dann die unveränderte Game.logOut-Methode aufgerufen. Fehler stoppen das Verlassen der Seite. Die bestehende lokale Versandsperre schützt auch diesen Ablauf vor Doppelklicks und parallelem Versand. Spieler, deaktivierte Optionen und bereits gespeichertes OFF verwenden den normalen Abmeldeweg.
 
-Der renderSettings-Hook bindet den Listener gezielt an den Core-Button data-action=openApp/data-app=logout, einmal pro DOM-Element. Bereits gerenderte Settings werden im ready-Hook berücksichtigt. Game.logOut wird nicht überschrieben: erzwungene Abmeldungen durch Core/Socket bleiben unverändert. Keyboard-Aktivierung des Buttons ist mitgeprüft. Der tatsächliche V14-Settings-Action-Handler und die Render-Hook-/Event-Anbindung im installierten Core wurden gelesen.
+Der ready-Hook installiert einmal pro Dokument einen Capture-Listener mit eng begrenzten Selektoren für die drei genannten Core-Oberflächen. Später erzeugte oder ersetzte Buttons benötigen keine erneute Bindung. Game.logOut wird nicht überschrieben: erzwungene Abmeldungen durch Core/Socket bleiben unverändert. Keyboard-Aktivierung des Buttons ist mitgeprüft. Der tatsächliche V14-Settings-Action-Handler und die Render-Hook-/Event-Anbindung im installierten Core wurden gelesen.
 
 **Abmelden beendet ausschließlich die Sitzung, nicht die Welt.** Andere Benutzer können bei angekündigtem OFF weiterspielen. Bei eingeschaltetem automatischem ONLINE kann eine spätere GM-Anmeldung erneut ONLINE auslösen. Browser-Schließen wird nicht erkannt. Die Versandsperre ist weiterhin browserlokal; bei gleichzeitigem Handeln unterschiedlicher GMs ist kein einmaliger Versand über alle Clients garantiert.
 

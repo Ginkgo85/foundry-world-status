@@ -110,7 +110,7 @@ Unter **OFFLINE Nachricht** beide Optionen aktivieren und speichern:
 
 Bei gespeichertem Status ON wird die Nachricht vor dem Schließversuch über **„Zurück zum Setup“** gesendet. Die Automatik ist standardmäßig ausgeschaltet. Bei einem Versand- oder Speicherfehler bleibt der Vorgang angehalten.
 
-Zusätzlich lässt sich **Vor „Abmelden“ OFFLINE ankündigen** separat aktivieren (Standard: aus). Zusammen mit aktiviertem OFFLINE-Versand sendet ein GM-Klick auf **Abmelden** bei Status ON zuerst OFFLINE und speichert nach Bestätigung den Status OFF. Erst danach wird die Sitzung beendet. Bei Fehlern bleibt die Sitzung offen; Fehlermeldung prüfen oder die Option deaktivieren. Ohne diese Option bleibt Abmelden unverändert.
+Zusätzlich lässt sich **Vor „Abmelden“ OFFLINE ankündigen** separat aktivieren (Standard: aus). Zusammen mit aktiviertem OFFLINE-Versand sendet ein GM-Klick auf **Abmelden** in der rechten Einstellungsleiste (auch als eigenes Fenster) oder im Esc-Menü bei Status ON zuerst OFFLINE und speichert nach Bestätigung den Status OFF. Erst danach wird die Sitzung beendet. Bei Fehlern bleibt die Sitzung offen; Fehlermeldung prüfen oder die Option deaktivieren. Ohne diese Option bleibt Abmelden unverändert.
 
 **Abmelden schließt nur deine Sitzung, nicht die Welt.** Andere Benutzer können weiterspielen, obwohl OFF angekündigt wurde. Bei aktivierter Startankündigung kann deine nächste Anmeldung wieder ONLINE senden. Erzwungene Abmeldungen, Browser-/Tab-Schließen, Abstürze und das Stoppen des Servers lösen keinen Abmelden-Versand aus. Scheitert das Schließen der Welt nach der Ankündigung, kann sie trotz OFF weiterlaufen. Die Option bestätigt keine tatsächliche Serverabschaltung; manuelles OFF vor dem Weltende bleibt die einfachste Alternative.
 
@@ -279,7 +279,7 @@ Under **OFFLINE Message**, enable both options and save:
 
 When the saved status is ON, the message is sent before the attempt to close the world through **Return to Setup**. This feature is off by default. A sending or storage error stops the operation.
 
-You can separately enable **Announce OFFLINE before Log Out** (default: off). With OFFLINE messages enabled and the saved status ON, a GM clicking **Log Out** first sends OFFLINE and saves OFF after confirmation. Only then does the session end. Errors keep the session open; check the error or disable this option. Without this option, logout is unchanged.
+You can separately enable **Announce OFFLINE before Log Out** (default: off). With OFFLINE messages enabled and the saved status ON, a GM clicking **Log Out** in the right settings sidebar (including its popout) or the Esc menu first sends OFFLINE and saves OFF after confirmation. Only then does the session end. Errors keep the session open; check the error or disable this option. Without this option, logout is unchanged.
 
 **Logging out ends only your session, not the world.** Other users may keep playing even though OFF was announced. If startup announcements are enabled, your next login may announce ONLINE again. Forced logouts, closing the browser or tab, crashes and stopping the server do not trigger logout announcements. If closing the world fails after the announcement, the world may still be running despite OFF. This option does not confirm an actual server shutdown; manually announcing OFF before ending the world remains the simplest alternative.
 

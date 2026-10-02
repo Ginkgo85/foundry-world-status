@@ -96,21 +96,25 @@ function shouldAnnounceOnLogout() {
   return config?.autoOfflineOnLogout === true && config.sendOffline !== false;
 }
 
-const logoutButtons = new WeakSet();
+const logoutDocuments = new WeakSet();
+const logoutSelector = [
+  '#settings [data-action="openApp"][data-app="logout"]',
+  '#settings-popout [data-action="openApp"][data-app="logout"]',
+  '#menu [data-action="menuItem"][data-menu-item="logout"]'
+].join(", ");
 
-/** Capture only the Settings logout button, not forced/socket-driven Game.logOut calls. */
-export function installLogoutHandler(html, onBusyChange = () => {}) {
-  if (game.user?.isGM !== true) return;
-  for (const button of html?.querySelectorAll?.('[data-action="openApp"][data-app="logout"]') ?? []) {
-    if (logoutButtons.has(button)) continue;
-    button.addEventListener("click", event => {
-      if (event.button !== 0 || !shouldAnnounceOnLogout()) return;
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      void logoutWithAnnouncement(onBusyChange);
-    }, {capture: true});
-    logoutButtons.add(button);
-  }
+/** Recognize explicit Core logout clicks even when buttons are created/replaced after ready. */
+export function installLogoutHandler(document, onBusyChange = () => {}) {
+  if (game.user?.isGM !== true || !document?.addEventListener || logoutDocuments.has(document)) return;
+  // Capture before Core navigates. Only the named logout controls are intercepted;
+  // Game.logOut, forced/socket logout and all other controls remain untouched.
+  document.addEventListener("click", event => {
+    if (event.button !== 0 || !event.target?.closest?.(logoutSelector) || !shouldAnnounceOnLogout()) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    void logoutWithAnnouncement(onBusyChange);
+  }, {capture: true});
+  logoutDocuments.add(document);
 }
 
 async function announceOffline(config, context = game) {

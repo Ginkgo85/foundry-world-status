@@ -104,12 +104,11 @@ export function addSceneTools(controls) {
 
 Hooks.once("init", () => registerSettings(refreshControls));
 Hooks.on("getSceneControlButtons", addSceneTools);
-Hooks.on("renderSettings", (_app, html) => installLogoutHandler(html, refreshControls));
 Hooks.once("ready", async () => {
   try { await prepareLanguage(); } catch { reportError(new WorldStatusError("languageLoad")); }
   refreshControls();
   installShutdownHandler(refreshControls);
-  installLogoutHandler(ui.settings?.element, refreshControls);
+  installLogoutHandler(globalThis.document, refreshControls);
   if (game.user?.isGM) {
     try {
       await migrateWebhook();

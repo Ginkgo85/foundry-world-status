@@ -1044,21 +1044,25 @@ test("logout rechecks opt-in and status after acquiring the shared lock", async 
   }
 });
 
-test("logout listener installs once on the specific Settings button and leaves forced logout untouched", async () => {
+test("logout capture installs once per document and leaves forced logout untouched", async () => {
   const result = prepareLogout();
   let handler, bindings = 0;
-  const button = {addEventListener: (event, fn, options) => {
+  const html = {addEventListener: (event, fn, options) => {
     assert.equal(event, "click"); assert.equal(options.capture, true); handler = fn; bindings++;
-  }};
-  const html = {querySelectorAll: selector => {
-    assert.equal(selector, '[data-action="openApp"][data-app="logout"]'); return [button];
   }};
   const original = game.logOut;
   installLogoutHandler(html); installLogoutHandler(html);
   assert.equal(bindings, 1); assert.equal(game.logOut, original);
   game.logOut(); assert.equal(result.native, 1); assert.equal(calls.length, 0);
   let blocked = 0;
-  const event = {button: 0, preventDefault() {blocked++;}, stopImmediatePropagation() {blocked++;}};
+  const event = {target: {closest: selector => {
+    assert.ok(selector.includes('#settings [data-action="openApp"][data-app="logout"]'));
+    assert.ok(selector.includes('#settings-popout [data-action="openApp"][data-app="logout"]'));
+    assert.ok(selector.includes('#menu [data-action="menuItem"][data-menu-item="logout"]'));
+    return {};
+  }}, button: 0, preventDefault() {blocked++;}, stopImmediatePropagation() {blocked++;}};
+  handler({...event, target: {closest: () => null}}); assert.equal(blocked, 0);
+  handler({...event, button: 1}); assert.equal(blocked, 0);
   stored.set("online", false); handler(event); assert.equal(blocked, 0);
   stored.set("online", true);
   let finish; setFetch(() => new Promise(resolve => {finish = resolve;}));
@@ -1071,6 +1075,6 @@ test("logout listener installs once on the specific Settings button and leaves f
 
 test("player Settings never receive a logout interception listener", () => {
   prepareLogout(); game.user.isGM = false;
-  installLogoutHandler({querySelectorAll() {throw new Error("Player DOM must remain untouched");}});
+  installLogoutHandler({addEventListener() {throw new Error("Player DOM must remain untouched");}});
   assert.equal(calls.length, 0);
 });

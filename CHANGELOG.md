@@ -2,6 +2,8 @@
 
 ## 1.3.1
 
+- Abmelden-Erkennung unabhängig vom Render-Zeitpunkt: gezielte Klick-Erfassung für Settings-Leiste, Settings-Popout und Esc-Menü, auch nach Neuaufbau der Buttons. Andere Buttons und erzwungene Abmeldungen bleiben unverändert.
+
 - Korrigiert das V14-Shutdown-Anfrageformat: Formularfeld action=worldShutdown statt des bisherigen JSON-Inhalts. Dadurch wird die Welt nach erfolgreicher OFFLINE-Ankündigung korrekt zum Schließen angefordert.
 - Separate, standardmäßig ausgeschaltete Option für OFFLINE beim Klick eines GM auf Abmelden. Erst bestätigter Versand und gespeicherter OFF-Status erlauben die anschließende Abmeldung; Fehler halten sie an. Die Welt bleibt geöffnet.
 - Neue Regression gegen den tatsächlichen Foundry-14.368-Shutdown-Code sowie Tests für Abmelden, Fehlerfälle und die echte Settings-Button-Aktion.

@@ -16,7 +16,7 @@ body {background: #18181e; margin: 0; font-family: Arial,sans-serif;}
 <body class="theme-dark"><p class="fixture-note">Lokale UI-Prüfung · echte V14.368-Styles und Formularauswertung · Discord-Anfragen simuliert</p>
 <aside id="scene-controls"></aside>
 <form id="fixture-form" class="application fws-settings"><header class="window-header"><h1 class="window-title">Foundry World Status</h1></header><section class="window-content"></section></form>
-<div id="messages" role="status"></div><button id="fixture-logout" type="button" data-action="openApp" data-app="logout" style="position:absolute;left:80px;top:875px;width:200px">Abmelden (Prüfung)</button>
+<div id="messages" role="status"></div>
 <script src="/handlebars.js"></script>
 <script type="module">
 import FormDataExtended from "/form-data-extended.mjs";
@@ -142,6 +142,36 @@ renderLanguageSetting();
 if (isGM) await renderSettings();
 else {app.rendered = false; app.element.hidden = true;}
 window.fixture = {app, values, configs, locale, renderSettings, renderLanguageSetting, shutdownRequests: []};
-document.querySelector("#fixture-logout").onclick = event => SidebarSettings.DEFAULT_OPTIONS.actions.openApp(event);
-hooks.get("renderSettings")?.({}, document.body);
+// Real Core template, inserted after ready and replaced without relying on render hooks.
+const sidebarRoot = document.createElement("section");
+sidebarRoot.id = "settings";
+sidebarRoot.style.cssText = "position:absolute;left:80px;top:875px;width:300px";
+document.body.append(sidebarRoot);
+const sidebarTemplate = Handlebars.compile(await (await fetch("/sidebar-settings.hbs")).text());
+sidebarRoot.onclick = event => SidebarSettings.DEFAULT_OPTIONS.actions.openApp(event);
+fixture.renderSidebar = async () => {
+  sidebarRoot.innerHTML = sidebarTemplate({user: game.user, canReturnSetup: true});
+};
+await fixture.renderSidebar();
+if (query.has("menu")) {
+  const {default: MainMenu} = await import("/main-menu.mjs");
+  game.data = {demoMode: false};
+  game.user.hasRole = () => game.user.isGM;
+  const menu = new MainMenu();
+  const template = Handlebars.compile(await (await fetch("/main-menu.hbs")).text());
+  const root = document.createElement("dialog");
+  root.id = "menu";
+  root.classList.add("active");
+  root.style.cssText = "position:absolute;right:0;top:0;width:160px;background:#222;z-index:100";
+  document.body.append(root);
+  root.showModal();
+  root.onclick = event => {
+    if (event.target.closest('[data-action="menuItem"]')) MainMenu.DEFAULT_OPTIONS.actions.menuItem.call(menu, event);
+  };
+  fixture.renderMainMenu = async () => {
+    root.innerHTML = template({items: menu.items});
+    hooks.get("renderMainMenu")?.(menu, root);
+  };
+  await fixture.renderMainMenu();
+}
 </script></body></html>
