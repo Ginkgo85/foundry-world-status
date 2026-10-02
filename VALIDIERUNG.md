@@ -1,6 +1,14 @@
 # Validierung – optionale Startankündigung 1.3.0
 
-Stand: 2. Oktober 2026. **Lokal vorbereiteter Entwicklungsstand, nicht veröffentlicht.** Dieser Bericht ist maßgeblich; ältere Berichte unten sind historisch.
+Stand: 2. Oktober 2026. **Version 1.3.0 zur Veröffentlichung vorbereitet; Release noch nicht gestartet.** Dieser Bericht ist maßgeblich; ältere Berichte unten sind historisch.
+
+## Nachtrag zur Release-Vorbereitung
+
+Der Maintainer hat im anschließenden Release-Auftrag den erfolgreichen Praxistest in einer echten Foundry-Welt mit Discord bestätigt: automatisches ONLINE, Neuladen ohne zweite Nachricht und OFFLINE beim Zurück-zum-Setup funktionieren. Dies ist eine Benutzerbestätigung, keine vom Agenten beobachtete Live-Prüfung.
+
+Erneut ausgeführt: npm test mit Core 14.368 (165 bestanden, keine Fehler/Skips), npm run build:release, npm run test:release und actionlint. Die Browserprüfungen des unveränderten Funktionsstands wurden im vorangehenden Entwicklungsauftrag ausgeführt, wie unten dokumentiert.
+
+Repository Ginkgo85/foundry-world-status, Branch main und Anmeldung Ginkgo85 geprüft; keine fremden Änderungen. Bei der Vorprüfung existieren weder Tag noch Release v1.3.0. Die Übertragung des geprüften Stands nach main erfolgt in diesem Auftrag. CI und CodeQL werden anschließend für den genauen Commit bis zum Abschluss kontrolliert; maßgeblich sind dessen GitHub-Actions-Ergebnisse. Der Release-Workflow bleibt dem Maintainer vorbehalten.
 
 ## Umfang und Verhalten
 
@@ -46,11 +54,11 @@ Im ersten Lauf waren zwei Fehler im neuen Testaufbau enthalten (Gruppentitel sta
 ## Noch nicht geprüft
 
 - Vollständige Foundry-Testwelt mit mehreren echten verbundenen GMs und tatsächlichen Verbindungsabbrüchen.
-- Echte Discord-Zustellung und konkrete Docker-/Proxy-Umgebungen. Keine echten Webhooks verwendet.
-- CI und CodeQL für diesen Stand: kein Push in diesem Auftrag, deshalb keine neuen GitHub-Läufe.
+- Konkrete Docker-/Proxy-Umgebungen sowie vom Agenten beobachtete echte Discord-Zustellung. Der Maintainer bestätigt den Praxistest; die automatisierten Prüfungen verwenden keine echten Webhooks.
+- CI und CodeQL vor dem Push dieses Release-Vorbereitungsstands; Prüfung folgt anschließend auf GitHub.
 - Vollständige Sicherheitsanalyse oder garantierter einmaliger Versand über mehrere Clients.
 
-## Manueller Test vor Veröffentlichung
+## Manueller Testplan
 
 1. Bestehende 14.368-Testwelt sichern und Kandidat lokal installieren. Bei bisheriger Konfiguration bleibt die Option ausgeschaltet; Laden und Neuladen senden nichts.
 2. Als GM eigenen Test-Webhookspeicher und Server-URL einrichten. Unter ONLINE Nachricht Automatik aktivieren und speichern: noch keine Nachricht. Deutsche/englische Oberfläche prüfen.
@@ -62,9 +70,9 @@ Im ersten Lauf waren zwei Fehler im neuen Testaufbau enthalten (Gruppentitel sta
 
 ## Weiteres Vorgehen
 
-Technisch lokal geprüft; den Praxistest vor Freigabe noch durchführen. Änderungen nur lokal committen. Keine Tags, Releases, Uploads, Foundry-API-Aufrufe oder Deployments.
+Technisch lokal geprüft; der Maintainer bestätigt den Praxistest (siehe Nachtrag). Die Release-Vorbereitung erlaubt jetzt Commit und Push. Keine Tags, Releases, Release-Artefakt-Uploads, Foundry-API-Aufrufe oder Deployments in diesem Auftrag.
 
-Später nach Freigabe den geprüften Commit nach origin/main übertragen, CI und CodeQL abwarten und dann **Actions → Release → Run workflow → main** starten. Der Workflow erstellt Tag v1.3.0, Manifest und ZIP. Nicht manuell Tags oder Release-Dateien anlegen. Einzelheiten: [PUBLISHING.md](PUBLISHING.md).
+Nach Übertragung des geprüften Stands nach origin/main erfolgreiche CI-/CodeQL-Läufe abwarten und dann **Actions → Release → Run workflow → main** starten. Der Workflow erstellt Tag v1.3.0, Manifest und ZIP. Nicht manuell Tags oder Release-Dateien anlegen. Einzelheiten: [PUBLISHING.md](PUBLISHING.md).
 
 ---
 
