@@ -83,6 +83,7 @@ function storeConfig(config) {
 beforeEach(() => {
   clock += 1000000;
   game.user.isGM = true;
+  game.user.isActiveGM = false;
   storeConfig(goodConfig()); stored.set("online", false);
   notifications = []; calls = []; logs = []; writes = []; failWrite = false;
   ui.controls = {controls: context(), render: async () => {}};
@@ -127,8 +128,8 @@ test("restricted submenu and persistent world settings start OFF and survive reg
   assert.equal(readConfig().onlineTitle, "Persistiert");
 });
 
-test("startup, renders and setting changes never send", async () => {
-  hookCallbacks.get("ready")(); main.addSceneTools(ui.controls.controls);
+test("default startup, renders and setting changes never send", async () => {
+  await hookCallbacks.get("ready")(); main.addSceneTools(ui.controls.controls);
   await game.settings.set(MODULE_ID, "online", true);
   assert.equal(calls.length, 0);
   for (const control of Object.values(ui.controls.controls)) assert.match(control.tools[TOOL_ID].icon, /fws-on/);
@@ -728,4 +729,206 @@ test("partial settings save reports no success and succeeds on retry", async () 
   await WorldStatusSettings.save.call(app, {}, {}, {object: config});
   assert.equal(readConfig().onlineTitle, config.onlineTitle);
   assert.equal(notifications.at(-1).level, "info");
+});
+
+test("startup option is a saved ONLINE checkbox, disabled for existing worlds", async () => {
+  assert.equal(DEFAULTS.autoOnlineOnStartup, false);
+  const saved = stored.get("configuration"); delete saved.autoOnlineOnStartup;
+  assert.equal(readConfig().autoOnlineOnStartup, false);
+  const app = new WorldStatusSettings();
+  let fields = (await app._prepareContext({})).groups.find(g => g.title === lookup("FWS.groups.online")).fields;
+  assert.equal(fields.find(f => f.key === "autoOnlineOnStartup").value, false);
+  app.element = {querySelector: () => ({})};
+  await WorldStatusSettings.save.call(app, {}, {}, {object: {...goodConfig(), autoOnlineOnStartup: true}});
+  assert.equal(readConfig().autoOnlineOnStartup, true);
+  fields = (await app._prepareContext({})).groups.find(g => g.title === lookup("FWS.groups.online")).fields;
+  assert.equal(fields.find(f => f.key === "autoOnlineOnStartup").value, true);
+  assert.equal(calls.length, 0); // Saving the option does not announce anything.
+});
+
+function enableStartup() {
+  game.user.isActiveGM = true;
+  storeConfig({...goodConfig(), autoOnlineOnStartup: true});
+}
+
+test("startup requires explicit boolean opt-in and does not block a manual click when disabled", async () => {
+  game.user.isActiveGM = true;
+  for (const option of [undefined, false, "true", 1]) {
+    stored.get("configuration").autoOnlineOnStartup = option;
+    await hookCallbacks.get("ready")();
+  }
+  assert.equal(calls.length, 0);
+  await main.toggleAnnouncement();
+  assert.equal(calls.length, 1); assert.equal(stored.get("online"), true);
+});
+
+test("only the designated GM announces; another GM and players remain silent", async () => {
+  enableStartup();
+  const original = game.user;
+  const gmB = {id: "gm-b", isGM: true};
+  const player = {id: "player", isGM: false};
+  game.users = {activeGM: original};
+  for (const user of [original, gmB, player])
+    Object.defineProperty(user, "isActiveGM", {configurable: true, get() {return this === game.users.activeGM;}});
+  try {
+    game.user = gmB; await hookCallbacks.get("ready")();
+    game.user = player; await hookCallbacks.get("ready")();
+    assert.equal(calls.length, 0); assert.equal(writes.length, 0);
+    game.user = original; await hookCallbacks.get("ready")();
+    assert.equal(calls.length, 1); assert.equal(stored.get("online"), true);
+    clock += 1000;
+    await hookCallbacks.get("ready")();
+    assert.equal(calls.length, 1); // Saved ON prevents a repeat.
+  } finally {
+    game.user = original;
+    Object.defineProperty(original, "isActiveGM", {configurable: true, writable: true, value: true});
+    game.users = [];
+  }
+});
+
+test("startup keeps OFF until delivery and uses exactly the manual ONLINE payload", async () => {
+  enableStartup(); main.addSceneTools(ui.controls.controls);
+  const expected = buildPayload(readConfig(), true);
+  let finish;
+  setFetch(() => new Promise(resolve => {finish = resolve;}));
+  const pending = main.announceOnline();
+  assert.equal(isBusy(), true); assert.equal(stored.get("online"), false);
+  await main.announceOnline(); await main.toggleAnnouncement();
+  assert.equal(calls.length, 1);
+  assert.deepEqual(JSON.parse(calls[0][1].body.get("payload_json")), expected);
+  finish(response()); await pending;
+  assert.equal(stored.get("online"), true); assert.equal(isBusy(), false);
+  assert.deepEqual(writes, [{key: "online", value: true}]);
+  assert.match(ui.controls.controls.tokens.tools[TOOL_ID].icon, /fws-on/);
+  assert.equal(notifications.at(-1).message, lookup("FWS.onlineSent"));
+  clock += 1000; await main.announceOnline();
+  assert.equal(calls.length, 1); assert.equal(stored.get("online"), true);
+  setFetch(() => response());
+  await main.toggleAnnouncement();
+  assert.equal(stored.get("online"), false); // Manual OFF still available.
+  assert.equal(JSON.parse(calls[1][1].body.get("payload_json")).embeds[0].title, DEFAULTS.offlineTitle);
+});
+
+test("startup respects a pending manual action and never queues a later duplicate", async () => {
+  enableStartup(); let finish;
+  setFetch(() => new Promise(resolve => {finish = resolve;}));
+  const manual = main.toggleAnnouncement();
+  await main.announceOnline();
+  finish(response()); await manual;
+  assert.equal(calls.length, 1); assert.equal(stored.get("online"), true);
+});
+
+test("startup rechecks active GM, option and status inside the existing lock", async () => {
+  for (const change of [
+    () => {game.user.isActiveGM = false;},
+    () => {stored.set("online", true);},
+    () => {stored.get("configuration").autoOnlineOnStartup = false;}
+  ]) {
+    clock += 1000; enableStartup(); stored.set("online", false);
+    // Busy rendering occurs between lock acquisition and execution of its job.
+    ui.controls.render = async () => {change();};
+    await main.announceOnline();
+    assert.equal(calls.length, 0); assert.equal(writes.length, 0);
+  }
+});
+
+test("ready waits for migration, then sends using the migrated local webhook", async () => {
+  enableStartup();
+  stored.set("configuration", {...stored.get("configuration"), webhookUrl: fakeWebhook});
+  stored.set("webhooks", {});
+  setFetch(() => {
+    assert.equal(stored.get("configuration").webhookUrl, undefined);
+    assert.equal(readConfig().webhookUrl, fakeWebhook);
+    assert.deepEqual(writes.map(w => w.key), ["webhooks", "configuration"]);
+    return response();
+  });
+  await hookCallbacks.get("ready")();
+  assert.equal(calls.length, 1);
+  assert.deepEqual(writes.map(w => w.key), ["webhooks", "configuration", "online"]);
+});
+
+test("failed migration prevents startup send and leaves legacy data and OFF intact", async () => {
+  enableStartup();
+  stored.get("configuration").webhookUrl = fakeWebhook;
+  stored.set("webhooks", {}); failWrite = true;
+  await hookCallbacks.get("ready")();
+  assert.equal(calls.length, 0); assert.equal(stored.get("online"), false);
+  assert.equal(stored.get("configuration").webhookUrl, fakeWebhook);
+  assert.equal(notifications.at(-1).level, "error");
+  assert.ok(!JSON.stringify({logs, notifications}).includes(fakeWebhook));
+});
+
+test("GM or status changes during pending migration are rechecked before startup", async () => {
+  const originalSet = game.settings.set;
+  try {
+    for (const change of [() => {game.user.isActiveGM = false;}, () => {stored.set("online", true); }]) {
+      clock += 1000; enableStartup(); stored.set("online", false);
+      stored.get("configuration").webhookUrl = fakeWebhook; stored.set("webhooks", {});
+      let resume, entered;
+      const waiting = new Promise(resolve => {entered = resolve;});
+      game.settings.set = async (...args) => {
+        if (args[1] === "webhooks") {entered(); await new Promise(resolve => {resume = resolve;});}
+        return originalSet(...args);
+      };
+      const pending = hookCallbacks.get("ready")();
+      await waiting; assert.equal(calls.length, 0); change(); resume(); await pending;
+      assert.equal(calls.length, 0);
+    }
+  } finally {game.settings.set = originalSet;}
+});
+
+for (const [name, config, failure, error] of [
+  ["missing webhook", {webhookUrl: ""}, null, "webhook"],
+  ["invalid webhook", {webhookUrl: "https://example.invalid/"}, null, "webhook"],
+  ["missing server", {serverUrl: ""}, null, "server"],
+  ["network", {}, () => {throw new Error(fakeWebhook);}, "network"],
+  ["unconfirmed", {}, () => response(200, {}), "confirmation"],
+  ["rate limit", {}, () => response(429, {retry_after: 2}), "rateLimit"],
+  ["HTTP failure", {}, () => response(500), "http"]
+]) test("startup failure: " + name + " preserves OFF without leaking secrets", async () => {
+  enableStartup(); storeConfig({...readConfig(), ...config});
+  if (failure) setFetch(failure);
+  await hookCallbacks.get("ready")();
+  assert.equal(stored.get("online"), false); assert.equal(writes.length, 0);
+  assert.equal(calls.length, failure ? 1 : 0); assert.equal(isBusy(), false);
+  assert.equal(notifications.at(-1).level, "error");
+  assert.equal(logs.at(-1)[0], MODULE_ID + " | " + error);
+  assert.ok(!JSON.stringify({logs, notifications}).includes(fakeWebhook));
+});
+
+test("startup delivery followed by a failed state write reports stateAfterSend", async () => {
+  enableStartup(); failWrite = true;
+  await main.announceOnline();
+  assert.equal(calls.length, 1); assert.equal(stored.get("online"), false);
+  assert.equal(notifications.at(-1).message, lookup("FWS.errors.stateAfterSend"));
+  assert.equal(isBusy(), false);
+});
+
+test("installed V14 active GM getter selects only the designated user", async t => {
+  const core = process.env.FOUNDRY_APP_PATH;
+  if (!core) {t.skip("FOUNDRY_APP_PATH required"); return;}
+  const source = await readFile(path.join(core, "client/documents/user.mjs"), "utf8");
+  const match = source.match(/get isActiveGM\(\) \{([\s\S]*?)\n  \}/);
+  assert.ok(match);
+  const getter = new Function(match[1]);
+  const other = {isGM: true};
+  game.users = {activeGM: game.user};
+  assert.equal(getter.call(game.user), true); assert.equal(getter.call(other), false);
+  game.users.activeGM = other;
+  assert.equal(getter.call(game.user), false); assert.equal(getter.call(other), true);
+  game.users = [];
+});
+
+test("startup timeout leaves OFF and releases the send lock without a retry", async () => {
+  enableStartup();
+  const originalTimeout = globalThis.setTimeout;
+  globalThis.setTimeout = callback => originalTimeout(callback, 1);
+  setFetch((_url, options) => new Promise((_resolve, reject) =>
+    options.signal.addEventListener("abort", () => reject(new Error(fakeWebhook)))));
+  try { await hookCallbacks.get("ready")(); }
+  finally { globalThis.setTimeout = originalTimeout; }
+  assert.equal(calls.length, 1); assert.equal(stored.get("online"), false);
+  assert.equal(isBusy(), false); assert.equal(writes.length, 0);
+  assert.equal(notifications.at(-1).message, lookup("FWS.errors.timeout"));
+  assert.ok(!JSON.stringify({logs, notifications}).includes(fakeWebhook));
 });

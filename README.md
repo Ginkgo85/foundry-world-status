@@ -6,7 +6,7 @@
 
 ## Deutsche Anleitung
 
-Version **1.2.1** · Foundry VTT **14.368** · Nur für GMs · Keine Modulabhängigkeiten
+Version **1.3.0** · Foundry VTT **14.368** · Nur für GMs · Keine Modulabhängigkeiten
 
 **Status: Community Release / In Development**
 
@@ -25,7 +25,7 @@ Kündige deine Spielrunde mit einem Klick auf Discord als **ONLINE** oder **OFFL
 - Einstellungen und Ankündigungsstatus werden pro Welt gespeichert; der Webhook bleibt im jeweiligen Browser.
 - Deutsche und englische Oberfläche mit optionaler lokaler Sprachwahl ausschließlich für GMs.
 
-**ONLINE wird bewusst per GM-Klick angekündigt.** Es gibt keine automatische Erreichbarkeitsprüfung und keine Nachricht beim Starten der Welt. ON/OFF zeigt den gespeicherten Ankündigungsstatus an.
+**ONLINE wird standardmäßig per GM-Klick angekündigt.** Optional kann der aktive GM beim Laden der Welt automatisch ONLINE ankündigen. Es gibt keine automatische Erreichbarkeitsprüfung. ON/OFF zeigt den gespeicherten Ankündigungsstatus an.
 
 ### Installation
 
@@ -40,7 +40,7 @@ Der feste Manifest-Link installiert den jeweils veröffentlichten neuesten Relea
 
 3. Die Welt öffnen und unter **Einstellungen → Module verwalten** das Modul aktivieren. Anschließend die Welt neu laden.
 
-Alternativ: [ZIP für v1.2.1](https://github.com/Ginkgo85/foundry-world-status/releases/download/v1.2.1/foundry-world-status.zip) (erst nach Veröffentlichung verfügbar) und in `Data/modules/foundry-world-status/` entpacken. `module.json` liegt direkt im ZIP-Root und muss anschließend direkt im Modulordner liegen. Foundry danach neu starten beziehungsweise die Module neu laden.
+Alternativ: [ZIP für v1.3.0](https://github.com/Ginkgo85/foundry-world-status/releases/download/v1.3.0/foundry-world-status.zip) (erst nach Veröffentlichung verfügbar) und in `Data/modules/foundry-world-status/` entpacken. `module.json` liegt direkt im ZIP-Root und muss anschließend direkt im Modulordner liegen. Foundry danach neu starten beziehungsweise die Module neu laden.
 
 Bei einem manuellen Update den bisherigen Modulordner sichern und durch den neuen ZIP-Inhalt ersetzen. **Keine World-Daten löschen.**
 
@@ -90,6 +90,16 @@ Das Discord-Logo bleibt immer weiß und unverzerrt. Nur der separate Schriftzug 
 Ist der OFFLINE-Versand deaktiviert, setzt ein Klick auf ON nur den Status auf OFF. Der Button steht am Ende der aktuellen Werkzeuggruppe; dafür muss eine Szene aktiv und die Werkzeugleiste geöffnet sein.
 
 Bei mehreren GMs sollte eine Person die Ankündigungen übernehmen: Die Versandsperre gilt pro Browser und verhindert keine gleichzeitigen Nachrichten aus mehreren GM-Sitzungen.
+
+### Automatisch ONLINE ankündigen
+
+Unter **ONLINE Nachricht** lässt sich **Beim Start der Spielwelt automatisch ONLINE ankündigen** einschalten. **Standard: aus.** Der manuelle ON/OFF-Button bleibt verfügbar.
+
+Beim Laden der Welt sendet ausschließlich Foundrys aktiver GM nach erfolgreicher Webhook-Migration die konfigurierte ONLINE-Nachricht, sofern der gespeicherte Status OFF ist. Erst die bestätigte Discord-Antwort setzt den Status auf ON. Der aktive GM benötigt einen gültigen Webhook in seinem eigenen Browser und eine konfigurierte Server-URL.
+
+**Bei bereits gespeichertem ON sendet ein Neuladen nichts**, auch nach einem Serverneustart. Bei OFF kann dagegen auch eine erneute Anmeldung oder ein Neuladen des aktiven GM die Ankündigung auslösen. Ohne angemeldeten aktiven GM wird nichts gesendet; dies ist keine Überwachung des Serverstarts. Einschalten oder Speichern allein sendet nichts.
+
+Bei Fehlern bleibt der Status OFF; es gibt keinen automatischen Wiederholungsversuch. Prüfe vor einem manuellen Versuch den Discord-Kanal: Bei verlorener Antwort kann die Nachricht bereits angekommen sein. Foundrys GM-Auswahl und die lokale Versandsperre vermeiden normale Doppelaufrufe. Mehrere Tabs desselben GM, ein Wechsel des aktiven GM während eines laufenden Versands oder zeitgleiche manuelle Aktionen anderer GMs können trotzdem doppelte Nachrichten auslösen.
 
 ### Automatisch OFFLINE ankündigen
 
@@ -163,7 +173,7 @@ Discord und das Discord-Logo sind Marken von Discord Inc. Dieses Modul ist weder
 
 ## English Guide
 
-Version **1.2.1** · Foundry VTT **14.368** · GM-only controls · No module dependencies
+Version **1.3.0** · Foundry VTT **14.368** · GM-only controls · No module dependencies
 
 **Status: Community Release / In Development**
 
@@ -182,7 +192,7 @@ Announce your game session as **ONLINE** or **OFFLINE** on Discord with one clic
 - Settings and announcement status are stored per world; the webhook stays in the current browser.
 - German and English interface with an optional local language preference for GMs only.
 
-**ONLINE is announced manually by a GM.** There is no automatic availability check or message when the world starts. ON/OFF shows the saved announcement status.
+**ONLINE is announced manually by a GM by default.** Optionally, the active GM can announce ONLINE automatically when loading the world. There is no automatic availability check. ON/OFF shows the saved announcement status.
 
 ### Installation
 
@@ -197,7 +207,7 @@ The permanent manifest link installs the latest published release. A new version
 
 3. Open your world and enable the module under **Settings → Manage Modules**, then reload the world.
 
-Alternatively, download the [ZIP for v1.2.1](https://github.com/Ginkgo85/foundry-world-status/releases/download/v1.2.1/foundry-world-status.zip) (available after publication) and extract it into `Data/modules/foundry-world-status/`. `module.json` is at the ZIP root and must end up directly inside the module folder. Restart Foundry or reload its modules afterward.
+Alternatively, download the [ZIP for v1.3.0](https://github.com/Ginkgo85/foundry-world-status/releases/download/v1.3.0/foundry-world-status.zip) (available after publication) and extract it into `Data/modules/foundry-world-status/`. `module.json` is at the ZIP root and must end up directly inside the module folder. Restart Foundry or reload its modules afterward.
 
 For a manual update, back up the existing module folder and replace it with the new ZIP contents. **Do not delete world data.**
 
@@ -247,6 +257,16 @@ The Discord logo always stays white and keeps its original proportions. Only the
 If OFFLINE sending is disabled, clicking ON only resets the status to OFF. The button appears at the end of the current tool group; a scene must be active and the toolbar must be open.
 
 With multiple GMs, one person should handle announcements. The send lock applies per browser and does not prevent simultaneous messages from different GM sessions.
+
+### Automatic ONLINE announcements
+
+Under **ONLINE Message**, enable **Automatically announce ONLINE when the world starts**. **Default: off.** The manual ON/OFF button remains available.
+
+When loading the world, only Foundry's active GM sends the configured ONLINE message, after successful webhook migration and only if the saved status is OFF. The status changes to ON only after Discord confirms delivery. The active GM needs a valid webhook in their own browser and a configured server URL.
+
+**Reloading with a saved ON status sends nothing**, even after a server restart. With OFF, logging in again or reloading the active GM's browser can trigger the announcement. No logged-in active GM means no message; this does not monitor server startup. Enabling or saving the option alone sends nothing.
+
+Failures leave the status OFF; there is no automatic retry. Check the Discord channel before retrying manually: a lost response may hide successful delivery. Foundry's GM selection and the local send lock prevent ordinary duplicate calls. Multiple tabs of the same GM, a change of active GM during an in-flight request or simultaneous manual actions by other GMs can still produce duplicate messages.
 
 ### Automatic OFFLINE announcements
 

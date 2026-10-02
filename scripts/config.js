@@ -10,6 +10,7 @@ export const DEFAULTS = Object.freeze({
   serverUrl: "",
   sendOffline: true,
   autoOfflineOnShutdown: false,
+  autoOnlineOnStartup: false,
   get onlineTitle() { return t("defaults.onlineTitle"); },
   get onlineDescription() { return t("defaults.onlineDescription"); },
   get onlineLinkText() { return t("defaults.onlineLinkText"); },
@@ -29,7 +30,7 @@ export const DEFAULTS = Object.freeze({
 
 export const GROUPS = [
   {id: "connection", keys: ["webhookUrl", "serverUrl", "username", "avatarUrl"]},
-  {id: "online", keys: ["onlineTitle", "onlineDescription", "onlineLinkText", "onlineColor", "onlineFooter", "onlineThumbnail", "onlineImage"]},
+  {id: "online", keys: ["autoOnlineOnStartup", "onlineTitle", "onlineDescription", "onlineLinkText", "onlineColor", "onlineFooter", "onlineThumbnail", "onlineImage"]},
   {id: "offline", keys: ["sendOffline", "autoOfflineOnShutdown", "offlineTitle", "offlineDescription", "offlineColor", "offlineFooter"]},
   {id: "mentions", keys: ["content", "roleId"]}
 ];

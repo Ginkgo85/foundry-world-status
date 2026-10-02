@@ -30,7 +30,7 @@ const languages = Object.fromEntries(await Promise.all(["de", "en"].map(async co
 const localize = key => game.i18n.localize(key);
 const hooks = new Map(), values = new Map(), configs = new Map();
 window.Hooks = {once: (name, fn) => hooks.set(name, fn), on: (name, fn) => hooks.set(name, fn)};
-window.game = {ready: true, world: {id: "test-world"}, userId, user: {id: userId, isGM}, users: [], shutDown: async () => {},
+window.game = {ready: true, world: {id: "test-world"}, userId, user: {id: userId, isGM, isActiveGM: isGM && query.get("active") !== "false"}, users: [], shutDown: async () => {},
   logOut() {
     sessionStorage.setItem("logout-check", JSON.stringify({online:values.get("online"), shutdownRequests:window.fixture.shutdownRequests.length}));
     window.location.href = "/logout-complete";
@@ -43,6 +43,7 @@ window.game = {ready: true, world: {id: "test-world"}, userId, user: {id: userId
     set: async (_m, key, value) => {
       if (key.startsWith("language-")) localStorage.setItem("foundry-world-status." + key, JSON.stringify(value));
       else values.set(key, structuredClone(value));
+      if (query.has("startup") && key === "online") sessionStorage.setItem("startup-online", JSON.stringify(value));
       configs.get(key)?.onChange?.(value);
     }
   }
@@ -82,7 +83,14 @@ window.ui = {
 };
 const main = await import("/modules/foundry-world-status/scripts/main.js");
 const {WorldStatusSettings} = await import("/modules/foundry-world-status/scripts/settings.js");
-hooks.get("init")(); main.addSceneTools(ui.controls.controls); await hooks.get("ready")(); await ui.controls.render();
+hooks.get("init")();
+if (query.has("startup")) {
+  values.set("configuration", {...values.get("configuration"), autoOnlineOnStartup: true, serverUrl: "https://foundry.example.invalid"});
+  const fakeWebhook = "https://discord.com/api/webhooks/" + "1".repeat(18) + "/" + "test_token_".repeat(7);
+  values.set("webhooks", {[JSON.stringify(["test-world", userId])]: fakeWebhook});
+  values.set("online", JSON.parse(sessionStorage.getItem("startup-online") ?? "false"));
+}
+main.addSceneTools(ui.controls.controls); await hooks.get("ready")(); await ui.controls.render();
 const app = new WorldStatusSettings(); app.element = document.querySelector("#fixture-form");
 async function renderSettings() {
   const context = await app._prepareContext({});

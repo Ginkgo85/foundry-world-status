@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.0 – vorbereitet, noch nicht veröffentlicht
+
+- Optionale automatische ONLINE-Ankündigung nach dem Laden der Welt; standardmäßig ausgeschaltet. Nur Foundrys aktiver GM sendet nach erfolgreicher Webhook-Migration, wenn der gespeicherte Status OFF ist.
+- Eigene ONLINE-Funktion mit bestehendem Payload, Versandsperre und Fehlerbehandlung. Status erst nach bestätigtem Versand ON; Neuladen bei ON sendet nichts. Manuelle Bedienung und Setup-OFFLINE bleiben erhalten.
+- Deutsche und englische Einstellung, Dokumentation und Tests ergänzt. Foundry-Kompatibilität unverändert.
+
 ## 1.2.1
 
 Vorbereitet für die Veröffentlichung als v1.2.1; geprüft mit Foundry VTT 14.368.

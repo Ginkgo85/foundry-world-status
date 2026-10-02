@@ -1,3 +1,75 @@
+# Validierung – optionale Startankündigung 1.3.0
+
+Stand: 2. Oktober 2026. **Lokal vorbereiteter Entwicklungsstand, nicht veröffentlicht.** Dieser Bericht ist maßgeblich; ältere Berichte unten sind historisch.
+
+## Umfang und Verhalten
+
+- Neue Option `autoOnlineOnStartup`, strikt Boolean, Standard false, im Bereich ONLINE Nachricht; deutsche und englische Beschriftung und Hinweise.
+- Eigene `announceOnline()`-Funktion nach erfolgreicher Webhook-Migration im ready-Hook. Nur `game.user.isGM === true` und `game.user.isActiveGM === true`, explizit eingeschaltete Option und gespeicherter Status false erlauben den Versand.
+- Erneute Prüfung innerhalb der bestehenden lokalen Versandsperre; kein Aufruf von toggleAnnouncement. Gleicher Payload und Transport wie beim manuellen ONLINE. Status erst nach bestätigtem Versand ON; Controls werden über die bestehende Sperre aktualisiert.
+- Fehlende/ungültige Konfiguration, Migration, Netzwerk, Timeout, HTTP, Rate Limit und fehlende Bestätigung führen nicht zu ON. Ein Fehler beim anschließenden Speichern meldet ausdrücklich die bereits zugestellte Nachricht. Keine automatischen Wiederholungen, keine ungefilterten Fehler oder Webhook-Tokens im Log.
+- Manuelle Toggle-Funktion, discord.js, shutdown.js, settings.js, localization.js, CSS, Icons, Templates und GitHub-Workflows unverändert. Die vorhandene Formularerzeugung übernimmt das neue Feld.
+- module.json, package.json, Download-Adresse, README und Changelog auf 1.3.0 abgestimmt. Kompatibilität unverändert: minimum 14.367, verified 14.368, maximum 14. Fester Manifest-Link unverändert.
+
+## API- und Race-Prüfung
+
+Die [offizielle V14-API](https://foundryvtt.com/api/classes/foundry.documents.User.html#isActiveGM) und der installierte Core 14.368 wurden gelesen: User.isActiveGM vergleicht den Benutzer mit game.users.activeGM; Users.activeGM bestimmt einen aktiven Spielleiter. Ein optionaler Test führt den tatsächlichen User-Getter aus dem installierten Core aus. Keine Core-Dateien ins Projekt kopiert.
+
+Migration wird vor dem automatischen Versand vollständig abgewartet. Status und GM-Zuständigkeit werden danach und innerhalb der Sperre erneut gelesen. Parallele Aufrufe sowie ein bereits laufender manueller Versand im selben Browser erzeugen keine zusätzliche Startnachricht; eine übersprungene Aktion wird nicht nachträglich eingereiht. Ein gespeichertes ON verhindert erneuten Versand auch nach Neuladen. Der bisherige manuelle ON/OFF-Ablauf bleibt separat bedienbar.
+
+**Grenzen:** ready bedeutet Bereitwerden des GM-Browsers, nicht Start des Serverprozesses. Ohne aktiven GM keine Ankündigung. Bei OFF kann erneutes Anmelden/Neuladen auslösen, bei ON bleibt auch ein Serverneustart ohne erneute Ankündigung. Ein Wechsel zum aktiven GM nach ready löst keinen zusätzlichen Versuch aus.
+
+Foundrys GM-Auswahl und runExclusive sind keine serverseitige atomare Versandsperre: mehrere Tabs desselben GM, unterschiedliche Anwesenheitsstände beim Verbindungsaufbau, ein GM-Wechsel während eines laufenden Requests oder gleichzeitige manuelle Aktionen anderer GMs können doppelte Nachrichten verursachen. Eine verlorene Discord-Antwort oder ein fehlgeschlagener Status-Schreibvorgang kann ebenfalls eine bereits zugestellte Nachricht bei OFF hinterlassen. Vor einem erneuten Versuch den Discord-Kanal prüfen. Diese Grenzen sind in der README beschrieben; keine neue Socket-/Lock-Infrastruktur eingeführt.
+
+## Ausgeführte Prüfungen
+
+Node 24.19.0, npm 12.0.2; lizenzierter Foundry-Core 14.368.
+
+| Prüfung | Ergebnis |
+| --- | --- |
+| npm test ohne Core | 165 Tests: 157 bestanden, 0 Fehler, 8 erwartete Core-Skips |
+| npm test mit Core 14.368 | 165 bestanden, 0 Fehler, 0 Skips |
+| npm run build:release | Erfolgreich; 16 Dateien, module.json direkt im ZIP-Root |
+| npm run test:release | Erfolgreich; Quellenvergleich, Manifest-Kopie, CRC32 und Secret-Muster |
+| Browseroberfläche und Startup in Chrome 154.0.8037.93 | Erfolgreich |
+| Browseroberfläche und Startup in Firefox 153.0 | Erfolgreich |
+| CORS-Browserprüfungen in Chrome und Firefox | Erfolgreich, alle Anfragen lokal/simuliert |
+| actionlint -shellcheck= für CI, Release und CodeQL | Erfolgreich; kein separates ShellCheck |
+| Vollständiger Diff und git diff --check | Geprüft, keine Whitespace-Fehler |
+
+Die 146 bisherigen Tests bleiben erhalten; 19 Tests ergänzen Opt-in, Formular/Speicherung, GM-Auswahl, ONLINE-Payload, Bestätigung/Status, wiederholte Aufrufe, Sperre, Migration/Reihenfolge, Zustandswechsel und Fehler einschließlich Timeout. Die bisherige „Start sendet nichts“-Prüfung gilt weiterhin für die Standardeinstellung; sie wartet jetzt den ready-Hook vollständig ab. Die README-Prüfung berücksichtigt den neuen optionalen Startversand.
+
+Browser prüfen die tatsächliche Formularauswertung und Core-Styles, die neue Checkbox samt Speichern/Wiederöffnen, DE/EN-Beschriftungen, drei parallele Testseiten (aktiver GM, anderer GM, Spieler), bestätigtes ON und Seitenneuladen mit erhaltenem Status ohne zweiten Versand. Der Weltstatus/GM-Anwesenheit wird im Fixture simuliert; dies ist kein vollständiger Test von Foundrys Server-Synchronisation. Screenshots der neuen Option unter validation/chrome/ wurden visuell geprüft; beide Sprachen sind lesbar. Diese Dateien sind ignoriert und kein Teil des ZIP.
+
+Im ersten Lauf waren zwei Fehler im neuen Testaufbau enthalten (Gruppentitel statt nicht vorhandener Gruppen-ID und eine nicht freigegebene simulierte Antwort beim Folgeaufruf). Nach Korrektur bestehen sämtliche Tests. Keine Produktionsprüfung abgeschwächt.
+
+## Noch nicht geprüft
+
+- Vollständige Foundry-Testwelt mit mehreren echten verbundenen GMs und tatsächlichen Verbindungsabbrüchen.
+- Echte Discord-Zustellung und konkrete Docker-/Proxy-Umgebungen. Keine echten Webhooks verwendet.
+- CI und CodeQL für diesen Stand: kein Push in diesem Auftrag, deshalb keine neuen GitHub-Läufe.
+- Vollständige Sicherheitsanalyse oder garantierter einmaliger Versand über mehrere Clients.
+
+## Manueller Test vor Veröffentlichung
+
+1. Bestehende 14.368-Testwelt sichern und Kandidat lokal installieren. Bei bisheriger Konfiguration bleibt die Option ausgeschaltet; Laden und Neuladen senden nichts.
+2. Als GM eigenen Test-Webhookspeicher und Server-URL einrichten. Unter ONLINE Nachricht Automatik aktivieren und speichern: noch keine Nachricht. Deutsche/englische Oberfläche prüfen.
+3. Status auf OFF setzen und als aktiver GM neu laden. Genau eine ONLINE-Nachricht im Testkanal erwarten, anschließend ON. Erneut laden: keine weitere Nachricht.
+4. Mit zwei unterschiedlichen GM-Benutzern und einem Spieler prüfen: nur Foundrys aktiver GM sendet. Dessen Browser muss den Webhook eingerichtet haben. Auch schnellen Verbindungsaufbau prüfen; für reguläre Nutzung einen GM und einen Tab für Ankündigungen verwenden.
+5. Ungültigen Webhook beziehungsweise blockierten Testzugriff prüfen: Fehlermeldung und OFF, kein automatischer Wiederholungsversuch. Vor manueller Wiederholung auf mögliche bereits eingegangene Nachricht achten.
+6. Manuellen ONLINE/OFFLINE-Button, Verbindungstest und bisheriges automatisches OFFLINE beim Zurück-zum-Setup prüfen. Abmelden sendet weiterhin kein automatisches OFFLINE.
+7. Ohne angemeldeten GM und mit schon gespeichertem ON nach Serverneustart die beschriebenen Grenzen bestätigen.
+
+## Weiteres Vorgehen
+
+Technisch lokal geprüft; den Praxistest vor Freigabe noch durchführen. Änderungen nur lokal committen. Keine Tags, Releases, Uploads, Foundry-API-Aufrufe oder Deployments.
+
+Später nach Freigabe den geprüften Commit nach origin/main übertragen, CI und CodeQL abwarten und dann **Actions → Release → Run workflow → main** starten. Der Workflow erstellt Tag v1.3.0, Manifest und ZIP. Nicht manuell Tags oder Release-Dateien anlegen. Einzelheiten: [PUBLISHING.md](PUBLISHING.md).
+
+---
+
+## Frühere Prüfberichte (historisch ab 1.2.1)
+
 # Validierung – Release-Vorbereitung 1.2.1
 
 Prüfdatum: 25. September 2026. **Version 1.2.1 für Foundry 14.368 lokal vorbereitet; noch nicht veröffentlicht.**

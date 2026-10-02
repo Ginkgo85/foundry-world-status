@@ -55,6 +55,35 @@ export async function toggleAnnouncement() {
   }
 }
 
+// Foundry elects one active GM. Recheck after acquiring the browser-local lock.
+function canAnnounceOnStartup() {
+  return game.user?.isGM === true && game.user.isActiveGM === true
+    && game.settings.get(MODULE_ID, "online") === false
+    && game.settings.get(MODULE_ID, "configuration")?.autoOnlineOnStartup === true;
+}
+
+/** Opt-in startup action: always ONLINE, never a toggle or an automatic retry. */
+export async function announceOnline() {
+  try {
+    if (!canAnnounceOnStartup()) return;
+    await runExclusive(async () => {
+      if (!canAnnounceOnStartup()) return;
+      const config = readConfig();
+      webhookUrl(config.webhookUrl);
+      await sendWebhook(config.webhookUrl, buildPayload(config, true));
+      try {
+        assertGM();
+        await game.settings.set(MODULE_ID, "online", true);
+      } catch {
+        throw new WorldStatusError("stateAfterSend");
+      }
+      ui.notifications.info(t("onlineSent"));
+    }, refreshControls);
+  } catch (error) {
+    reportError(error);
+  }
+}
+
 export function addSceneTools(controls) {
   if (game.user?.isGM !== true) return;
   const online = game.settings.get(MODULE_ID, "online") === true;
@@ -80,7 +109,10 @@ Hooks.once("ready", async () => {
   refreshControls();
   installShutdownHandler(refreshControls);
   if (game.user?.isGM) {
-    try { await migrateWebhook(); } catch (error) { reportError(error); }
+    try {
+      await migrateWebhook();
+      await announceOnline();
+    } catch (error) { reportError(error); }
   }
 });
-// No automatic Discord requests at startup, browser unload, socket receipt, or setting changes.
+// Startup is opt-in for the active GM after migration. Unload, sockets and settings never send.

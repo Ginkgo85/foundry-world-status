@@ -51,7 +51,8 @@
       "offlineColor": "OFFLINE – Embed Color",
       "offlineFooter": "OFFLINE – Footer Text",
       "content": "Discord Message before the Embed",
-      "roleId": "Discord Role ID"
+      "roleId": "Discord Role ID",
+      "autoOnlineOnStartup": "Automatically announce ONLINE when the world starts"
     },
     "hints": {
       "webhookUrl": "HTTPS webhook from Discord → Edit Channel → Integrations. Stored only in this browser; keep it private.",
@@ -72,7 +73,8 @@
       "offlineColor": "Color of the embed's left border.",
       "offlineFooter": "Optional. Up to 2048 characters.",
       "content": "ONLINE only. Optional; up to 2000 characters including the role mention. @everyone and user mentions are disabled.",
-      "roleId": "Optional: 17–20 digits. This role is automatically mentioned for ONLINE. Typing an @RoleName does not create a role mention."
+      "roleId": "Optional: 17–20 digits. This role is automatically mentioned for ONLINE. Typing an @RoleName does not create a role mention.",
+      "autoOnlineOnStartup": "Automatically sends the configured ONLINE message to Discord when the world starts. Only the active GM announces it. The manual status button remains available. Default: off."
     },
     "errors": {
       "gmOnly": "Only GMs can send the world status to Discord.",

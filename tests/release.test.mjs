@@ -34,12 +34,12 @@ test("MIT license exists and is referenced by both manifest and developer packag
   assert.match(license, /Permission is hereby granted/); assert.match(license, /THE SOFTWARE IS PROVIDED "AS IS"/);
 });
 
-test("publication documentation describes manual ONLINE and a ZIP-root manifest", async () => {
+test("publication documentation describes opt-in startup ONLINE and a ZIP-root manifest", async () => {
   const readme = await readFile(path.join(root, "README.md"), "utf8");
   assert.ok(readme.includes(`**${manifest.version}**`));
   assert.ok(readme.includes(manifest.manifest));
   assert.ok(readme.includes(manifest.download));
-  assert.match(readme, /ONLINE wird bewusst per GM-Klick/); assert.match(readme, /keine automatische Erreichbarkeitsprüfung/);
+  assert.match(readme, /ONLINE wird standardmäßig per GM-Klick/); assert.match(readme, /keine automatische Erreichbarkeitsprüfung/);
   assert.match(readme, /Data\/modules\/foundry-world-status/);
   assert.match(readme, /module\.json.*ZIP-Root/);
   const changelog = await readFile(path.join(root, "CHANGELOG.md"), "utf8");

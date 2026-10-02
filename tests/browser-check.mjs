@@ -80,6 +80,8 @@ try {
   assert.deepEqual(controlStyles.withModule, controlStyles.withoutModule);
   assert.equal(await page.locator('input[type="password"]').count(), 1);
   assert.equal(await page.locator('[name="autoOfflineOnShutdown"]').isChecked(), false);
+  assert.equal(await page.locator('[name="autoOnlineOnStartup"]').isChecked(), false);
+  await page.locator('[name="autoOnlineOnStartup"]').check();
   await page.locator('[name="serverUrl"]').fill("https://foundry.example.invalid");
   await page.locator('[name="onlineTitle"]').fill("🎲 Unsere Spielrunde ist ONLINE");
   await page.locator('[name="onlineDescription"]').fill("Die nächste Runde beginnt.\nWir sehen uns am Spieltisch!");
@@ -130,6 +132,7 @@ try {
   assert.equal(await page.locator('[data-action="toggleWebhook"]').getAttribute("aria-pressed"), "false");
   assert.equal(await page.locator('[name="webhookUrl"]').inputValue(), fakeWebhook);
   assert.equal(await page.locator('[name="sendOffline"]').isChecked(), false);
+  assert.equal(await page.locator('[name="autoOnlineOnStartup"]').isChecked(), true);
   assert.equal(await page.locator('[name="onlineLinkText"]').inputValue(), "");
   assert.equal(await page.locator(".fws-preview-link").innerText(), "https://foundry.example.invalid/");
   assert.equal(await page.locator('[name="onlineTitle"]').inputValue(), "🎲 Unsere Spielrunde ist ONLINE");
@@ -290,6 +293,45 @@ try {
   assert.deepEqual(errors, []);
   await languageContext.close();
   console.log(`${browserName}: language checks passed: DE/EN, auto, both overrides, fallback, GM-only native settings category with no player label/select/hint, player auto with legacy values retained, same-browser GM/player isolation, persisted preference, preserved saved and draft values, tooltips, buttons, preview and eye. No Discord traffic.`);
+
+  const startupContext = await browser.newContext({viewport: {width: 1040, height: 920}});
+  let startupSends = 0;
+  await startupContext.route("**/*", route => new URL(route.request().url()).hostname === "127.0.0.1" ? route.continue() : route.abort());
+  await startupContext.route("https://**/api/webhooks/**", async route => {
+    startupSends++;
+    await route.fulfill({status: 200, contentType: "application/json", body: JSON.stringify({id: "123456789012345678"})});
+  });
+  async function startupPage(parameters) {
+    const tab = await startupContext.newPage();
+    tab.on("pageerror", error => errors.push(error.message));
+    await tab.goto("http://127.0.0.1:" + server.address().port + "/?startup=1&" + parameters);
+    await tab.waitForFunction(() => !!window.fixture);
+    return tab;
+  }
+  const [active, passive, startupPlayer] = await Promise.all([
+    startupPage("user=active-gm"),
+    startupPage("user=other-gm&active=false&lang=en"),
+    startupPage("user=player&role=player")
+  ]);
+  assert.equal(startupSends, 1);
+  assert.equal(await active.evaluate(() => fixture.values.get("online")), true);
+  assert.equal(await passive.evaluate(() => fixture.values.get("online")), false);
+  assert.equal(await startupPlayer.locator("#scene-controls button.fws-on").count(), 0);
+  assert.equal(await active.locator('[name="autoOnlineOnStartup"]').isChecked(), true);
+  assert.equal(await active.locator('label[for="fws-autoOnlineOnStartup"]').innerText(), "Beim Start der Spielwelt automatisch ONLINE ankündigen");
+  assert.equal(await passive.locator('label[for="fws-autoOnlineOnStartup"]').innerText(), "Automatically announce ONLINE when the world starts");
+  for (const [tab, language] of [[active, "de"], [passive, "en"]]) {
+    await tab.locator('[name="autoOnlineOnStartup"]').locator("..").scrollIntoViewIfNeeded();
+    assert.equal(await tab.locator("#fixture-form").evaluate(el => el.scrollWidth <= el.clientWidth), true);
+    await tab.screenshot({path: path.join(out, "automatisch-online-" + language + ".png")});
+  }
+  await active.reload();
+  await active.waitForFunction(() => !!window.fixture);
+  assert.equal(await active.evaluate(() => fixture.values.get("online")), true);
+  assert.equal(startupSends, 1);
+  assert.deepEqual(errors, []);
+  await startupContext.close();
+  console.log(browserName + ": startup checks passed: opt-in checkbox DE/EN, elected GM only, player isolation, confirmed ON and reload without another send; requests simulated.");
 } finally {
   await browser?.close(); await new Promise(resolve => server.close(resolve));
 }

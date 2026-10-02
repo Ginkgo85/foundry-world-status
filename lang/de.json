@@ -51,7 +51,8 @@
       "offlineColor": "OFFLINE – Embed Farbe",
       "offlineFooter": "OFFLINE – Footer Text",
       "content": "Discord Nachricht vor dem Embed",
-      "roleId": "Discord Rollen-ID"
+      "roleId": "Discord Rollen-ID",
+      "autoOnlineOnStartup": "Beim Start der Spielwelt automatisch ONLINE ankündigen"
     },
     "hints": {
       "webhookUrl": "HTTPS-Webhook aus Discord → Kanal bearbeiten → Integrationen. Nur in diesem Browser gespeichert; vertraulich behandeln.",
@@ -72,7 +73,8 @@
       "offlineColor": "Farbe der linken Embed-Leiste.",
       "offlineFooter": "Optional. Maximal 2048 Zeichen.",
       "content": "Nur ONLINE. Optional; mit Rollen-Erwähnung insgesamt maximal 2000 Zeichen. @everyone und Benutzer-Pings sind gesperrt.",
-      "roleId": "Optional: 17–20 Ziffern. Diese Rolle wird bei ONLINE automatisch erwähnt. Ein ausgeschriebener @Rollenname erzeugt keinen Rollenping."
+      "roleId": "Optional: 17–20 Ziffern. Diese Rolle wird bei ONLINE automatisch erwähnt. Ein ausgeschriebener @Rollenname erzeugt keinen Rollenping.",
+      "autoOnlineOnStartup": "Sendet beim Start der Spielwelt automatisch die konfigurierte ONLINE-Nachricht an Discord. Nur der aktive Spielleiter führt die Ankündigung aus. Der manuelle Status-Button bleibt weiterhin verfügbar. Standard: aus."
     },
     "errors": {
       "gmOnly": "Nur Spielleiter dürfen den Weltstatus an Discord senden.",
