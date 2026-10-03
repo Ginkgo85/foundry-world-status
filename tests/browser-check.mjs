@@ -183,7 +183,7 @@ try {
   assert.equal(sends, 2); // Silent OFF sends nothing.
   assert.equal(await page.evaluate(() => fixture.values.get("online")), false);
   assert.equal(await page.locator("#fixture-form").evaluate(el => el.scrollWidth <= el.clientWidth), true);
-  await page.locator('[name="sendOffline"]').check();
+  assert.equal(await page.locator('[name="sendOffline"]').isChecked(), false);
   await page.locator('[name="autoOfflineOnShutdown"]').check();
   await page.locator('button[type="submit"]').click();
   await page.getByRole("status").filter({hasText:"Einstellungen wurden gespeichert."}).waitFor();
@@ -364,96 +364,39 @@ try {
   await startupContext.close();
   console.log(browserName + ": startup checks passed: opt-in checkbox DE/EN, elected GM only, player isolation, confirmed ON and reload without another send; requests simulated.");
 
-  // Exercise the real Core Settings action with the scoped logout click interceptor.
-  let logoutSends = 0;
-  const logoutTab = await browser.newPage({viewport: {width: 1040, height: 920}});
-  logoutTab.on("pageerror", error => errors.push(error.message));
-  await logoutTab.route("**/*", route => new URL(route.request().url()).hostname === "127.0.0.1" ? route.continue() : route.abort());
-  await logoutTab.route("https://**/api/webhooks/**", async route => {
-    logoutSends++;
-    await route.fulfill({status: 200, contentType: "application/json", body: JSON.stringify({id: "123456789012345678"})});
-  });
-  await logoutTab.goto("http://127.0.0.1:" + server.address().port + "/");
-  await logoutTab.waitForFunction(() => !!window.fixture);
-  assert.equal(await logoutTab.locator('[name="autoOfflineOnLogout"]').isChecked(), false);
-  await logoutTab.locator('[name="webhookUrl"]').fill(fakeWebhook);
-  await logoutTab.locator('[name="serverUrl"]').fill("https://foundry.example.invalid");
-  await logoutTab.locator('[name="autoOfflineOnLogout"]').check();
-  await logoutTab.locator('button[type="submit"]').click();
-  await logoutTab.getByRole("status").filter({hasText: "Einstellungen wurden gespeichert."}).waitFor();
-  await logoutTab.evaluate(() => fixture.renderSettings());
-  assert.equal(await logoutTab.locator('[name="autoOfflineOnLogout"]').isChecked(), true);
-  await logoutTab.locator('[name="autoOfflineOnLogout"]').locator("..").scrollIntoViewIfNeeded();
-  await logoutTab.screenshot({path: path.join(out, "automatisch-abmelden.png")});
-  await logoutTab.evaluate(async () => {
-    await game.settings.set("foundry-world-status", "online", true);
-    await fixture.renderSidebar();
-  });
-  await logoutTab.evaluate(() => {
-    const other = document.createElement("button"); other.id = "unrelated-logout";
-    other.dataset.action = "openApp"; other.dataset.app = "logout"; other.textContent = "Unrelated control";
-    other.style.cssText = "position:fixed;right:0;top:0";
-    fixture.unrelatedClicks = 0;
-    other.onclick = () => fixture.unrelatedClicks++;
-    document.body.append(other);
-  });
-  await logoutTab.locator("#unrelated-logout").click();
-  assert.equal(await logoutTab.evaluate(() => fixture.unrelatedClicks), 1);
-  assert.equal(logoutSends, 0);
-  // A rejected send must stop the native Settings action and keep the page ON.
-  await logoutTab.route("https://**/api/webhooks/**", route => route.fulfill({status: 500}));
-  await logoutTab.locator('#settings [data-app="logout"]').click();
-  await logoutTab.getByRole("status").filter({hasText: "Das Abmelden wurde angehalten."}).waitFor();
-  assert.equal(await logoutTab.evaluate(() => fixture.values.get("online")), true);
-  assert.equal(await logoutTab.evaluate(() => fixture.shutdownRequests.length), 0);
-  await logoutTab.unroute("https://**/api/webhooks/**");
-  await logoutTab.route("https://**/api/webhooks/**", async route => {
-    logoutSends++;
-    await route.fulfill({status: 200, contentType: "application/json", body: JSON.stringify({id: "123456789012345678"})});
-  });
-  await logoutTab.waitForTimeout(850);
-  // The popout has its own Core ID; replacing its buttons must retain interception.
-  await logoutTab.evaluate(async () => {
-    document.querySelector("#settings").id = "settings-popout";
-    await fixture.renderSidebar();
-  });
-  await logoutTab.locator('#settings-popout [data-app="logout"]').focus();
-  await logoutTab.keyboard.press("Enter");
-  await logoutTab.waitForURL("**/logout-complete");
-  const logoutState = await logoutTab.evaluate(() => JSON.parse(sessionStorage.getItem("logout-check")));
-  assert.equal(logoutSends, 1); assert.equal(logoutState.online, false);
-  assert.equal(logoutState.shutdownRequests, 0);
-  assert.deepEqual(errors, []);
-  await logoutTab.close();
-  console.log(browserName + ": logout checks passed: native Core Settings action, saved opt-in, failed send stays ON, keyboard click confirms OFF before navigation; no shutdown request.");
-
-  // Render Core's actual Esc menu template and invoke its original action.
-  const menuTab = await browser.newPage({viewport: {width: 1040, height: 920}});
-  menuTab.on("pageerror", error => errors.push(error.message));
-  let menuSends = 0;
-  await menuTab.route("**/*", route => new URL(route.request().url()).hostname === "127.0.0.1" ? route.continue() : route.abort());
-  await menuTab.route("https://**/api/webhooks/**", async route => {
-    menuSends++;
-    await route.fulfill({status: 200, contentType: "application/json", body: JSON.stringify({id: "123456789012345678"})});
-  });
-  await menuTab.goto("http://127.0.0.1:" + server.address().port + "/?menu=1");
-  await menuTab.waitForFunction(() => !!window.fixture?.renderMainMenu);
-  await menuTab.evaluate(async webhook => {
-    await game.settings.set("foundry-world-status", "configuration", {
-      ...fixture.values.get("configuration"), autoOfflineOnLogout: true
-    });
-    await game.settings.set("foundry-world-status", "webhooks", {[JSON.stringify(["test-world", "test-gm"])]: webhook});
-    await game.settings.set("foundry-world-status", "online", true);
-    await fixture.renderMainMenu(); // Also cover a new DOM tree after reopening the menu.
-  }, fakeWebhook);
-  await menuTab.locator('[data-menu-item="logout"] h2').click();
-  await menuTab.waitForURL("**/logout-complete");
-  assert.equal(menuSends, 1, "Esc logout must announce OFFLINE");
-  const menuState = await menuTab.evaluate(() => JSON.parse(sessionStorage.getItem("logout-check")));
-  assert.equal(menuState.online, false); assert.equal(menuState.shutdownRequests, 0);
-  assert.deepEqual(errors, []);
-  await menuTab.close();
-  console.log(browserName + ": native Esc menu logout sends once before leaving, including clicks on the label and reopening the menu.");
+  // All native logout surfaces must remain untouched, even with a saved legacy opt-in.
+  for (const surface of ["sidebar", "popout", "menu"]) {
+    const tab = await browser.newPage({viewport: {width: 1040, height: 920}});
+    tab.on("pageerror", error => errors.push(error.message));
+    let logoutSends = 0;
+    await tab.route("**/*", route => new URL(route.request().url()).hostname === "127.0.0.1" ? route.continue() : route.abort());
+    await tab.route("https://**/api/webhooks/**", route => {logoutSends++; return route.abort();});
+    await tab.goto("http://127.0.0.1:" + server.address().port + (surface === "menu" ? "/?menu=1" : "/"));
+    await tab.waitForFunction(menu => menu ? !!window.fixture?.renderMainMenu : !!window.fixture?.renderSidebar, surface === "menu");
+    assert.equal(await tab.locator('[name="autoOfflineOnLogout"]').count(), 0);
+    await tab.evaluate(async ({webhook, surface}) => {
+      await game.settings.set("foundry-world-status", "configuration", {
+        ...fixture.values.get("configuration"), autoOfflineOnLogout: true,
+        autoOfflineOnShutdown: true, autoOnlineOnStartup: true, sendOffline: true
+      });
+      await game.settings.set("foundry-world-status", "webhooks", {[JSON.stringify(["test-world", "test-gm"])]: webhook});
+      await game.settings.set("foundry-world-status", "online", true);
+      if (surface === "menu") await fixture.renderMainMenu();
+      else {
+        if (surface === "popout") document.querySelector("#settings").id = "settings-popout";
+        await fixture.renderSidebar();
+      }
+    }, {webhook: fakeWebhook, surface});
+    if (surface === "menu") await tab.locator('[data-menu-item="logout"] h2').click();
+    else if (surface === "popout") await tab.locator('#settings-popout [data-app="logout"]').press("Enter");
+    else await tab.locator('#settings [data-app="logout"]').click();
+    await tab.waitForURL("**/logout-complete");
+    const state = await tab.evaluate(() => JSON.parse(sessionStorage.getItem("logout-check")));
+    assert.equal(logoutSends, 0); assert.equal(state.online, true); assert.equal(state.shutdownRequests, 0);
+    assert.deepEqual(errors, []);
+    await tab.close();
+  }
+  console.log(browserName + ": native sidebar, popout and Esc logout preserve ON, send nothing and never request shutdown, including old saved logout opt-in.");
 } finally {
   await browser?.close(); await new Promise(resolve => server.close(resolve));
 }

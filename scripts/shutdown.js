@@ -20,7 +20,7 @@ export function installShutdownHandler(onBusyChange = () => {}) {
 
     try {
       const config = readConfig();
-      if (!config.autoOfflineOnShutdown || !config.sendOffline) return original.apply(this, args);
+      if (!config.autoOfflineOnShutdown) return original.apply(this, args);
       const ran = await runExclusive(async () => {
         assertGM();
         if (this.settings.get(MODULE_ID, "online") !== true) {
@@ -44,7 +44,7 @@ export function installShutdownHandler(onBusyChange = () => {}) {
         if (this.settings.get(MODULE_ID, "online") === true) {
           const latest = readConfig();
           // Respect settings changed while the dialog was open. Re-enter native behavior if disabled.
-          if (!latest.autoOfflineOnShutdown || !latest.sendOffline) {
+          if (!latest.autoOfflineOnShutdown) {
             await original.apply(this, args);
             return;
           }
@@ -73,51 +73,7 @@ export function installShutdownHandler(onBusyChange = () => {}) {
   installed.add(game);
 }
 
-/** Announce OFF before an explicit GM logout click; never stop the world. */
-export async function logoutWithAnnouncement(onBusyChange = () => {}) {
-  try {
-    if (!shouldAnnounceOnLogout()) return game.logOut();
-    const ran = await runExclusive(async () => {
-      // The option, role or status may have changed since the button was clicked.
-      if (shouldAnnounceOnLogout()) await announceOffline(readConfig());
-      try { await game.logOut(); }
-      catch { throw new WorldStatusError("logoutRequest"); }
-    }, onBusyChange);
-    if (!ran) ui.notifications.warn(t("logoutBusy"));
-  } catch (error) {
-    reportError(error);
-    ui.notifications.warn(t("logoutStopped"));
-  }
-}
-
-function shouldAnnounceOnLogout() {
-  if (game.user?.isGM !== true || game.settings.get(MODULE_ID, "online") !== true) return false;
-  const config = game.settings.get(MODULE_ID, "configuration");
-  return config?.autoOfflineOnLogout === true && config.sendOffline !== false;
-}
-
-const logoutDocuments = new WeakSet();
-const logoutSelector = [
-  '#settings [data-action="openApp"][data-app="logout"]',
-  '#settings-popout [data-action="openApp"][data-app="logout"]',
-  '#menu [data-action="menuItem"][data-menu-item="logout"]'
-].join(", ");
-
-/** Recognize explicit Core logout clicks even when buttons are created/replaced after ready. */
-export function installLogoutHandler(document, onBusyChange = () => {}) {
-  if (game.user?.isGM !== true || !document?.addEventListener || logoutDocuments.has(document)) return;
-  // Capture before Core navigates. Only the named logout controls are intercepted;
-  // Game.logOut, forced/socket logout and all other controls remain untouched.
-  document.addEventListener("click", event => {
-    if (event.button !== 0 || !event.target?.closest?.(logoutSelector) || !shouldAnnounceOnLogout()) return;
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    void logoutWithAnnouncement(onBusyChange);
-  }, {capture: true});
-  logoutDocuments.add(document);
-}
-
-async function announceOffline(config, context = game) {
+async function announceOffline(config, context) {
   await sendWebhook(config.webhookUrl, buildPayload(config, false));
   try {
     assertGM();

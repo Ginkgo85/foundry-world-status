@@ -6,7 +6,7 @@
 
 ## Deutsche Anleitung
 
-Version **1.3.1** · Foundry VTT **14.368** · Nur für GMs · Keine Modulabhängigkeiten
+Version **1.3.2** · Foundry VTT **14.368** · Nur für GMs · Keine Modulabhängigkeiten
 
 **Status: Community Release / In Development**
 
@@ -40,7 +40,7 @@ Der feste Manifest-Link installiert den jeweils veröffentlichten neuesten Relea
 
 3. Die Welt öffnen und unter **Einstellungen → Module verwalten** das Modul aktivieren. Anschließend die Welt neu laden.
 
-Alternativ: [ZIP für v1.3.1](https://github.com/Ginkgo85/foundry-world-status/releases/download/v1.3.1/foundry-world-status.zip) (erst nach Veröffentlichung verfügbar) und in `Data/modules/foundry-world-status/` entpacken. `module.json` liegt direkt im ZIP-Root und muss anschließend direkt im Modulordner liegen. Foundry danach neu starten beziehungsweise die Module neu laden.
+Alternativ: [ZIP für v1.3.2](https://github.com/Ginkgo85/foundry-world-status/releases/download/v1.3.2/foundry-world-status.zip) (erst nach Veröffentlichung verfügbar) und in `Data/modules/foundry-world-status/` entpacken. `module.json` liegt direkt im ZIP-Root und muss anschließend direkt im Modulordner liegen. Foundry danach neu starten beziehungsweise die Module neu laden.
 
 Bei einem manuellen Update den bisherigen Modulordner sichern und durch den neuen ZIP-Inhalt ersetzen. **Keine World-Daten löschen.**
 
@@ -103,16 +103,15 @@ Bei Fehlern bleibt der Status OFF; es gibt keinen automatischen Wiederholungsver
 
 ### Automatisch OFFLINE ankündigen
 
-Unter **OFFLINE Nachricht** beide Optionen aktivieren und speichern:
+Unter **OFFLINE Nachricht** genügt ein Haken bei **Vor „Zurück zum Setup“ automatisch OFFLINE ankündigen**. Anschließend speichern. **Standard: aus.**
 
-- **Offline-Nachricht an Discord senden**
-- **Vor „Zurück zum Setup“ OFFLINE ankündigen**
+Bei Status ON sendet ein GM über **„Zurück zum Setup“** zuerst die OFFLINE-Nachricht. Erst nach bestätigtem Versand wird OFF gespeichert und Foundrys Welt-Shutdown angefordert. Bei einem Versand- oder Speicherfehler bleibt das Schließen angehalten. Bei bereits gespeichertem OFF wird keine zusätzliche Nachricht gesendet.
 
-Bei gespeichertem Status ON wird die Nachricht vor dem Schließversuch über **„Zurück zum Setup“** gesendet. Die Automatik ist standardmäßig ausgeschaltet. Bei einem Versand- oder Speicherfehler bleibt der Vorgang angehalten.
+Die Option funktioniert **unabhängig vom manuellen OFFLINE-Versand**. **Beim manuellen Statuswechsel OFFLINE an Discord senden** bestimmt ausschließlich, ob ein Klick auf den Status-Button eine OFFLINE-Nachricht sendet oder nur den gespeicherten Status auf OFF setzt.
 
-Zusätzlich lässt sich **Vor „Abmelden“ OFFLINE ankündigen** separat aktivieren (Standard: aus). Zusammen mit aktiviertem OFFLINE-Versand sendet ein GM-Klick auf **Abmelden** in der rechten Einstellungsleiste (auch als eigenes Fenster) oder im Esc-Menü bei Status ON zuerst OFFLINE und speichert nach Bestätigung den Status OFF. Erst danach wird die Sitzung beendet. Bei Fehlern bleibt die Sitzung offen; Fehlermeldung prüfen oder die Option deaktivieren. Ohne diese Option bleibt Abmelden unverändert.
+**„Abmelden“ beendet nur deine Sitzung und sendet keine Discord-Nachricht.** Der Status bleibt erhalten; andere Benutzer können weiterspielen. Die frühere Abmeldeoption ist entfernt. Ein alter gespeicherter Wert hat keine Wirkung und entfällt beim nächsten Speichern der Moduleinstellungen.
 
-**Abmelden schließt nur deine Sitzung, nicht die Welt.** Andere Benutzer können weiterspielen, obwohl OFF angekündigt wurde. Bei aktivierter Startankündigung kann deine nächste Anmeldung wieder ONLINE senden. Erzwungene Abmeldungen, Browser-/Tab-Schließen, Abstürze und das Stoppen des Servers lösen keinen Abmelden-Versand aus. Scheitert das Schließen der Welt nach der Ankündigung, kann sie trotz OFF weiterlaufen. Die Option bestätigt keine tatsächliche Serverabschaltung; manuelles OFF vor dem Weltende bleibt die einfachste Alternative.
+Browser-/Tab-Schließen, Abstürze und das Stoppen des Serverprozesses lösen ebenfalls keine OFFLINE-Nachricht aus. Scheitert das Schließen der Welt nach erfolgreicher Ankündigung, kann sie trotz OFF weiterlaufen. Die Ankündigung bestätigt keinen tatsächlich abgeschlossenen Shutdown; manuelles OFF vor dem Weltende bleibt verfügbar.
 
 ### Sicherheit und Hilfe
 
@@ -175,7 +174,7 @@ Discord und das Discord-Logo sind Marken von Discord Inc. Dieses Modul ist weder
 
 ## English Guide
 
-Version **1.3.1** · Foundry VTT **14.368** · GM-only controls · No module dependencies
+Version **1.3.2** · Foundry VTT **14.368** · GM-only controls · No module dependencies
 
 **Status: Community Release / In Development**
 
@@ -209,7 +208,7 @@ The permanent manifest link installs the latest published release. A new version
 
 3. Open your world and enable the module under **Settings → Manage Modules**, then reload the world.
 
-Alternatively, download the [ZIP for v1.3.1](https://github.com/Ginkgo85/foundry-world-status/releases/download/v1.3.1/foundry-world-status.zip) (available after publication) and extract it into `Data/modules/foundry-world-status/`. `module.json` is at the ZIP root and must end up directly inside the module folder. Restart Foundry or reload its modules afterward.
+Alternatively, download the [ZIP for v1.3.2](https://github.com/Ginkgo85/foundry-world-status/releases/download/v1.3.2/foundry-world-status.zip) (available after publication) and extract it into `Data/modules/foundry-world-status/`. `module.json` is at the ZIP root and must end up directly inside the module folder. Restart Foundry or reload its modules afterward.
 
 For a manual update, back up the existing module folder and replace it with the new ZIP contents. **Do not delete world data.**
 
@@ -272,16 +271,15 @@ Failures leave the status OFF; there is no automatic retry. Check the Discord ch
 
 ### Automatic OFFLINE announcements
 
-Under **OFFLINE Message**, enable both options and save:
+Under **OFFLINE Message**, enable **Automatically announce OFFLINE before Return to Setup** and save. This is the only checkbox required for automatic OFFLINE. **Default: off.**
 
-- **Send an OFFLINE Message to Discord**
-- **Announce OFFLINE before Return to Setup**
+With status ON, a GM selecting **Return to Setup** first sends OFFLINE. Only after confirmed delivery is OFF saved and Foundry’s world shutdown requested. Sending or storage errors stop shutdown. A saved OFF status prevents another announcement.
 
-When the saved status is ON, the message is sent before the attempt to close the world through **Return to Setup**. This feature is off by default. A sending or storage error stops the operation.
+This option is **independent of manual OFFLINE sending**. **Send OFFLINE to Discord when changing status manually** controls only whether clicking the status button sends OFFLINE or silently sets the saved status to OFF.
 
-You can separately enable **Announce OFFLINE before Log Out** (default: off). With OFFLINE messages enabled and the saved status ON, a GM clicking **Log Out** in the right settings sidebar (including its popout) or the Esc menu first sends OFFLINE and saves OFF after confirmation. Only then does the session end. Errors keep the session open; check the error or disable this option. Without this option, logout is unchanged.
+**Log Out ends only your session and sends no Discord message.** The status stays unchanged; other users may keep playing. The former logout option has been removed. An old saved value has no effect and is discarded the next time module settings are saved.
 
-**Logging out ends only your session, not the world.** Other users may keep playing even though OFF was announced. If startup announcements are enabled, your next login may announce ONLINE again. Forced logouts, closing the browser or tab, crashes and stopping the server do not trigger logout announcements. If closing the world fails after the announcement, the world may still be running despite OFF. This option does not confirm an actual server shutdown; manually announcing OFF before ending the world remains the simplest alternative.
+Closing the browser or tab, crashes and stopping the server process do not trigger OFFLINE either. If world shutdown fails after a successful announcement, the world may still be running despite OFF. The announcement does not confirm a completed shutdown; manual OFF remains available.
 
 ### Security and help
 

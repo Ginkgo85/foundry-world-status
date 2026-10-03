@@ -2,7 +2,7 @@ import {MODULE_ID, TOOL_ID, WorldStatusError, assertGM, readConfig, reportError,
 import {buildPayload, isBusy, runExclusive, sendWebhook} from "./discord.js";
 import {registerSettings} from "./settings.js";
 import {prepareLanguage} from "./localization.js";
-import {installShutdownHandler, installLogoutHandler} from "./shutdown.js";
+import {installShutdownHandler} from "./shutdown.js";
 
 /** Update the official V14 control model and re-render only its tools part. No DOM replacement. */
 export function refreshControls() {
@@ -108,7 +108,6 @@ Hooks.once("ready", async () => {
   try { await prepareLanguage(); } catch { reportError(new WorldStatusError("languageLoad")); }
   refreshControls();
   installShutdownHandler(refreshControls);
-  installLogoutHandler(globalThis.document, refreshControls);
   if (game.user?.isGM) {
     try {
       await migrateWebhook();

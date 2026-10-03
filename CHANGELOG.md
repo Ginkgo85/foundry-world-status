@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.2
+
+- Automatische OFFLINE-Ankündigung beim Abmelden einschließlich Einstellung, Listenern und eigener Fehlertexte entfernt. Foundrys normales Abmelden bleibt unverändert und sendet nichts.
+- Für automatisches OFFLINE vor „Zurück zum Setup“ genügt autoOfflineOnShutdown. sendOffline steuert ausschließlich den manuellen Status-Button.
+- Automatisches ONLINE beim Weltstart sowie Shutdown-Reihenfolge, GM-Prüfung und Versandschutz bleiben erhalten. Alte gespeicherte Abmeldeoptionen sind wirkungslos und entfallen beim nächsten Speichern.
+- Version 1.3.2 für Foundry 14.368 vorbereitet; Veröffentlichung erfolgt separat über den Release-Workflow.
+
 ## 1.3.1
 
 - Abmelden-Erkennung unabhängig vom Render-Zeitpunkt: gezielte Klick-Erfassung für Settings-Leiste, Settings-Popout und Esc-Menü, auch nach Neuaufbau der Buttons. Andere Buttons und erzwungene Abmeldungen bleiben unverändert.
