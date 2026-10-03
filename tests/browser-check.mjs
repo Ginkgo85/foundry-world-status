@@ -95,7 +95,7 @@ try {
     await route.fulfill({status:200, contentType:"application/json", body: JSON.stringify({id:"123456789012345678"})});
   });
   await page.goto(`http://127.0.0.1:${server.address().port}/`, {waitUntil: "domcontentloaded"});
-  await page.waitForFunction(() => !!window.fixture);
+  await page.waitForFunction(() => window.fixture?.ready === true);
   const controlStyles = await page.evaluate(() => {
     const other = document.querySelector('#scene-controls button[data-tool="select"]');
     const stylesheet = document.querySelector('link[href*="foundry-world-status/styles/"]');
@@ -180,7 +180,7 @@ try {
   await page.waitForTimeout(850);
   await page.locator('button[data-tool="foundry-world-status"]').click();
   await page.locator("#scene-controls button.fws-off").waitFor();
-  assert.equal(sends, 2); // Silent OFF sends nothing.
+  assert.equal(sends, 3); // Manual OFF sends even with automatic shutdown announcements disabled.
   assert.equal(await page.evaluate(() => fixture.values.get("online")), false);
   assert.equal(await page.locator("#fixture-form").evaluate(el => el.scrollWidth <= el.clientWidth), true);
   assert.equal(await page.locator('[name="sendOffline"]').isChecked(), false);
@@ -210,7 +210,7 @@ try {
     await game.settings.set("foundry-world-status", "online", true);
     await game.shutDown();
   });
-  assert.equal(sends, 3);
+  assert.equal(sends, 4);
   assert.equal(await page.evaluate(() => fixture.values.get("online")), false);
   assert.equal(await page.evaluate(() => fixture.shutdownRequests.length), 1);
   assert.equal(await page.evaluate(() => fixture.shutdownRequests[0].url), "/prefix/setup");
@@ -219,7 +219,7 @@ try {
   await page.evaluate(() => game.settings.set("foundry-world-status", "online", true));
   await page.locator('#settings [data-app="logout"]').click();
   await page.waitForURL("**/logout-complete");
-  assert.equal(sends, 3);
+  assert.equal(sends, 4);
   const logoutResult = await page.evaluate(() => JSON.parse(sessionStorage.getItem("logout-check")));
   assert.equal(logoutResult.online, true);
   assert.equal(logoutResult.shutdownRequests, 1); // Only the earlier shutdown test; logout did not stop the world.
@@ -237,7 +237,7 @@ try {
     const tab = await languageContext.newPage();
     tab.on("pageerror", error => errors.push(error.message));
     await tab.goto(`http://127.0.0.1:${server.address().port}/?user=${user}&lang=${language}&role=${role}`);
-    await tab.waitForFunction(() => !!window.fixture);
+    await tab.waitForFunction(() => window.fixture?.ready === true);
     return tab;
   };
   const a = await openUser("gm-a", "de");
@@ -279,7 +279,7 @@ try {
     const playerTab = browserLanguage === "de" ? player : await openUser("player-en", "en", "player");
     // Simulate a value retained from an older version, without using a UI to write it.
     await playerTab.evaluate(value => localStorage.setItem("foundry-world-status." + fixture.locale.languageSettingKey(), JSON.stringify(value)), browserLanguage === "de" ? "en" : "de");
-    await playerTab.reload(); await playerTab.waitForFunction(() => !!window.fixture);
+    await playerTab.reload(); await playerTab.waitForFunction(() => window.fixture?.ready === true);
     for (const selector of ["#fixture-language-section", "#fixture-language", "#fixture-language-hint"]) {
       assert.equal(await playerTab.locator(selector).count(), 0);
     }
@@ -337,7 +337,7 @@ try {
     const tab = await startupContext.newPage();
     tab.on("pageerror", error => errors.push(error.message));
     await tab.goto("http://127.0.0.1:" + server.address().port + "/?startup=1&" + parameters);
-    await tab.waitForFunction(() => !!window.fixture);
+    await tab.waitForFunction(() => window.fixture?.ready === true);
     return tab;
   }
   const [active, passive, startupPlayer] = await Promise.all([
@@ -358,7 +358,7 @@ try {
     await tab.screenshot({path: path.join(out, "automatisch-online-" + language + ".png")});
   }
   await active.reload();
-  await active.waitForFunction(() => !!window.fixture);
+  await active.waitForFunction(() => window.fixture?.ready === true);
   assert.equal(await active.evaluate(() => fixture.values.get("online")), true);
   assert.equal(startupSends, 1);
   assert.deepEqual(errors, []);

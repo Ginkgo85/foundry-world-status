@@ -1,63 +1,54 @@
 # Validierung – Release-Vorbereitung 1.3.2
 
-Stand: 3. Oktober 2026. Version 1.3.2 für Foundry 14.368 zur Veröffentlichung vorbereitet. module.json, package.json, Download-Adresse, README und Changelog sind konsistent. Der Benutzer hat Commit/Push und vollständige Prüfungen mit dem Release-Vorbereitungsauftrag autorisiert; der Release-Workflow wird nicht gestartet. Dieser Bericht ist maßgeblich; alle darunterstehenden Berichte sind historisch.
+Stand: 3. Oktober 2026. Version 1.3.2 für Foundry 14.368. Dieser Bericht beschreibt den aktuellen Funktionsumfang; Berichte unter „Historische Prüfberichte“ gelten für ältere Stände. Kein Release gestartet.
 
-## Ergänzung: ONLINE-Titel ohne Verlinkung
+## Aktuelle Änderung
 
-Ausgangspunkt: sauberer main 842e5918a785d61c68469aacc7111c280c2875fd, identisch mit origin/main; weiterhin kein Release 1.3.2. Der Benutzer bestätigt den passenden OFFLINE-Haken und wünscht eine unverlinkte Überschrift. Aus buildPayload wurde ausschließlich embed.url entfernt. Die URL-Validierung und der separate Markdown-Serverlink bleiben unverändert; die Vorschau verwendet bereits eine unverlinkte Überschrift. Bestehende Discord-Nachrichten werden nicht nachträglich geändert.
+Ausgangspunkt: sauberer main 634f3106cd4f1c9b6bcaf6cd03591ff965f9b0ad, identisch mit origin/main, Repository Ginkgo85/foundry-world-status. Kein veröffentlichter Release 1.3.2. Der Benutzer möchte manuelles OFFLINE unabhängig vom einzigen Automatik-Haken. Zwei angepasste Regressionen scheiterten vor der Änderung erwartungsgemäß.
 
-Acht angepasste bestehende Payload-/Linktext-Prüfungen schlugen vor der Änderung erwartungsgemäß fehl. Danach bestanden erneut alle 178 Tests mit Core sowie 169 Tests ohne Core (9 erwartete Skips). Chrome-Browser/CORS bestanden. Der erste Firefox-Lauf meldete einen NetworkError in der Sprachprüfung; die Ursache wurde nicht eindeutig bestimmt. Der unveränderte isolierte Wiederholungslauf einschließlich CORS bestand vollständig. Keine Tests abgeschwächt, kein realer Discord-Versand. Build und ZIP-Prüfung wurden für diesen Stand erneut erfolgreich ausgeführt. Workflow-Dateien unverändert; die unten dokumentierte actionlint-Prüfung stammt aus der vorherigen Ergänzung desselben Tages.
+Der manuelle Toggle sendet jetzt immer die entsprechende ONLINE-/OFFLINE-Nachricht. Erst nach bestätigtem Versand wird der Status gespeichert. Der stille OFF-Zweig sowie dessen unbenutzte Sprachschlüssel offlineLocal und stateSave sind entfernt. Ein fehlender Webhook oder eine fehlende Versandbestätigung lässt den Status unverändert; ein Speicherfehler meldet die bereits versandte Nachricht ohne falsche Erfolgsmeldung.
 
-## Änderung und Prüfung vor der Umsetzung
+## Verhalten und gespeicherte Einstellungen
 
-Ausgangspunkt dieser Ergänzung: main baba88b08e06fc11cfdba330c200cd698cba9212, sauberer Checkout, origin Ginkgo85/foundry-world-status, kein Abstand zu origin/main. Der Benutzer wünscht einen gemeinsamen OFFLINE-Haken. Vor der Umsetzung scheiterten drei neue Regressionen wie erwartet: zwei widersprüchliche Kombinationen von altem Setup-Haken und sendOffline sowie die Prüfung auf nur ein sichtbares Feld.
+- Der einzige Haken heißt „Vor ‚Zurück zum Setup‘ automatisch OFFLINE senden“. Er steuert ausschließlich die automatische Ankündigung bei ON vor dem Welt-Shutdown.
+- Der gespeicherte Schlüssel sendOffline und sein Wert bleiben erhalten; Standard true. Die alte separate Einstellung autoOfflineOnShutdown bleibt entfernt und wirkungslos. Unbekannte alte Felder entfallen beim nächsten regulären Speichern, ohne neue Startmigration.
+- Manuelles OFFLINE sendet bei an- und ausgeschaltetem Haken. GM-Prüfung, lokale Versandsperre, Bestätigung und Statusspeicherung bleiben erhalten.
+- Abmelden und Browser-Schließen senden nichts. Kein Logout-Listener.
+- Automatisches ONLINE bleibt unverändert. Der ONLINE-Titel hat weiterhin keine Zieladresse; nur der separate Serverlink ist anklickbar.
+- Shutdown sendet vor dem Schließen und speichert OFF nach bestätigtem Versand. Foundrys V14-Anfrage verwendet action=worldShutdown mit Route-Präfix und redirect:manual. Versand-/Speicherfehler halten den Vorgang an; ein fehlgeschlagener Shutdown erzeugt keine automatische ONLINE-Gegenmeldung.
 
-Der historische Tag v1.3.0 wurde zusätzlich geprüft: bereits zwei OFFLINE-Felder; automatisches Setup-OFFLINE erforderte beide. Abmelden war dort nicht angebunden. Der neue gemeinsame Haken übernimmt keine alte Shutdown-Implementierung.
+## Browser-Testfehler und Korrektur
 
-Entfernt: autoOfflineOnLogout aus Defaults und GROUPS; logoutWithAnnouncement, shouldAnnounceOnLogout, installLogoutHandler, Selektoren, Dokument-Listener, WeakSet und Logout-Imports; deutsche/englische Felder, Hints und die ausschließlichen Fehler-/Hinweisschlüssel logoutRequest, logoutBusy, logoutStopped. Keine entsprechenden Laufzeitreferenzen bleiben in scripts, lang oder templates.
+Firefox meldete wiederholt einen NetworkError in der Sprachprüfung. Eine Diagnosekopie mit verzögertem Laden der lokalen Sidebar-Vorlage reproduzierte den Fehler: Beim Neuladen des Spielertabs wurde /sidebar-settings.hbs mit NS_BINDING_ABORTED abgebrochen. window.fixture war bereits verfügbar, obwohl die Initialisierung noch lief.
 
-Alte gespeicherte Logout-Werte werden nicht mehr ausgewertet, erzeugen kein Feld und lösen nichts aus. Die vorhandene Normalisierung entfernt unbekannte Felder beim nächsten regulären Speichern. Keine neue Startmigration und keine ungefragte Änderung bestehender World-Daten.
-
-## Verhalten
-
-- Abmelden: normales Foundry-Verhalten, kein Modul-Listener, kein Discord-Versand und keine Änderung des gespeicherten Status.
-- Ein gemeinsamer Haken sendOffline steuert manuellen OFFLINE-Versand und automatisches OFFLINE vor „Zurück zum Setup“. Standard true bleibt unverändert. GM und gespeichertes ON bleiben Voraussetzung. Erst bestätigter Discord-Versand, dann OFF speichern, anschließend Foundrys V14-Shutdown-Anfrage (action=worldShutdown, Route-Präfix und redirect:manual).
-- Beide Prüfstellen im Shutdown-Pfad werten sendOffline aus, auch nach dem Bestätigungsdialog. Ohne Haken delegiert das Modul an Foundry; manueller OFFLINE-Wechsel bleibt ohne Nachricht.
-- autoOfflineOnShutdown entfällt aus Defaults, GROUPS und beiden Sprachdateien. Der vorhandene erste Wert bleibt erhalten; der alte zweite Wert hat keine Wirkung und entfällt beim nächsten regulären Speichern. Keine neue Migration oder Start-Schreibzugriffe.
-- autoOnlineOnStartup und der manuelle Toggle-Code sind unverändert. Startup-, Sprach-, Webhook- und Transporttests bleiben erfolgreich.
-
-## Sicherheits- und Nebenläufigkeitsprüfung
-
-Die vorhandene runExclusive-Sperre bleibt unverändert. Paralleler manueller Versand, Doppelklicks, Änderungen während der Bestätigung, bereits OFF, abgebrochene Bestätigung, demotierter GM, HTTP-/Rate-Limit-/Netzwerk-/Timeout-/Bestätigungs-/Speicherfehler sowie fehlgeschlagene Shutdown-Anfrage sind geprüft. Unbestätigter Versand verändert den Status nicht; Speicherfehler verhindern den Shutdown. Erfolgreiches OFF mit anschließend fehlgeschlagenem Shutdown erzeugt keine automatische ONLINE-Gegenmeldung.
-
-Keine neuen Rennen durch den gemeinsamen Schalter gefunden. Die Sperre bleibt browserlokal: simultane Aktionen verschiedener GM-Sitzungen können weiterhin doppelte Nachrichten verursachen. Ebenso kann bei verlorener Versandbestätigung oder fehlgeschlagener Statusspeicherung ein manueller Wiederholungsversuch eine bereits zugestellte Nachricht wiederholen. Keine absolute Einmalgarantie hinzugefügt oder behauptet. Token-Schutz, GM-Prüfung, Timeout und Rate-Limit-Behandlung unverändert.
+Die Testseite setzt jetzt fixture.ready erst nach Abschluss der Sidebar-/Menüvorlagen. Der Browsertest wartet darauf. Die Fehlerprüfung bleibt unverändert streng. Die Diagnose mit absichtlicher Verzögerung sowie die regulären Browserprüfungen wurden anschließend erneut ausgeführt. Diagnosekopien bleiben im ignorierten validation-Verzeichnis; keine Änderungen an Foundry-Core oder produktiven Sprachabläufen.
 
 ## Ausgeführte Prüfungen
 
-Alle folgenden Prüfungen wurden für den endgültigen 1.3.2-Kandidaten im Release-Vorbereitungsauftrag erneut ausgeführt.
-
-Node 24.19.0, npm 12.0.2; lizenzierter Foundry-Core 14.368. Ausschließlich künstliche Webhooks und simulierte Discord-Antworten; kein realer Versand.
+Node 24.19.0; eigener lizenzierter Foundry-Core 14.368. Ausschließlich künstliche Webhooks und simulierte Discord-Antworten, kein echter Discord-Versand.
 
 | Prüfung | Ergebnis |
 | --- | --- |
-| npm test mit Core | 178 bestanden, 0 Fehler, 0 Skips |
-| npm test ohne Core | 169 bestanden, 0 Fehler, 9 erwartete Core-Skips |
-| Chrome 154.0.8037.93: Browser und CORS | Bestanden |
-| Firefox 153.0: Browser und CORS | Bestanden |
-| npm run build:release | Bestanden, 16 Dateien, Root-Manifest |
-| npm run test:release | Bestanden, Quellenvergleich/CRC32/Manifest/Secret-Muster |
-| actionlint für CI, Release und CodeQL | Bestanden; kein separates ShellCheck |
-| Imports, Exports, entfernte Laufzeit-Komponenten, Diff | Geprüft |
+| npm test mit Core | 180 bestanden, 0 Fehler, 0 Skips |
+| npm test ohne Core | 171 bestanden, 0 Fehler, 9 erwartete Core-Skips |
+| Browser und CORS: Chrome 154.0.8037.93 | Bestanden |
+| Browser und CORS: Firefox 153.0 | Bestanden nach Korrektur der Testinitialisierung |
+| Firefox mit absichtlich verzögerter Sidebar-Vorlage | Bestanden nach Korrektur |
+| npm run build:release | Bestanden; 16 Dateien, module.json im ZIP-Root |
+| npm run test:release | Bestanden; Quellenvergleich, CRC32, Manifest und Secret-Muster |
+| Diff und Syntax-/Metadatenprüfung | Bestanden |
 
-Browser-Regressionen verwenden die eigenen lizenzierten Core-Templates und Action-Handler für Sidebar, Popout und Esc-Menü: auch ein gespeicherter alter Logout-Haken sendet nichts, der Status bleibt ON. Der gemeinsame OFFLINE-Haken wurde beim Speichern und Wiederöffnen sowie beim Setup-Schließen geprüft; der zweite Haken ist nicht mehr vorhanden. Die Darstellung wurde zusätzlich anhand des Chrome-Screenshots geprüft. Die Node-Tests prüfen beide Werte des gemeinsamen Hakens gegen beide alten Setup-Werte sowie Änderungen während der Bestätigung. Startup-ONLINE, Wiederladen ohne zweite Nachricht, GM-/Spielertrennung und Sprachumschaltung sind weiterhin erfolgreich. Lizenzierte Core-Dateien werden nicht eingecheckt oder ins ZIP übernommen.
+Geprüft: manueller OFFLINE-Versand bei beiden Werten des Hakens und beiden alten Setup-Werten; Webhook-/Bestätigungs-/Speicherfehler; automatisches OFFLINE an/aus; Änderungen während der Bestätigung; GM-/Spielertrennung; Doppelklicks, Zeitüberschreitungen und Rate Limits. Browser prüfen den tatsächlichen manuellen Button bei ausgeschaltetem Haken, Speichern/Wiederöffnen und Setup-Schließen bei eingeschaltetem Haken. Die neue Beschriftung wurde im Chrome-Screenshot geprüft.
 
-## Veröffentlichung und noch offener Praxistest
+Die Sperre bleibt browserlokal. Gleichzeitige Aktionen verschiedener GM-Sitzungen oder ein erneuter Versuch nach verlorener Bestätigung können doppelte Nachrichten verursachen. Keine absolute Einmalgarantie.
 
-Der Benutzer hat ausdrücklich bestätigt, dass der Praxistest dieser Vereinfachung noch nicht durchgeführt wurde. Vor Veröffentlichung in einer echten Testwelt prüfen: Abmelden sendet keine Nachricht und behält den Status; Setup-OFFLINE funktioniert bei ON mit sendOffline=true; mit sendOffline=false senden weder manueller OFFLINE-Wechsel noch Setup-Schließen; automatisches ONLINE und der manuelle Button funktionieren weiterhin. Die frühere Bestätigung zu 1.3.1 ersetzt diesen Test nicht.
+## Veröffentlichung und Praxistest
 
-Nach erfolgreichen lokalen Prüfungen wird dieser Stand committed und nach origin/main gepusht. CI und CodeQL werden für den genauen neuen Commit bis zum Abschluss geprüft; deren endgültiges Ergebnis und der Commit stehen im Abschlussbericht und auf GitHub. Für 1.3.2 wurden bei der Vorprüfung weder ein vorhandener Tag noch ein Release gefunden. Keine neuen Tags, Releases oder Uploads durch diesen Auftrag.
+Version und Download-Adresse bleiben 1.3.2. Nach erfolgreichen Prüfungen Commit/Push gemäß Projektregeln; CI und CodeQL werden für den genauen Commit geprüft und im Abschlussbericht gemeldet. Kein Tag, Release oder Asset-Upload durch diesen Auftrag.
 
-Das lokale Testpaket release/foundry-world-status.zip enthält Version 1.3.2 mit module.json direkt im Root. Es wird nicht hochgeladen; bestehende Releases bleiben unangetastet. Die installierte Foundry-Kopie wurde nicht automatisch ersetzt. Nach dem Praxistest und grünen GitHub-Prüfungen genügt Actions → Release → Run workflow → main. PUBLISHING.md beschreibt die Schritte.
+Der Benutzer hat den einzelnen Haken bestätigt, aber den vollständigen Praxistest dieses Korrekturstands noch nicht. Vor Veröffentlichung in einer echten Welt prüfen: manuelles OFFLINE sendet mit Haken an und aus; automatisches OFFLINE vor „Zurück zum Setup“ sendet nur mit Haken; Abmelden sendet nichts. Die neue unverlinkte ONLINE-Überschrift gilt nur für neu gesendete Nachrichten.
+
+Das Paket liegt unter release/foundry-world-status.zip; die installierte Foundry-Kopie wurde nicht automatisch ersetzt. Nach Praxistest und grünen GitHub-Prüfungen: Actions → Release → Run workflow → main. Siehe PUBLISHING.md.
 
 ---
 

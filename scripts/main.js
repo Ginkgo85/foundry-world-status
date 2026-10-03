@@ -36,19 +36,16 @@ export async function toggleAnnouncement() {
     await runExclusive(async () => {
       const online = game.settings.get(MODULE_ID, "online") === true;
       const config = readConfig();
-      const shouldSend = !online || config.sendOffline;
-      if (shouldSend) {
-        webhookUrl(config.webhookUrl);
-        await sendWebhook(config.webhookUrl, buildPayload(config, !online));
-      }
-      // Persist only after the confirmed send, or immediately for a silent OFF action.
+      webhookUrl(config.webhookUrl);
+      await sendWebhook(config.webhookUrl, buildPayload(config, !online));
+      // A manual status change always announces; persist only after confirmed delivery.
       try {
         assertGM();
         await game.settings.set(MODULE_ID, "online", !online);
       } catch {
-        throw new WorldStatusError(shouldSend ? "stateAfterSend" : "stateSave");
+        throw new WorldStatusError("stateAfterSend");
       }
-      ui.notifications.info(t(!online ? "onlineSent" : shouldSend ? "offlineSent" : "offlineLocal"));
+      ui.notifications.info(t(online ? "offlineSent" : "onlineSent"));
     }, refreshControls);
   } catch (error) {
     reportError(error);

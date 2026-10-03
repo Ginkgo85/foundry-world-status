@@ -8,6 +8,7 @@ export const LOCALIZED_DEFAULTS = ["onlineTitle", "onlineDescription", "onlineLi
 export const DEFAULTS = Object.freeze({
   webhookUrl: "",
   serverUrl: "",
+  // Keep the stored key for compatibility; it controls automatic shutdown announcements only.
   sendOffline: true,
   autoOnlineOnStartup: false,
   get onlineTitle() { return t("defaults.onlineTitle"); },

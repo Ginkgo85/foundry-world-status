@@ -216,10 +216,10 @@ test("ON to OFF sends the offline embed and only then saves false", async () => 
   assert.equal(notifications.at(-1).message, lookup("FWS.offlineSent"));
 });
 
-test("silent OFF works even with empty webhook/server and sends nothing", async () => {
+test("manual OFFLINE still requires a webhook when automatic OFFLINE is disabled", async () => {
   stored.set("online", true); storeConfig({...goodConfig(), webhookUrl: "", serverUrl: "", sendOffline: false});
-  await main.toggleAnnouncement(); assert.equal(stored.get("online"), false); assert.equal(calls.length, 0);
-  assert.equal(notifications.at(-1).message, lookup("FWS.offlineLocal"));
+  await main.toggleAnnouncement(); assert.equal(stored.get("online"), true); assert.equal(calls.length, 0);
+  assert.equal(notifications.at(-1).message, lookup("FWS.errors.webhook"));
 });
 
 for (const status of [400, 401, 403, 404, 500]) test(`HTTP ${status} preserves OFF and ON without exposing secret`, async () => {
@@ -992,12 +992,13 @@ test("shutdown module exports only the shutdown installer and ships no logout co
   }
 });
 
-test("manual OFFLINE obeys the shared checkbox despite old shutdown settings", async () => {
+test("manual OFFLINE sends independently of automatic OFFLINE and legacy settings", async () => {
   for (const auto of [false, true]) for (const sendOffline of [false, true]) {
     clock += 1000; prepareShutdown({auto, sendOffline});
     const before = calls.length;
     await main.toggleAnnouncement();
-    assert.equal(calls.length - before, sendOffline ? 1 : 0);
+    assert.equal(calls.length - before, 1);
+    assert.equal(JSON.parse(calls.at(-1)[1].body.get("payload_json")).embeds[0].title, DEFAULTS.offlineTitle);
     assert.equal(stored.get("online"), false);
   }
 });
@@ -1038,4 +1039,14 @@ test("OFFLINE settings display only one checkbox and discard the removed switch 
   await WorldStatusSettings.save.call(app, {}, {}, {object: {...readConfig()}});
   assert.equal(Object.hasOwn(stored.get("configuration"), "autoOfflineOnShutdown"), false);
   assert.equal(readConfig().sendOffline, false); assert.equal(calls.length, 0);
+});
+
+for (const failure of ["confirmation", "storage"]) test("manual OFFLINE with automation disabled handles " + failure, async () => {
+  stored.set("online", true); storeConfig({...goodConfig(), sendOffline: false});
+  if (failure === "confirmation") setFetch(() => response(200, {}));
+  else failWrite = true;
+  await main.toggleAnnouncement();
+  assert.equal(calls.length, 1); assert.equal(stored.get("online"), true);
+  assert.equal(notifications.at(-1).message, lookup("FWS.errors." + (failure === "storage" ? "stateAfterSend" : "confirmation")));
+  assert.equal(notifications.some(n => n.level === "info"), false); assert.equal(isBusy(), false);
 });
