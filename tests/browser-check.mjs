@@ -109,7 +109,7 @@ try {
   });
   assert.deepEqual(controlStyles.withModule, controlStyles.withoutModule);
   assert.equal(await page.locator('input[type="password"]').count(), 1);
-  assert.equal(await page.locator('[name="autoOfflineOnShutdown"]').isChecked(), false);
+  assert.equal(await page.locator('[name="autoOfflineOnShutdown"]').count(), 0);
   assert.equal(await page.locator('[name="autoOnlineOnStartup"]').isChecked(), false);
   await page.locator('[name="autoOnlineOnStartup"]').check();
   await page.locator('[name="serverUrl"]').fill("https://foundry.example.invalid");
@@ -184,13 +184,14 @@ try {
   assert.equal(await page.evaluate(() => fixture.values.get("online")), false);
   assert.equal(await page.locator("#fixture-form").evaluate(el => el.scrollWidth <= el.clientWidth), true);
   assert.equal(await page.locator('[name="sendOffline"]').isChecked(), false);
-  await page.locator('[name="autoOfflineOnShutdown"]').check();
+  await page.locator('[name="sendOffline"]').check();
   await page.locator('button[type="submit"]').click();
   await page.getByRole("status").filter({hasText:"Einstellungen wurden gespeichert."}).waitFor();
-  assert.equal(await page.evaluate(() => fixture.values.get("configuration").autoOfflineOnShutdown), true);
+  assert.equal(await page.evaluate(() => fixture.values.get("configuration").sendOffline), true);
   await page.evaluate(() => fixture.renderSettings());
-  assert.equal(await page.locator('[name="autoOfflineOnShutdown"]').isChecked(), true);
-  await page.locator('[name="autoOfflineOnShutdown"]').scrollIntoViewIfNeeded();
+  assert.equal(await page.locator('[name="sendOffline"]').isChecked(), true);
+  assert.equal(await page.locator('[name="autoOfflineOnShutdown"]').count(), 0);
+  await page.locator('[name="sendOffline"]').scrollIntoViewIfNeeded();
   await page.screenshot({path: path.join(out, "automatisch-offline.png")});
   await page.setViewportSize({width: 640, height: 920});
   await page.locator("#fixture-form").evaluate(el => {el.style.left = "48px"; el.style.width = "576px";});

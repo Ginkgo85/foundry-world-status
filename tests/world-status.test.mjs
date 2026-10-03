@@ -445,7 +445,7 @@ test("actual Foundry 14.368 SceneControls builds, renders and clicks the module 
   } finally { delete Array.prototype.filterJoin; }
 });
 
-function prepareShutdown({auto = true, sendOffline = false, online = true, confirm = true} = {}) {
+function prepareShutdown({auto = true, sendOffline = true, online = true, confirm = true} = {}) {
   const result = {native: [], setup: [], dialogs: []};
   globalThis.game = {...game, users: [], shutDown: async function (...args) {result.native.push({receiver: this, args});}};
   stored.set("online", online);
@@ -459,15 +459,15 @@ function prepareShutdown({auto = true, sendOffline = false, online = true, confi
   return result;
 }
 
-test("automatic shutdown setting defaults to false and fills missing configuration fields without enabling it", () => {
-  assert.equal(DEFAULTS.autoOfflineOnShutdown, false);
-  const old = goodConfig(); delete old.autoOfflineOnShutdown; storeConfig(old);
-  assert.equal(readConfig().autoOfflineOnShutdown, false);
-  assert.equal(normalizeConfig(old).autoOfflineOnShutdown, false);
+test("one OFFLINE setting defaults to true and the separate shutdown setting is removed", () => {
+  assert.equal(DEFAULTS.sendOffline, true);
+  assert.equal(Object.hasOwn(DEFAULTS, "autoOfflineOnShutdown"), false);
+  const old = goodConfig(); delete old.sendOffline; storeConfig(old);
+  assert.equal(readConfig().sendOffline, true);
 });
 
-test("disabled auto option and already-OFF delegate without sending", async () => {
-  for (const options of [{auto:false}, {auto:false, sendOffline:true}, {online:false}]) {
+test("disabled OFFLINE option and already-OFF delegate without sending", async () => {
+  for (const options of [{sendOffline:false}, {auto:false, sendOffline:false}, {online:false}]) {
     clock += 1000;
     const result = prepareShutdown(options); await game.shutDown("argument");
     assert.equal(calls.length, 0); assert.equal(result.setup.length, 0); assert.equal(result.native.length, 1);
@@ -580,7 +580,7 @@ test("wrapper is installed once and never sends for a demoted user", async () =>
 
 test("changed options or another GM's OFF status during confirmation do not cause duplicate sending", async () => {
   let result = prepareShutdown(); game.users = [{active:true, isSelf:false}];
-  foundry.applications.api.DialogV2.confirm = async () => {stored.get("configuration").autoOfflineOnShutdown = false; return true;};
+  foundry.applications.api.DialogV2.confirm = async () => {stored.get("configuration").sendOffline = false; return true;};
   await game.shutDown(); assert.equal(calls.length, 0); assert.equal(result.native.length, 1);
   clock += 1000;
   result = prepareShutdown(); game.users = [{active:true, isSelf:false}];
@@ -596,7 +596,7 @@ test("disabled branch executes the actual 14.368 Game.shutDown implementation", 
   const end = source.indexOf("\n  }", start) + 4;
   assert.ok(start > 0 && end > start);
   const method = source.slice(start, end).replace("async shutDown()", "async function shutDown()");
-  const result = prepareShutdown({auto:false, online:false});
+  const result = prepareShutdown({sendOffline:false, online:false});
   const original = new Function("utils", "getRoute", "_loc", `return (${method});`)(foundry.utils, foundry.utils.getRoute, (key, data) => game.i18n.format(key, data));
   globalThis.game = {...game, data:{isAdmin:false}, shutDown:original};
   installShutdownHandler(); await game.shutDown();
@@ -958,17 +958,6 @@ test("enabled shutdown sends the same request format as installed Foundry 14.368
   assert.equal(actual.options.redirect, expected.options.redirect);
 });
 
-for (const manualEnabled of [false, true]) test("shutdown ignores manual OFFLINE before and during confirmation: " + manualEnabled, async () => {
-  const result = prepareShutdown({sendOffline: manualEnabled});
-  game.users = [{active: true, isSelf: false}];
-  foundry.applications.api.DialogV2.confirm = async () => {
-    stored.get("configuration").sendOffline = false; return true;
-  };
-  await game.shutDown();
-  assert.equal(calls.length, 1); assert.equal(stored.get("online"), false);
-  assert.equal(result.setup.length, 1); assert.equal(result.native.length, 0);
-});
-
 test("old logout opt-in is ignored and ready binds no logout click listener", async () => {
   const result = prepareShutdown();
   let native = 0, listeners = 0;
@@ -1003,7 +992,7 @@ test("shutdown module exports only the shutdown installer and ships no logout co
   }
 });
 
-test("manual OFFLINE sends or stays silent independently of shutdown automation", async () => {
+test("manual OFFLINE obeys the shared checkbox despite old shutdown settings", async () => {
   for (const auto of [false, true]) for (const sendOffline of [false, true]) {
     clock += 1000; prepareShutdown({auto, sendOffline});
     const before = calls.length;
@@ -1013,8 +1002,8 @@ test("manual OFFLINE sends or stays silent independently of shutdown automation"
   }
 });
 
-for (const failure of ["network", "confirmation", "timeout"]) test("independent shutdown safely stops on " + failure, async () => {
-  const result = prepareShutdown({sendOffline: false});
+for (const failure of ["network", "confirmation", "timeout"]) test("shutdown safely stops on " + failure, async () => {
+  const result = prepareShutdown({sendOffline: true});
   const originalTimeout = globalThis.setTimeout;
   if (failure === "network") setFetch(() => {throw new Error(fakeWebhook);});
   else if (failure === "confirmation") setFetch(() => response(204, {}));
@@ -1027,4 +1016,26 @@ for (const failure of ["network", "confirmation", "timeout"]) test("independent 
   assert.equal(result.setup.length, 0); assert.equal(result.native.length, 0);
   assert.equal(stored.get("online"), true); assert.equal(isBusy(), false);
   assert.ok(!JSON.stringify({logs, notifications}).includes(fakeWebhook));
+});
+
+for (const oldAuto of [false, true]) for (const enabled of [false, true]) {
+  test("one OFFLINE checkbox controls shutdown regardless of the old switch: " + oldAuto + "/" + enabled, async () => {
+    const result = prepareShutdown({auto: oldAuto, sendOffline: enabled});
+    await game.shutDown();
+    assert.equal(calls.length, enabled ? 1 : 0);
+    assert.equal(result.setup.length, enabled ? 1 : 0);
+    assert.equal(result.native.length, enabled ? 0 : 1);
+    assert.equal(stored.get("online"), !enabled);
+  });
+}
+
+test("OFFLINE settings display only one checkbox and discard the removed switch on save", async () => {
+  storeConfig({...goodConfig(), sendOffline: false, autoOfflineOnShutdown: true});
+  const app = new WorldStatusSettings(); app.element = {querySelector: () => ({})};
+  const group = (await app._prepareContext({})).groups.find(g => g.fields.some(f => f.key === "offlineTitle"));
+  assert.deepEqual(group.fields.filter(f => f.checkbox).map(f => f.key), ["sendOffline"]);
+  assert.equal(group.fields.find(f => f.key === "sendOffline").value, false);
+  await WorldStatusSettings.save.call(app, {}, {}, {object: {...readConfig()}});
+  assert.equal(Object.hasOwn(stored.get("configuration"), "autoOfflineOnShutdown"), false);
+  assert.equal(readConfig().sendOffline, false); assert.equal(calls.length, 0);
 });

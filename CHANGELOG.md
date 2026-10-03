@@ -3,7 +3,7 @@
 ## 1.3.2
 
 - Automatische OFFLINE-Ankündigung beim Abmelden einschließlich Einstellung, Listenern und eigener Fehlertexte entfernt. Foundrys normales Abmelden bleibt unverändert und sendet nichts.
-- Für automatisches OFFLINE vor „Zurück zum Setup“ genügt autoOfflineOnShutdown. sendOffline steuert ausschließlich den manuellen Status-Button.
+- Nur noch ein OFFLINE-Haken: sendOffline steuert manuellen OFFLINE-Versand und automatisches OFFLINE vor „Zurück zum Setup“. Die separate Einstellung autoOfflineOnShutdown samt Texten entfällt. Der gespeicherte Wert des ersten Hakens bleibt maßgeblich; der Standard bleibt an.
 - Automatisches ONLINE beim Weltstart sowie Shutdown-Reihenfolge, GM-Prüfung und Versandschutz bleiben erhalten. Alte gespeicherte Abmeldeoptionen sind wirkungslos und entfallen beim nächsten Speichern.
 - Version 1.3.2 für Foundry 14.368 vorbereitet; Veröffentlichung erfolgt separat über den Release-Workflow.
 

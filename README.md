@@ -103,11 +103,11 @@ Bei Fehlern bleibt der Status OFF; es gibt keinen automatischen Wiederholungsver
 
 ### Automatisch OFFLINE ankündigen
 
-Unter **OFFLINE Nachricht** genügt ein Haken bei **Vor „Zurück zum Setup“ automatisch OFFLINE ankündigen**. Anschließend speichern. **Standard: aus.**
+Unter **OFFLINE Nachricht** gibt es nur noch den Haken **OFFLINE-Nachricht an Discord senden**. Er aktiviert sowohl den manuellen OFFLINE-Versand als auch die automatische Nachricht vor **„Zurück zum Setup“**. Anschließend speichern. **Standard: an.**
 
 Bei Status ON sendet ein GM über **„Zurück zum Setup“** zuerst die OFFLINE-Nachricht. Erst nach bestätigtem Versand wird OFF gespeichert und Foundrys Welt-Shutdown angefordert. Bei einem Versand- oder Speicherfehler bleibt das Schließen angehalten. Bei bereits gespeichertem OFF wird keine zusätzliche Nachricht gesendet.
 
-Die Option funktioniert **unabhängig vom manuellen OFFLINE-Versand**. **Beim manuellen Statuswechsel OFFLINE an Discord senden** bestimmt ausschließlich, ob ein Klick auf den Status-Button eine OFFLINE-Nachricht sendet oder nur den gespeicherten Status auf OFF setzt.
+Ohne diesen Haken wird weder manuell noch vor „Zurück zum Setup“ OFFLINE gesendet. Ein manueller Klick auf ON setzt dann nur den gespeicherten Status auf OFF. Der bisherige Wert des ersten Hakens bleibt beim Update erhalten. Die frühere separate Setup-Option entfällt und wird nicht mehr ausgewertet; ihr gespeicherter Wert wird beim nächsten Speichern der Moduleinstellungen entfernt.
 
 **„Abmelden“ beendet nur deine Sitzung und sendet keine Discord-Nachricht.** Der Status bleibt erhalten; andere Benutzer können weiterspielen. Die frühere Abmeldeoption ist entfernt. Ein alter gespeicherter Wert hat keine Wirkung und entfällt beim nächsten Speichern der Moduleinstellungen.
 
@@ -271,11 +271,11 @@ Failures leave the status OFF; there is no automatic retry. Check the Discord ch
 
 ### Automatic OFFLINE announcements
 
-Under **OFFLINE Message**, enable **Automatically announce OFFLINE before Return to Setup** and save. This is the only checkbox required for automatic OFFLINE. **Default: off.**
+Under **OFFLINE Message**, there is now just one checkbox: **Send an OFFLINE message to Discord**. It enables both manual OFFLINE messages and automatic OFFLINE before **Return to Setup**. Save afterward. **Default: on.**
 
 With status ON, a GM selecting **Return to Setup** first sends OFFLINE. Only after confirmed delivery is OFF saved and Foundry’s world shutdown requested. Sending or storage errors stop shutdown. A saved OFF status prevents another announcement.
 
-This option is **independent of manual OFFLINE sending**. **Send OFFLINE to Discord when changing status manually** controls only whether clicking the status button sends OFFLINE or silently sets the saved status to OFF.
+Without this checkbox, neither manual OFFLINE nor Return to Setup sends an OFFLINE message. Clicking ON manually then only sets the saved status to OFF. The first checkbox’s existing value is kept on update. The former separate Setup option is no longer used; its stored value is removed the next time module settings are saved.
 
 **Log Out ends only your session and sends no Discord message.** The status stays unchanged; other users may keep playing. The former logout option has been removed. An old saved value has no effect and is discarded the next time module settings are saved.
 

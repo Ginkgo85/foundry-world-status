@@ -243,7 +243,7 @@ test("actual client storage separates language keys without any server or world 
 
 test("English shutdown confirmation localizes title and both buttons without sending when canceled", async () => {
   await choose("en");
-  values.set("configuration", {...DEFAULTS, autoOfflineOnShutdown: true});
+  values.set("configuration", {...DEFAULTS, sendOffline: true});
   values.set("online", true); game.users = [{active: true, isSelf: false}]; game.shutDown = async () => {};
   let dialogs = 0;
   foundry.applications.api.DialogV2 = {confirm: async options => {

@@ -4,7 +4,9 @@ Stand: 3. Oktober 2026. Version 1.3.2 für Foundry 14.368 zur Veröffentlichung 
 
 ## Änderung und Prüfung vor der Umsetzung
 
-Ausgangspunkt: main 27e737921350271813fdc7b55cb601e4a815e213, sauberer Checkout, origin Ginkgo85/foundry-world-status, kein Abstand zu origin/main. Vor der Codeänderung scheiterten zwei neue Regressionen wie erwartet: Shutdown mit sendOffline=false sendete nicht; ready installierte trotz gewünschter Entfernung noch den Logout-Listener.
+Ausgangspunkt dieser Ergänzung: main baba88b08e06fc11cfdba330c200cd698cba9212, sauberer Checkout, origin Ginkgo85/foundry-world-status, kein Abstand zu origin/main. Der Benutzer wünscht einen gemeinsamen OFFLINE-Haken. Vor der Umsetzung scheiterten drei neue Regressionen wie erwartet: zwei widersprüchliche Kombinationen von altem Setup-Haken und sendOffline sowie die Prüfung auf nur ein sichtbares Feld.
+
+Der historische Tag v1.3.0 wurde zusätzlich geprüft: bereits zwei OFFLINE-Felder; automatisches Setup-OFFLINE erforderte beide. Abmelden war dort nicht angebunden. Der neue gemeinsame Haken übernimmt keine alte Shutdown-Implementierung.
 
 Entfernt: autoOfflineOnLogout aus Defaults und GROUPS; logoutWithAnnouncement, shouldAnnounceOnLogout, installLogoutHandler, Selektoren, Dokument-Listener, WeakSet und Logout-Imports; deutsche/englische Felder, Hints und die ausschließlichen Fehler-/Hinweisschlüssel logoutRequest, logoutBusy, logoutStopped. Keine entsprechenden Laufzeitreferenzen bleiben in scripts, lang oder templates.
 
@@ -13,16 +15,16 @@ Alte gespeicherte Logout-Werte werden nicht mehr ausgewertet, erzeugen kein Feld
 ## Verhalten
 
 - Abmelden: normales Foundry-Verhalten, kein Modul-Listener, kein Discord-Versand und keine Änderung des gespeicherten Status.
-- Automatisches OFFLINE: allein autoOfflineOnShutdown aktiviert die Funktion, Standard false. GM und gespeichertes ON bleiben Voraussetzung. Erst bestätigter Discord-Versand, dann OFF speichern, anschließend Foundrys V14-Shutdown-Anfrage (action=worldShutdown, Route-Präfix und redirect:manual).
-- Beide bisherigen sendOffline-Abhängigkeiten im Shutdown-Pfad entfernt, auch nach dem Bestätigungsdialog.
-- sendOffline bleibt ausschließlich für manuelles OFFLINE relevant. Beide Werte funktionieren unabhängig vom Shutdown-Haken.
+- Ein gemeinsamer Haken sendOffline steuert manuellen OFFLINE-Versand und automatisches OFFLINE vor „Zurück zum Setup“. Standard true bleibt unverändert. GM und gespeichertes ON bleiben Voraussetzung. Erst bestätigter Discord-Versand, dann OFF speichern, anschließend Foundrys V14-Shutdown-Anfrage (action=worldShutdown, Route-Präfix und redirect:manual).
+- Beide Prüfstellen im Shutdown-Pfad werten sendOffline aus, auch nach dem Bestätigungsdialog. Ohne Haken delegiert das Modul an Foundry; manueller OFFLINE-Wechsel bleibt ohne Nachricht.
+- autoOfflineOnShutdown entfällt aus Defaults, GROUPS und beiden Sprachdateien. Der vorhandene erste Wert bleibt erhalten; der alte zweite Wert hat keine Wirkung und entfällt beim nächsten regulären Speichern. Keine neue Migration oder Start-Schreibzugriffe.
 - autoOnlineOnStartup und der manuelle Toggle-Code sind unverändert. Startup-, Sprach-, Webhook- und Transporttests bleiben erfolgreich.
 
 ## Sicherheits- und Nebenläufigkeitsprüfung
 
 Die vorhandene runExclusive-Sperre bleibt unverändert. Paralleler manueller Versand, Doppelklicks, Änderungen während der Bestätigung, bereits OFF, abgebrochene Bestätigung, demotierter GM, HTTP-/Rate-Limit-/Netzwerk-/Timeout-/Bestätigungs-/Speicherfehler sowie fehlgeschlagene Shutdown-Anfrage sind geprüft. Unbestätigter Versand verändert den Status nicht; Speicherfehler verhindern den Shutdown. Erfolgreiches OFF mit anschließend fehlgeschlagenem Shutdown erzeugt keine automatische ONLINE-Gegenmeldung.
 
-Keine neuen Rennen durch die Entkopplung gefunden. Die Sperre bleibt browserlokal: simultane Aktionen verschiedener GM-Sitzungen können weiterhin doppelte Nachrichten verursachen. Ebenso kann bei verlorener Versandbestätigung oder fehlgeschlagener Statusspeicherung ein manueller Wiederholungsversuch eine bereits zugestellte Nachricht wiederholen. Keine absolute Einmalgarantie hinzugefügt oder behauptet. Token-Schutz, GM-Prüfung, Timeout und Rate-Limit-Behandlung unverändert.
+Keine neuen Rennen durch den gemeinsamen Schalter gefunden. Die Sperre bleibt browserlokal: simultane Aktionen verschiedener GM-Sitzungen können weiterhin doppelte Nachrichten verursachen. Ebenso kann bei verlorener Versandbestätigung oder fehlgeschlagener Statusspeicherung ein manueller Wiederholungsversuch eine bereits zugestellte Nachricht wiederholen. Keine absolute Einmalgarantie hinzugefügt oder behauptet. Token-Schutz, GM-Prüfung, Timeout und Rate-Limit-Behandlung unverändert.
 
 ## Ausgeführte Prüfungen
 
@@ -32,8 +34,8 @@ Node 24.19.0, npm 12.0.2; lizenzierter Foundry-Core 14.368. Ausschließlich kün
 
 | Prüfung | Ergebnis |
 | --- | --- |
-| npm test mit Core | 175 bestanden, 0 Fehler, 0 Skips |
-| npm test ohne Core | 166 bestanden, 0 Fehler, 9 erwartete Core-Skips |
+| npm test mit Core | 178 bestanden, 0 Fehler, 0 Skips |
+| npm test ohne Core | 169 bestanden, 0 Fehler, 9 erwartete Core-Skips |
 | Chrome 154.0.8037.93: Browser und CORS | Bestanden |
 | Firefox 153.0: Browser und CORS | Bestanden |
 | npm run build:release | Bestanden, 16 Dateien, Root-Manifest |
@@ -41,11 +43,11 @@ Node 24.19.0, npm 12.0.2; lizenzierter Foundry-Core 14.368. Ausschließlich kün
 | actionlint für CI, Release und CodeQL | Bestanden; kein separates ShellCheck |
 | Imports, Exports, entfernte Laufzeit-Komponenten, Diff | Geprüft |
 
-Browser-Regressionen verwenden die eigenen lizenzierten Core-Templates und Action-Handler für Sidebar, Popout und Esc-Menü: auch ein gespeicherter alter Logout-Haken sendet nichts, der Status bleibt ON. Automatisches Setup-OFFLINE wurde bei sendOffline=false geprüft. Startup-ONLINE, Wiederladen ohne zweite Nachricht, GM-/Spielertrennung und Sprachumschaltung sind weiterhin erfolgreich. Lizenzierte Core-Dateien werden nicht eingecheckt oder ins ZIP übernommen.
+Browser-Regressionen verwenden die eigenen lizenzierten Core-Templates und Action-Handler für Sidebar, Popout und Esc-Menü: auch ein gespeicherter alter Logout-Haken sendet nichts, der Status bleibt ON. Der gemeinsame OFFLINE-Haken wurde beim Speichern und Wiederöffnen sowie beim Setup-Schließen geprüft; der zweite Haken ist nicht mehr vorhanden. Die Darstellung wurde zusätzlich anhand des Chrome-Screenshots geprüft. Die Node-Tests prüfen beide Werte des gemeinsamen Hakens gegen beide alten Setup-Werte sowie Änderungen während der Bestätigung. Startup-ONLINE, Wiederladen ohne zweite Nachricht, GM-/Spielertrennung und Sprachumschaltung sind weiterhin erfolgreich. Lizenzierte Core-Dateien werden nicht eingecheckt oder ins ZIP übernommen.
 
 ## Veröffentlichung und noch offener Praxistest
 
-Der Benutzer hat ausdrücklich bestätigt, dass der Praxistest dieser Vereinfachung noch nicht durchgeführt wurde. Vor Veröffentlichung in einer echten Testwelt prüfen: Abmelden sendet keine Nachricht und behält den Status; Setup-OFFLINE funktioniert bei ON mit autoOfflineOnShutdown=true und sendOffline=false; automatisches ONLINE und der manuelle Button funktionieren weiterhin. Die frühere Bestätigung zu 1.3.1 ersetzt diesen Test nicht.
+Der Benutzer hat ausdrücklich bestätigt, dass der Praxistest dieser Vereinfachung noch nicht durchgeführt wurde. Vor Veröffentlichung in einer echten Testwelt prüfen: Abmelden sendet keine Nachricht und behält den Status; Setup-OFFLINE funktioniert bei ON mit sendOffline=true; mit sendOffline=false senden weder manueller OFFLINE-Wechsel noch Setup-Schließen; automatisches ONLINE und der manuelle Button funktionieren weiterhin. Die frühere Bestätigung zu 1.3.1 ersetzt diesen Test nicht.
 
 Nach erfolgreichen lokalen Prüfungen wird dieser Stand committed und nach origin/main gepusht. CI und CodeQL werden für den genauen neuen Commit bis zum Abschluss geprüft; deren endgültiges Ergebnis und der Commit stehen im Abschlussbericht und auf GitHub. Für 1.3.2 wurden bei der Vorprüfung weder ein vorhandener Tag noch ein Release gefunden. Keine neuen Tags, Releases oder Uploads durch diesen Auftrag.
 

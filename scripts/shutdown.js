@@ -7,7 +7,7 @@ const installed = new WeakSet();
  * V14.368 has no awaitable pre-shutdown hook. Its shutdown socket event is too late:
  * the world is already stopping and core navigates away after one second.
  * Wrap only this Game instance's public shutdown entry point. Game.logOut itself stays untouched.
- * The opt-in branch uses the same setup route and shutdown POST as Game.shutDown.
+ * The OFFLINE-enabled branch uses the same setup route and shutdown POST as Game.shutDown.
  */
 export function installShutdownHandler(onBusyChange = () => {}) {
   if (game.user?.isGM !== true || typeof game.shutDown !== "function" || installed.has(game)) return;
@@ -20,7 +20,7 @@ export function installShutdownHandler(onBusyChange = () => {}) {
 
     try {
       const config = readConfig();
-      if (!config.autoOfflineOnShutdown) return original.apply(this, args);
+      if (!config.sendOffline) return original.apply(this, args);
       const ran = await runExclusive(async () => {
         assertGM();
         if (this.settings.get(MODULE_ID, "online") !== true) {
@@ -44,7 +44,7 @@ export function installShutdownHandler(onBusyChange = () => {}) {
         if (this.settings.get(MODULE_ID, "online") === true) {
           const latest = readConfig();
           // Respect settings changed while the dialog was open. Re-enter native behavior if disabled.
-          if (!latest.autoOfflineOnShutdown) {
+          if (!latest.sendOffline) {
             await original.apply(this, args);
             return;
           }
