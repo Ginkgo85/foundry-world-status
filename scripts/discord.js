@@ -33,7 +33,6 @@ export function buildPayload(config, online) {
   if (online) {
     const url = httpUrl(config.serverUrl, "server");
     if (url.length > 1024) throw new WorldStatusError("server");
-    embed.url = url;
     embed.description = onlineDescription(config);
     if (config.onlineThumbnail) embed.thumbnail = {url: httpUrl(config.onlineThumbnail)};
     if (config.onlineImage) embed.image = {url: httpUrl(config.onlineImage)};

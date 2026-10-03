@@ -2,6 +2,12 @@
 
 Stand: 3. Oktober 2026. Version 1.3.2 für Foundry 14.368 zur Veröffentlichung vorbereitet. module.json, package.json, Download-Adresse, README und Changelog sind konsistent. Der Benutzer hat Commit/Push und vollständige Prüfungen mit dem Release-Vorbereitungsauftrag autorisiert; der Release-Workflow wird nicht gestartet. Dieser Bericht ist maßgeblich; alle darunterstehenden Berichte sind historisch.
 
+## Ergänzung: ONLINE-Titel ohne Verlinkung
+
+Ausgangspunkt: sauberer main 842e5918a785d61c68469aacc7111c280c2875fd, identisch mit origin/main; weiterhin kein Release 1.3.2. Der Benutzer bestätigt den passenden OFFLINE-Haken und wünscht eine unverlinkte Überschrift. Aus buildPayload wurde ausschließlich embed.url entfernt. Die URL-Validierung und der separate Markdown-Serverlink bleiben unverändert; die Vorschau verwendet bereits eine unverlinkte Überschrift. Bestehende Discord-Nachrichten werden nicht nachträglich geändert.
+
+Acht angepasste bestehende Payload-/Linktext-Prüfungen schlugen vor der Änderung erwartungsgemäß fehl. Danach bestanden erneut alle 178 Tests mit Core sowie 169 Tests ohne Core (9 erwartete Skips). Chrome-Browser/CORS bestanden. Der erste Firefox-Lauf meldete einen NetworkError in der Sprachprüfung; die Ursache wurde nicht eindeutig bestimmt. Der unveränderte isolierte Wiederholungslauf einschließlich CORS bestand vollständig. Keine Tests abgeschwächt, kein realer Discord-Versand. Build und ZIP-Prüfung wurden für diesen Stand erneut erfolgreich ausgeführt. Workflow-Dateien unverändert; die unten dokumentierte actionlint-Prüfung stammt aus der vorherigen Ergänzung desselben Tages.
+
 ## Änderung und Prüfung vor der Umsetzung
 
 Ausgangspunkt dieser Ergänzung: main baba88b08e06fc11cfdba330c200cd698cba9212, sauberer Checkout, origin Ginkgo85/foundry-world-status, kein Abstand zu origin/main. Der Benutzer wünscht einen gemeinsamen OFFLINE-Haken. Vor der Umsetzung scheiterten drei neue Regressionen wie erwartet: zwei widersprüchliche Kombinationen von altem Setup-Haken und sendOffline sowie die Prüfung auf nur ein sichtbares Feld.

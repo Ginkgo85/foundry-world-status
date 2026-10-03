@@ -174,14 +174,14 @@ test("missing server URL never sends ONLINE", async () => {
   assert.equal(notifications.at(-1).message, lookup("FWS.errors.server"));
 });
 
-test("ONLINE payload uses editable fields, clickable server and only the explicit role", () => {
+test("ONLINE payload keeps the title unlinked and the server link clickable", () => {
   const c = {...goodConfig(), roleId: "123456789012345678", content: "@everyone <@123456789012345679> Los!", onlineThumbnail: "https://example.invalid/thumb.png", onlineImage: "https://example.invalid/image.png", avatarUrl: "https://example.invalid/avatar.png"};
   const payload = buildPayload(c, true);
   assert.equal(payload.embeds[0].title, c.onlineTitle);
   assert.equal(payload.embeds[0].description, c.onlineDescription + "\n\n🔗 [" + c.onlineLinkText + "](" + c.serverUrl + ")");
   assert.equal(payload.embeds[0].footer.text, c.onlineFooter);
   assert.equal(payload.embeds[0].color, 0x2ecc71);
-  assert.equal(payload.embeds[0].url, c.serverUrl);
+  assert.equal(Object.hasOwn(payload.embeds[0], "url"), false);
   assert.deepEqual(payload.allowed_mentions.parse, []); assert.deepEqual(payload.allowed_mentions.users, []);
   assert.deepEqual(payload.allowed_mentions.roles, [c.roleId]);
   assert.ok(payload.content.startsWith(`<@&${c.roleId}>`));
@@ -644,7 +644,7 @@ for (const [name, input, expected] of [
   const config = normalizeConfig({...goodConfig(), serverUrl: "https://foundry.example.org", onlineLinkText: input});
   assert.doesNotThrow(() => validateConfig(config));
   const embed = buildPayload(config, true).embeds[0];
-  assert.equal(embed.url, "https://foundry.example.org/");
+  assert.equal(Object.hasOwn(embed, "url"), false);
   assert.equal(embed.description, config.onlineDescription + "\n\n" + expected);
   assert.equal(embed.fields, undefined);
 });
@@ -652,7 +652,7 @@ for (const [name, input, expected] of [
 test("URL parentheses cannot terminate the Markdown destination", () => {
   const config = {...goodConfig(), serverUrl: "https://foundry.example.org/game(test)?x=(today)", onlineLinkText: "Play"};
   const embed = buildPayload(config, true).embeds[0];
-  assert.equal(embed.url, config.serverUrl);
+  assert.equal(Object.hasOwn(embed, "url"), false);
   assert.ok(embed.description.endsWith("🔗 [Play](https://foundry.example.org/game%28test%29?x=%28today%29)"));
 });
 
