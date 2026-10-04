@@ -46,7 +46,15 @@ Die Sperre bleibt browserlokal. Gleichzeitige Aktionen verschiedener GM-Sitzunge
 
 Version und Download-Adresse bleiben 1.3.2. Nach erfolgreichen Prüfungen Commit/Push gemäß Projektregeln; CI und CodeQL werden für den genauen Commit geprüft und im Abschlussbericht gemeldet. Kein Tag, Release oder Asset-Upload durch diesen Auftrag.
 
-Der Benutzer hat den einzelnen Haken bestätigt, aber den vollständigen Praxistest dieses Korrekturstands noch nicht. Vor Veröffentlichung in einer echten Welt prüfen: manuelles OFFLINE sendet mit Haken an und aus; automatisches OFFLINE vor „Zurück zum Setup“ sendet nur mit Haken; Abmelden sendet nichts. Die neue unverlinkte ONLINE-Überschrift gilt nur für neu gesendete Nachrichten.
+Der manuelle Praxistest für Version 1.3.2 unter Foundry VTT 14.368 wurde erfolgreich durchgeführt. Der Benutzer hat am 4. Oktober 2026 folgende fünf Ergebnisse bestätigt:
+
+- Manuelles OFFLINE bei ausgeschaltetem Automatik-Haken funktioniert.
+- „Zurück zum Setup“ bei ausgeschaltetem Automatik-Haken sendet keine Discord-OFFLINE-Nachricht.
+- „Zurück zum Setup“ bei eingeschaltetem Automatik-Haken sendet zuerst die OFFLINE-Nachricht und schließt danach die Welt.
+- Normales „Abmelden“ sendet keine Discord-Nachricht.
+- „Zurück zum Setup“ bei bereits gespeichertem OFF sendet keine zusätzliche OFFLINE-Nachricht.
+
+Damit ist der offene manuelle Praxistest für Version 1.3.2 erfolgreich abgeschlossen. Die neue unverlinkte ONLINE-Überschrift gilt nur für neu gesendete Nachrichten.
 
 Das Paket liegt unter release/foundry-world-status.zip; die installierte Foundry-Kopie wurde nicht automatisch ersetzt. Nach Praxistest und grünen GitHub-Prüfungen: Actions → Release → Run workflow → main. Siehe PUBLISHING.md.
 
