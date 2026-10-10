@@ -42,7 +42,8 @@ Historischer Tag v.1.0.0 bleibt unangetastet. Korrekturen eines veröffentlichte
 ## CI und Release
 
 - ci.yml: push und Pull Request auf main sowie manueller Start; nur contents: read.
-- release.yml: ausschließlich workflow_dispatch auf main; contents: write; eine Release-Ausführung gleichzeitig.
+- release.yml: ausschließlich workflow_dispatch auf main; eine Release-Ausführung gleichzeitig. Nach dem GitHub-Release-Job folgt der Foundry-Job mit contents: read und dem separaten Repository-Secret FOUNDRY_RELEASE_TOKEN.
+- foundry-test.yml: ausschließlich workflow_dispatch auf main; contents: read; führt nur den offiziellen Foundry-Dry-run aus, ohne Build oder Veröffentlichung.
 - codeql-analysis.yml: separate CodeQL-Prüfung, kein Teil des Release-Builds.
 
 Beide Hauptworkflows nutzen Node 24, npm test, denselben Build und dieselbe Artefaktprüfung. Es werden keine lizenzierten Foundry-Dateien heruntergeladen.
@@ -50,6 +51,8 @@ Beide Hauptworkflows nutzen Node 24, npm test, denselben Build und dieselbe Arte
 release.mjs prüft den ausgecheckten Commit gegen GITHUB_SHA und den aktuellen öffentlichen main. Existierende Releases (einschließlich Entwürfen), abweichende Tag-Ziele und unklare API-Antworten stoppen den Vorgang. Fehlt der Tag, wird er atomar am geprüften SHA angelegt. Ein bereits vorhandener Tag wird nur wiederverwendet, wenn er direkt auf den geprüften GITHUB_SHA zeigt und kein Release existiert. Annotierte oder nicht eindeutig geprüfte Tag-Ziele werden abgelehnt. gh release create verwendet --verify-tag und lädt genau zwei Dateien hoch. Kein Force, kein Überschreiben, kein --clobber.
 
 Bei einem Fehler nach Tag-Erstellung kann derselbe Workflow auf demselben, weiterhin aktuellen main-Commit erneut laufen, sofern noch kein Release existiert. Der passende Tag bleibt unverändert. Ein vorhandener Release-Entwurf blockiert ebenso wie ein veröffentlichter Release. Schlägt die atomare Tag-Erstellung durch ein Rennen fehl, bricht dieser Lauf ohne Release-Erstellung ab; erst ein neuer Lauf prüft den Zustand erneut. Niemals Tags verschieben, löschen oder force-update durchführen.
+
+foundry-release.mjs übermittelt nur eine bereits öffentlich verfügbare GitHub-Version. Es prüft beide Assets, Manifest-ID, Version, Download und Kompatibilität; bei Veröffentlichung außerdem das Tag-Ziel gegen den Workflow-Commit. Das Foundry-Secret geht nur an den festen Foundry-HTTPS-Endpunkt; Redirects und automatische Wiederholungen sind dort deaktiviert. Der Standardmodus ist dry-run, --publish ist auf den Release-Workflow beschränkt. Tests simulieren beide Modi ohne echten API-Schreibzugriff.
 
 Der direkte Aufruf von release.mjs ohne --publish prüft nur die Remote-Voraussetzungen innerhalb von GitHub Actions. Der lokale Dry-Run besteht aus den drei npm-Befehlen oben und benötigt keinen Token.
 

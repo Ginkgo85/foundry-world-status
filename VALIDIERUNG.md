@@ -1,3 +1,17 @@
+# Workflow-Ergänzung: Foundry-Übermittlung
+
+Stand: 10. Oktober 2026. Nur Veröffentlichungswerkzeuge, Workflows, zugehörige Tests und Dokumentation geändert. Modulcode, module.json, package.json, Download-Adressen und Version 1.3.2 unverändert. Kein neuer Release vorbereitet oder gestartet; keine Veröffentlichung durch diesen Auftrag.
+
+Nach dem erfolgreichen GitHub-Release-Job übermittelt ein separater Job künftig die vorhandene Version an die offizielle Foundry Package Release API. Er prüft vorher den öffentlichen stabilen GitHub Release, beide Assets, das versionsgebundene Manifest und das Tag-Ziel gegen den Workflow-Commit. Der Foundry-Token wird nur dem zuständigen Schritt übergeben, nur an den festen HTTPS-Endpunkt gesendet und weder protokolliert noch ins Modul übernommen.
+
+Der separate manuell gestartete Workflow „Foundry Connection Test“ verwendet ausschließlich dry-run: true, hat keine Veröffentlichungsauswahl und baut kein Paket. Ein vorhandener Foundry-Eintrag kann als Duplikat abgelehnt werden; nur die ausdrückliche Dry-run-Erfolgsantwort zählt als vollständiger Test. Es gibt keine automatischen Wiederholungen und keinen Ersatz bestehender Releases. Das tatsächliche Ergebnis des Verbindungstests steht im zugehörigen GitHub-Actions-Lauf und im Abschlussbericht.
+
+Prüfungen: 32 neue Integrationstests mit simulierten Antworten bestanden. Reguläres npm test: 203 bestanden, 0 Fehler, 9 erwartete Core-Skips (212 insgesamt). actionlint für alle vier Workflows bestanden, ohne separates ShellCheck. Der zusätzliche Lauf gegen die inzwischen lokal installierte Foundry-Version 14.369 ergab 210 bestandene Tests und zwei Fehler der bestehenden exakten 14.368-Versionsprüfung. Diese optionale 14.368-Prüfung ist mit der vorhandenen Installation nicht vollständig ausführbar; Tests und Kompatibilitätsangaben wurden dafür nicht abgeschwächt. Kein lokaler Release-Build im Rahmen dieser reinen Workflow-Integration.
+
+Offizielle Grundlage: [Foundry Package Release API](https://foundryvtt.com/article/package-release-api/). Der bisherige Modul-Prüfbericht einschließlich bestätigtem 1.3.2-Praxistest folgt unverändert.
+
+---
+
 # Validierung – Release-Vorbereitung 1.3.2
 
 Stand: 3. Oktober 2026. Version 1.3.2 für Foundry 14.368. Dieser Bericht beschreibt den aktuellen Funktionsumfang; Berichte unter „Historische Prüfberichte“ gelten für ältere Stände. Kein Release gestartet.

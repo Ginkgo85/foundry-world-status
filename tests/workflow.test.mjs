@@ -203,7 +203,7 @@ test("workflow release is manual only, main-gated and publishes only after succe
   assert.match(source, /contents: write/);
   assert.match(source, /cancel-in-progress: false/);
   const commands = [...source.matchAll(/^\s+run: (.+)$/gm)].map(match => match[1]).filter(value => value !== "|");
-  assert.deepEqual(commands, ["npm test", "npm run build:release", "npm run test:release", "node tools/release.mjs --publish"]);
+  assert.deepEqual(commands, ["npm test", "npm run build:release", "npm run test:release", "node tools/release.mjs --publish", "node tools/foundry-release.mjs --publish"]);
   assert.doesNotMatch(source, /continue-on-error|always\(\)|if:.*failure|write-all|allowUpdates|--clobber/);
   const ci = await readFile(".github/workflows/ci.yml", "utf8");
   assert.match(ci, /contents: read/);

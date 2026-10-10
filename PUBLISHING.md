@@ -15,7 +15,7 @@
 4. **Run workflow** anklicken.
 5. Branch **main** auswählen und starten.
 
-GitHub prüft den aktuellen Stand erneut, baut und prüft das Paket, erstellt den neuen Tag und Release und hängt module.json sowie foundry-world-status.zip an.
+GitHub prüft den aktuellen Stand erneut, baut und prüft das Paket, erstellt den neuen Tag und Release und hängt module.json sowie foundry-world-status.zip an. Erst nach erfolgreichem Abschluss dieses Jobs übermittelt der separate Foundry-Job die veröffentlichte Version an das Foundry-Paketverzeichnis. Die Dateien bleiben auf GitHub; Foundry erhält die versionsgebundene Manifest-Adresse, die Release-Notizen und die Kompatibilität.
 
 **Keine Dateien manuell hochladen. Keinen Tag manuell erstellen. Keine lokalen Build-Tools nötig.**
 
@@ -25,10 +25,21 @@ GitHub prüft den aktuellen Stand erneut, baut und prüft das Paket, erstellt de
 - Tag zeigt auf einen anderen Commit: Abbruch. Den Tag niemals verschieben oder löschen; eine neue Version vorbereiten.
 - Release bereits vorhanden, auch als Entwurf: Abbruch. Vorhandene Releases und Assets werden niemals aktualisiert oder ersetzt. Für eine Korrektur eine neue Version vorbereiten.
 - „main changed“: Den Workflow auf main erneut starten.
+- Nur der Foundry-Job fehlgeschlagen: Der GitHub Release bleibt bestehen. Fehler zuerst prüfen und ausschließlich den fehlgeschlagenen Job erneut ausführen („Re-run failed jobs“), nicht den ganzen Release-Workflow neu starten. Bei unklarer Antwort zuerst die Foundry-Paketseite prüfen; eine möglicherweise bereits angelegte Version nicht blind erneut übermitteln.
 - Andere Fehler: Den fehlgeschlagenen Lauf von Codex prüfen lassen. Nach einem teilweise fehlgeschlagenen Upload vorhandene Tags oder Entwürfe nicht eigenständig ersetzen.
 
 ## Einmalige Einrichtung
 
-Die Workflow-Dateien müssen auf main liegen und GitHub Actions muss für das Repository erlaubt sein. Das normale GITHUB_TOKEN erhält seine nötigen Schreibrechte direkt im Release-Workflow. Keine persönlichen Tokens, Foundry-Tokens oder pauschale Umstellung aller Workflows auf Schreibrechte erforderlich.
+Die Workflow-Dateien müssen auf main liegen und GitHub Actions muss für das Repository erlaubt sein. Das normale GITHUB_TOKEN erhält seine nötigen Schreibrechte direkt im Release-Workflow. Für die zusätzliche Übermittlung an Foundry muss das Repository-Secret FOUNDRY_RELEASE_TOKEN den Package Release Token genau dieses Moduls enthalten. Er wird ausschließlich dem Foundry-Schritt übergeben, niemals ins Modul oder ZIP aufgenommen. Keine persönlichen GitHub-Tokens oder pauschale Umstellung aller Workflows auf Schreibrechte erforderlich.
 
 **Version 1.3.2 für Foundry 14.368 ist zur Veröffentlichung vorbereitet.** Vor dem Start noch in einer echten Testwelt prüfen: Abmelden sendet nichts; bei Status ON und aktiviertem Haken **Vor „Zurück zum Setup“ automatisch OFFLINE senden** wird vor „Zurück zum Setup“ eine OFFLINE-Nachricht gesendet. Mit ausgeschaltetem Haken sendet „Zurück zum Setup“ keine Nachricht, der manuelle OFFLINE-Button sendet weiterhin. Anschließend erfolgreiche CI-/CodeQL-Läufe für den aktuellen main prüfen und **Actions → Release → Run workflow → main** starten. Der Button heißt „Run workflow“, nicht „New workflow“. Keine Dateien manuell hochladen.
+
+## Foundry-Verbindung ohne Veröffentlichung testen
+
+Unter Actions den separaten Workflow **Foundry Connection Test → Run workflow → main** starten. Er hat keine Veröffentlichungsauswahl, erstellt weder Tag noch Release und baut kein Paket. Er prüft den bestehenden GitHub Release zur aktuellen Modulversion und sendet ausschließlich die offizielle Foundry-Anfrage mit **dry-run: true**. Versionsnummer und Dateien bleiben unverändert.
+
+Nur eine ausdrückliche Dry-run-Erfolgsantwort bestätigt den vollständigen Test. Bei einer bereits im Foundry-Verzeichnis vorhandenen Version kann Foundry einen Duplikatfehler zurückgeben; das ist keine erfolgreiche neue Release-Validierung. Es wird dafür keine neue Testversion erfunden und kein erneuter Versuch automatisch gestartet. HTTP-/Token-/Netzwerkfehler bleiben sichtbar, ohne Secret oder rohe Antwortinhalte zu protokollieren.
+
+Der normale Release-Workflow bleibt manuell auszulösen. Ein Push allein veröffentlicht nichts. Diese Integration ändert keine Versionsnummer und veröffentlicht keine bestehende Version nachträglich.
+
+Grundlage: [Foundry Package Release API](https://foundryvtt.com/article/package-release-api/).
