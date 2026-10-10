@@ -36,9 +36,9 @@ Die Workflow-Dateien müssen auf main liegen und GitHub Actions muss für das Re
 
 ## Foundry-Verbindung ohne Veröffentlichung testen
 
-Unter Actions den separaten Workflow **Foundry Connection Test → Run workflow → main** starten. Er hat keine Veröffentlichungsauswahl, erstellt weder Tag noch Release und baut kein Paket. Er prüft den bestehenden GitHub Release zur aktuellen Modulversion und sendet ausschließlich die offizielle Foundry-Anfrage mit **dry-run: true**. Versionsnummer und Dateien bleiben unverändert.
+Unter Actions den separaten Workflow **Foundry Connection Test → Run workflow → main** starten. Er hat keine Veröffentlichungsauswahl, erstellt weder Tag noch Release und baut kein Paket. Er prüft den bestehenden GitHub Release zur aktuellen Modulversion und sendet ausschließlich die offizielle Foundry-Anfrage mit **dry-run: true**. Damit bereits vorhandene Versionen den Token-Test nicht als Duplikat blockieren, verwendet nur diese Anfrage eine einmalige Kennung im Format 0.0.0-test.<Lauf-ID>.<Versuch>. Sie wird nicht gespeichert und niemals in eine Datei oder einen Tag übernommen. Versionsnummer und Dateien bleiben unverändert.
 
-Nur eine ausdrückliche Dry-run-Erfolgsantwort bestätigt den vollständigen Test. Bei einer bereits im Foundry-Verzeichnis vorhandenen Version kann Foundry einen Duplikatfehler zurückgeben; das ist keine erfolgreiche neue Release-Validierung. Es wird dafür keine neue Testversion erfunden und kein erneuter Versuch automatisch gestartet. HTTP-/Token-/Netzwerkfehler bleiben sichtbar, ohne Secret oder rohe Antwortinhalte zu protokollieren.
+Nur eine ausdrückliche Dry-run-Erfolgsantwort bestätigt die Verbindung, Token-Berechtigung und Validierung dieser Testanfrage. Das ist kein vollständiger Test einer zukünftigen Veröffentlichung: Die Anfrage verwendet das vorhandene öffentliche Manifest und eine nicht gespeicherte Testkennung. Der normale Release-Pfad verwendet weiterhin ausschließlich die echte Modulversion samt passendem Release und lehnt Testkennungen ab. HTTP-/Token-/Netzwerkfehler bleiben sichtbar, ohne Secret oder rohe Antwortinhalte zu protokollieren; keine automatischen Wiederholungen.
 
 Der normale Release-Workflow bleibt manuell auszulösen. Ein Push allein veröffentlicht nichts. Diese Integration ändert keine Versionsnummer und veröffentlicht keine bestehende Version nachträglich.
 

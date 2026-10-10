@@ -38,7 +38,7 @@ async function jsonRequest(fetchImpl, url, options, label) {
 
 /** Defaults to Foundry's non-persistent dry-run. No automatic retries or GitHub writes. */
 export async function submitFoundry({
-  publish = false, env = process.env, fetchImpl = fetch,
+  publish = false, connectionTest = false, env = process.env, fetchImpl = fetch,
   readManifest = async () => JSON.parse(await readFile(path.join(root, "module.json"), "utf8")),
   head = () => execFileSync("git", ["rev-parse", "HEAD"], {encoding: "utf8", stdio: ["ignore", "pipe", "pipe"]}).trim()
 } = {}) {
@@ -47,6 +47,13 @@ export async function submitFoundry({
   if (typeof publish !== "boolean") throw new Error("Publish must be an explicit boolean.");
   if (publish && env.GITHUB_WORKFLOW_REF !== repository + "/.github/workflows/release.yml@refs/heads/main") {
     throw new Error("Foundry publishing is allowed only in the Release workflow on main.");
+  }
+  if (typeof connectionTest !== "boolean") throw new Error("Connection test must be an explicit boolean.");
+  if (connectionTest && (publish
+    || env.GITHUB_WORKFLOW_REF !== repository + "/.github/workflows/foundry-test.yml@refs/heads/main"
+    || !/^[1-9]\d{0,14}$/.test(env.GITHUB_RUN_ID ?? "")
+    || !/^[1-9]\d{0,4}$/.test(env.GITHUB_RUN_ATTEMPT ?? ""))) {
+    throw new Error("Connection probes require the test workflow, valid run identifiers and dry-run mode.");
   }
   const token = env.FOUNDRY_RELEASE_TOKEN?.trim();
   if (!token?.startsWith("fvttp_") || /\s/.test(token)) throw new Error("FOUNDRY_RELEASE_TOKEN is missing or has an invalid format.");
@@ -80,10 +87,14 @@ export async function submitFoundry({
     || ["minimum", "verified", "maximum"].some(key => published.data.compatibility[key] !== manifest.compatibility[key])) {
     throw new Error("The public manifest differs from the selected package version or compatibility.");
   }
+  // This identifier exists only in the non-persistent API request, never in a manifest or tag.
+  // It tests authentication/validation, not a matching future release and its installation.
+  const requestVersion = connectionTest
+    ? "0.0.0-test." + env.GITHUB_RUN_ID + "." + env.GITHUB_RUN_ATTEMPT : manifest.version;
   const payload = {
     id: manifest.id,
     "dry-run": !publish,
-    release: {version: manifest.version, manifest: urls.manifest, notes: urls.notes, compatibility: manifest.compatibility}
+    release: {version: requestVersion, manifest: urls.manifest, notes: urls.notes, compatibility: manifest.compatibility}
   };
   const result = await jsonRequest(fetchImpl, endpoint, {
     method: "POST", redirect: "error",
@@ -102,14 +113,15 @@ export async function submitFoundry({
   if (!publish && !/^Dry run completed successfully\b/.test(result.data.message ?? "")) {
     throw new Error("Foundry did not explicitly confirm dry-run completion. Nothing retried.");
   }
-  return {version: manifest.version, dryRun: !publish};
+  return {version: requestVersion, dryRun: !publish};
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try {
     const option = process.argv[2] ?? "--dry-run";
-    if (!["--dry-run", "--publish"].includes(option) || process.argv.length > 3) throw new Error("Use --dry-run or --publish.");
-    const result = await submitFoundry({publish: option === "--publish"});
+    if (!["--dry-run", "--publish", "--connection-test"].includes(option) || process.argv.length > 3) throw new Error("Use --dry-run, --publish or --connection-test.");
+    const result = await submitFoundry({publish: option === "--publish", connectionTest: option === "--connection-test"});
+    if (option === "--connection-test") console.log("Connection/token probe only; this does not validate a future release.");
     console.log(result.dryRun
       ? "Foundry dry-run succeeded for " + result.version + ". No changes saved."
       : "Foundry confirmed publication of " + result.version + ".");

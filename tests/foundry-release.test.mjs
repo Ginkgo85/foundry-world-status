@@ -156,7 +156,7 @@ test("connection workflow has no publishing path and Foundry publication depends
   assert.match(check, /on:\r?\n  workflow_dispatch:/);
   assert.match(check, /contents: read/);
   assert.match(check, /github.ref == 'refs\/heads\/main'/);
-  assert.match(check, /node tools\/foundry-release.mjs --dry-run/);
+  assert.match(check, /node tools\/foundry-release.mjs --connection-test/);
   assert.doesNotMatch(check, /--publish|contents: write|build:release|inputs:|pull_request:|push:/);
   const release = await readFile(".github/workflows/release.yml", "utf8");
   const job = release.split("\n  foundry:")[1];
@@ -167,4 +167,33 @@ test("connection workflow has no publishing path and Foundry publication depends
   assert.match(job, /secrets.FOUNDRY_RELEASE_TOKEN/);
   assert.doesNotMatch(job, /always\(\)|continue-on-error|if:.*failure/);
   assert.doesNotMatch(release.split("\n  foundry:")[0], /FOUNDRY_RELEASE_TOKEN/);
+});
+
+test("connection probe uses a run-specific version only in a mandatory dry-run request", async () => {
+  const f = fixture(), original = structuredClone(f.manifest);
+  f.env.GITHUB_WORKFLOW_REF = repo + "/.github/workflows/foundry-test.yml@refs/heads/main";
+  f.env.GITHUB_RUN_ID = "12345678901"; f.env.GITHUB_RUN_ATTEMPT = "1";
+  const result = await submitFoundry({...f, connectionTest: true});
+  assert.equal(result.version, "0.0.0-test.12345678901.1");
+  assert.equal(result.dryRun, true);
+  const payload = JSON.parse(posts(f)[0].options.body);
+  assert.equal(payload["dry-run"], true);
+  assert.equal(payload.release.version, result.version);
+  assert.equal(payload.release.manifest, base + "/releases/download/v1.3.2/module.json");
+  assert.deepEqual(f.manifest, original);
+  assert.equal(posts(f).length, 1);
+  f.env.GITHUB_RUN_ATTEMPT = "2";
+  assert.notEqual((await submitFoundry({...f, connectionTest: true})).version, result.version);
+});
+
+for (const overrides of [
+  {publish: true}, {connectionTest: "true"}, {env: {GITHUB_RUN_ID: ""}},
+  {env: {GITHUB_RUN_ATTEMPT: "bad"}}, {env: {GITHUB_RUN_ID: "1\nx"}},
+  {env: {GITHUB_WORKFLOW_REF: repo + "/.github/workflows/release.yml@refs/heads/main"}}
+]) test("invalid connection probe cannot send: " + JSON.stringify(overrides), async () => {
+  const f = fixture();
+  Object.assign(f.env, {GITHUB_WORKFLOW_REF: repo + "/.github/workflows/foundry-test.yml@refs/heads/main",
+    GITHUB_RUN_ID: "12345678901", GITHUB_RUN_ATTEMPT: "1"});
+  await assert.rejects(submitFoundry({...f, connectionTest: true, ...overrides, env: {...f.env, ...overrides.env}}));
+  assert.equal(f.calls.length, 0);
 });

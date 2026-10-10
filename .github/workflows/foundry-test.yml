@@ -21,7 +21,7 @@ jobs:
           node-version: '24'
           package-manager-cache: false
       - name: Validate connection without publishing
-        run: node tools/foundry-release.mjs --dry-run
+        run: node tools/foundry-release.mjs --connection-test
         env:
           GH_TOKEN: ${{ github.token }}
           FOUNDRY_RELEASE_TOKEN: ${{ secrets.FOUNDRY_RELEASE_TOKEN }}
