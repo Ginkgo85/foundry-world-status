@@ -206,11 +206,11 @@ test("runtime and template have no hard-coded German interface strings or global
     assert.doesNotMatch(source, /game\.i18n\s*=|game\.i18n\.(lang|translations)\s*=|\.setLanguage\(|\.socket\./);
   }
 });
-test("actual Foundry 14.368 Localization translates isolated dictionaries without altering global language", async context => {
+test("actual Foundry 14.369 Localization translates isolated dictionaries without altering global language", async context => {
   const core = process.env.FOUNDRY_APP_PATH;
   if (!core) {context.skip("FOUNDRY_APP_PATH required"); return;}
   const metadata = JSON.parse(await readFile(path.join(core, "package.json"), "utf8"));
-  assert.equal(metadata.release.build, 368);
+  assert.equal(metadata.release.build, 369);
   let source = await readFile(path.join(core, "client/helpers/localization.mjs"), "utf8");
   source = source.replace(/^import .*;\r?$/gm, "");
   const {default: NativeLocalization} = await import("data:text/javascript;base64," + Buffer.from(source).toString("base64"));

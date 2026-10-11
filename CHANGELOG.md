@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.3
+
+- Kompatibilität mit Foundry VTT 14.369 geprüft; Mindestversion bleibt 14.367.
+- Modul-Funktionen, Einstellungen und Positionierung des ON/OFF-Buttons bleiben unverändert.
+- Der bestehende Release-Workflow übermittelt neue GitHub-Veröffentlichungen anschließend automatisch an das Foundry-Paketverzeichnis.
+
 ## 1.3.2
 
 - ONLINE-Überschrift ohne Verlinkung; der separate Serverlink in der Beschreibung bleibt anklickbar.

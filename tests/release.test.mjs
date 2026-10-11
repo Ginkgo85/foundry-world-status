@@ -15,7 +15,7 @@ test("release version, author, exact description and supported Foundry build are
   assert.equal(pkg.version, manifest.version);
   assert.equal(manifest.authors[0].name, "Ginkgo85"); assert.equal(manifest.authors[0].url, repo);
   assert.equal(manifest.description, "Den Status der aktiven Foundry-Spielwelt per Discord-Webhook als ONLINE oder OFFLINE ankündigen. Nur für Spielleiter. / Announce the active Foundry game world's status as ONLINE or OFFLINE via a Discord webhook. For GMs only.");
-  assert.deepEqual(manifest.compatibility, {minimum:"14.367", verified:"14.368", maximum:"14"});
+  assert.deepEqual(manifest.compatibility, {minimum:"14.367", verified:"14.369", maximum:"14"});
 });
 
 test("installation URLs use the current repository and planned release without assuming asset availability", () => {

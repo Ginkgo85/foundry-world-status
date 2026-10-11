@@ -3,7 +3,7 @@
 ## Voraussetzungen
 
 - Gewünschte Änderungen befinden sich auf main.
-- Der Workflow **CI** ist erfolgreich.
+- Die Workflows **CI** und **CodeQL** sind für den aktuellen main-Commit erfolgreich.
 - Der manuelle Foundry-/Discord-Test wurde durchgeführt.
 - Die gewünschte neue Version steht in module.json. Codex hält die zugehörigen Versionsangaben konsistent.
 
@@ -32,11 +32,11 @@ GitHub prüft den aktuellen Stand erneut, baut und prüft das Paket, erstellt de
 
 Die Workflow-Dateien müssen auf main liegen und GitHub Actions muss für das Repository erlaubt sein. Das normale GITHUB_TOKEN erhält seine nötigen Schreibrechte direkt im Release-Workflow. Für die zusätzliche Übermittlung an Foundry muss das Repository-Secret FOUNDRY_RELEASE_TOKEN den Package Release Token genau dieses Moduls enthalten. Er wird ausschließlich dem Foundry-Schritt übergeben, niemals ins Modul oder ZIP aufgenommen. Keine persönlichen GitHub-Tokens oder pauschale Umstellung aller Workflows auf Schreibrechte erforderlich.
 
-**Version 1.3.2 für Foundry 14.368 ist zur Veröffentlichung vorbereitet.** Vor dem Start noch in einer echten Testwelt prüfen: Abmelden sendet nichts; bei Status ON und aktiviertem Haken **Vor „Zurück zum Setup“ automatisch OFFLINE senden** wird vor „Zurück zum Setup“ eine OFFLINE-Nachricht gesendet. Mit ausgeschaltetem Haken sendet „Zurück zum Setup“ keine Nachricht, der manuelle OFFLINE-Button sendet weiterhin. Anschließend erfolgreiche CI-/CodeQL-Läufe für den aktuellen main prüfen und **Actions → Release → Run workflow → main** starten. Der Button heißt „Run workflow“, nicht „New workflow“. Keine Dateien manuell hochladen.
+**Version 1.3.3 für Foundry 14.369 ist lokal zur Veröffentlichung vorbereitet.** Der Benutzer hat am 11. Oktober 2026 den erfolgreichen manuellen Praxistest des unveränderten Funktionsumfangs unter 14.369 bestätigt. Die automatischen Prüfungen werden in VALIDIERUNG.md dokumentiert. Nach erfolgreichem Commit/Push und grünen CI-/CodeQL-Läufen für den aktuellen main nur noch **Actions → Release → Run workflow → main** starten. Der Button heißt „Run workflow“, nicht „New workflow“. Keine Dateien manuell hochladen.
 
 ## Foundry-Verbindung ohne Veröffentlichung testen
 
-Unter Actions den separaten Workflow **Foundry Connection Test → Run workflow → main** starten. Er hat keine Veröffentlichungsauswahl, erstellt weder Tag noch Release und baut kein Paket. Er prüft den bestehenden GitHub Release zur aktuellen Modulversion und sendet ausschließlich die offizielle Foundry-Anfrage mit **dry-run: true**. Damit bereits vorhandene Versionen den Token-Test nicht als Duplikat blockieren, verwendet nur diese Anfrage eine einmalige Kennung im Format 0.0.0-test.<Lauf-ID>.<Versuch>. Sie wird nicht gespeichert und niemals in eine Datei oder einen Tag übernommen. Versionsnummer und Dateien bleiben unverändert.
+Unter Actions den separaten Workflow **Foundry Connection Test → Run workflow → main** starten. Er hat keine Veröffentlichungsauswahl, erstellt weder Tag noch Release und baut kein Paket. Voraussetzung ist ein bereits veröffentlichter GitHub Release zur Version auf main. Während main eine noch unveröffentlichte Version vorbereitet, stoppt dieser Test vor der Foundry-Anfrage; dies ist kein Hinweis auf einen ungültigen Token. Er prüft den bestehenden GitHub Release zur aktuellen Modulversion und sendet ausschließlich die offizielle Foundry-Anfrage mit **dry-run: true**. Damit bereits vorhandene Versionen den Token-Test nicht als Duplikat blockieren, verwendet nur diese Anfrage eine einmalige Kennung im Format 0.0.0-test.<Lauf-ID>.<Versuch>. Sie wird nicht gespeichert und niemals in eine Datei oder einen Tag übernommen. Versionsnummer und Dateien bleiben unverändert.
 
 Nur eine ausdrückliche Dry-run-Erfolgsantwort bestätigt die Verbindung, Token-Berechtigung und Validierung dieser Testanfrage. Das ist kein vollständiger Test einer zukünftigen Veröffentlichung: Die Anfrage verwendet das vorhandene öffentliche Manifest und eine nicht gespeicherte Testkennung. Der normale Release-Pfad verwendet weiterhin ausschließlich die echte Modulversion samt passendem Release und lehnt Testkennungen ab. HTTP-/Token-/Netzwerkfehler bleiben sichtbar, ohne Secret oder rohe Antwortinhalte zu protokollieren; keine automatischen Wiederholungen.
 

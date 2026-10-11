@@ -1,3 +1,58 @@
+# Validierung – Release-Vorbereitung 1.3.3
+
+Stand: 11. Oktober 2026. Kandidat **1.3.3**, geprüft für **Foundry VTT 14.369**. Die nachfolgenden älteren Berichte bleiben unverändert und beschreiben ihre jeweiligen historischen Prüfstände.
+
+## Umfang und Ausgangspunkt
+
+- Echtes Repository Ginkgo85/foundry-world-status; sauberer main auf 3cb48bac1d289bf2c53d967c3467745a3941f19e, vor Änderungen identisch mit origin/main. GitHub-Anmeldung als Ginkgo85 bestätigt; neuester veröffentlichter Release v1.3.2, kein Tag v1.3.3 vorhanden.
+- Patch-Version 1.3.3 in module.json, package.json, README und Changelog konsistent vorbereitet; Download-Adresse auf v1.3.3 abgestimmt. Der feste Manifest-Link bleibt unverändert. minimum bleibt 14.367, verified wird 14.369, maximum bleibt 14.
+- Keine Änderungen an Laufzeitcode, Einstellungen, Templates, Übersetzungen, Icons, Styles, Build-Werkzeugen oder Workflows. Insbesondere bleibt der Discord-Button am Ende der jeweils aktiven Werkzeuggruppe.
+- Exakte Core-Versionsprüfungen und ihre Beschriftungen auf 14.369 umgestellt. Vorher scheiterten die zwei gezielt ausgeführten bisherigen Core-Prüfungen ausschließlich an 369 !== 368. Die Verhaltensprüfungen wurden nicht entfernt oder abgeschwächt. Die isolierten Foundry-API-Testdaten für 1.3.2 bleiben absichtlich feste Testdaten.
+- README in beiden Sprachen auf die neue Version und den bereits vorhandenen offiziellen Foundry-Paketeintrag abgestimmt. PUBLISHING beschreibt den aktuellen Vorbereitungsstand und die Voraussetzung eines veröffentlichten Pakets für den separaten Verbindungstest.
+
+## Foundry-Änderungen und Kompatibilität
+
+[Offizielle Release-Informationen zu 14.369](https://foundryvtt.com/releases/14.369) mit der eigenen lizenzierten Installation abgeglichen. Für dieses Modul relevant sind insbesondere die ergänzte Lokalisierung beim Zurückkehren zum Setup, Änderungen an Menü-Klickzielen und Oberflächenkorrekturen. Die vorhandenen Tests wurden gegen die tatsächlich installierten Core-Klassen, Methoden und Vorlagen ausgeführt: SceneControls, Localization, ClientSettings, FormDataExtended, Game.shutDown, Game.logOut, Settings-Sidebar und Esc-Menü. Es ergab sich kein erforderlicher Eingriff in den Modulcode.
+
+Foundrys neue native HTTPS-Unterstützung wurde nicht als Hosting-Konfiguration getestet. Bei einem Wechsel von HTTP zu HTTPS oder einer anderen Serveradresse entsteht ein anderer Browser-Ursprung; der lokale Webhook muss dort wie bei einem anderen Browser eingerichtet werden. Eine konkrete Docker-, Proxy- oder Zertifikatskonfiguration ist nicht Bestandteil dieses Kompatibilitätstests.
+
+## Erfolgreich ausgeführte Prüfungen
+
+Umgebung: Node 24.19.0, npm 12.0.2, lizenzierter Foundry-Core 14.369. Automatisierte Discord- und Veröffentlichungsanfragen ausschließlich simuliert; keine echten Discord-Nachrichten und keine API-Veröffentlichung durch diese Tests.
+
+| Prüfung | Ergebnis |
+| --- | --- |
+| npm test mit FOUNDRY_APP_PATH auf Core 14.369 | **219 bestanden, 0 Fehler, 0 Skips** |
+| npm test ohne Core, entsprechend GitHub CI | **210 bestanden, 0 Fehler, 9 erwartete Core-Skips** |
+| pretest: Syntax, JSON, Metadaten und bekannte Secret-Muster | Bestanden |
+| Browser- und CORS-Prüfungen: Chrome 155.0.8059.39 | Bestanden |
+| Browser- und CORS-Prüfungen: Firefox 153.0 | Bestanden |
+| npm run build:release | Bestanden; 16 Dateien, module.json direkt im ZIP-Root |
+| npm run test:release | Bestanden; exakter Quellenvergleich, CRC32, Manifest-Kopie und bekannte Secret-Muster |
+| Reproduzierbarer ZIP-Build innerhalb der Tests | Bestanden |
+| actionlint für alle vier Workflows | Bestanden; ohne separates ShellCheck |
+| Vollständiger Diff, git diff --check, Vergleich der Laufzeitdateien | Bestanden; keine Funktionsänderung |
+
+Geprüft sind insbesondere manuelles ONLINE/OFFLINE, OFFLINE unabhängig vom Automatik-Haken, automatisches ONLINE durch den aktiven GM mit ausbleibender Wiederholung bei gespeichertem ON, Setup-Schließen mit an-/ausgeschalteter Automatik, bereits gespeichertes OFF, Abmelden ohne Versand, Fehlerbehandlung, GM-/Spielertrennung, DE/EN-Sprachwahl, gespeicherte Werte und Entwürfe, lokaler Webhook, Auge, Vorschau und Button. Browser-Fixtures verwenden echte Core-Bestandteile mit teilweise simulierter umgebender Anwendung. Deutsche und englische Einstellungs-Screenshots wurden visuell geprüft. Screenshots und Logs liegen nur im ignorierten validation-Verzeichnis.
+
+Die Tests enthalten weiterhin die Release-Schutzregeln für bestehende Releases, passende/falsche Tags, sichere Wiederholung und konkurrierende Tag-Erstellung sowie 39 simulierte Foundry-Integrationsprüfungen. Die automatischen Tests ersetzen keine vollständige Sicherheitsanalyse oder sämtliche möglichen Mehrbenutzer-/Hosting-Konfigurationen.
+
+## Bestätigter manueller Praxistest
+
+Der Benutzer hat am **11. Oktober 2026** bestätigt, dass er das Modul in seiner echten Spielwelt unter **Foundry VTT 14.369** manuell getestet hat und **alle Funktionen weiterhin funktionieren**. Dies ist eine Bestätigung des Benutzers, kein durch Codex ausgeführter Live-Test. Für 1.3.3 wird ausschließlich der unveränderte Modul-Funktionsumfang mit aktualisierten Versions-/Kompatibilitätsangaben verpackt. Damit ist der manuelle Praxistest für diese Kompatibilitätsvorbereitung abgeschlossen. Eine separate neue Durchführung jedes historischen Einzeltests wird daraus nicht abgeleitet.
+
+## Veröffentlichung
+
+Lokale Prüfausgabe: release/module.json und release/foundry-world-status.zip. Keine installierte Modulkopie ersetzt. Kein Tag erstellt, kein Release-Workflow gestartet, keine Release-Artefakte hochgeladen und nichts auf Foundry veröffentlicht.
+
+Das Repository-Secret FOUNDRY_RELEASE_TOKEN ist anhand seines Namens vorhanden; sein Wert wurde nicht gelesen oder ausgegeben. Der erfolgreiche nicht speichernde [Verbindungstest vom 10. Oktober 2026](https://github.com/Ginkgo85/foundry-world-status/actions/runs/38052705166) bleibt der bisherige Live-Nachweis. Kein erneuter Verbindungstest für die noch unveröffentlichte 1.3.3: Er benötigt deren öffentliche Release-Dateien. Der zukünftige Foundry-Job prüft diese nach erfolgreicher GitHub-Veröffentlichung erneut.
+
+Nach Commit/Push werden CI und CodeQL für genau diesen Commit bis zum Abschluss kontrolliert und das Ergebnis im Abschlussbericht genannt. Zu diesem lokalen Berichtszeitpunkt stehen diese Läufe noch aus. Nach erfolgreicher Prüfung bleibt nur **Actions → Release → Run workflow → main**. Der bestehende Workflow erstellt das GitHub-Paket und übermittelt es anschließend an das Foundry-Paketverzeichnis. Ein normaler Push veröffentlicht nichts.
+
+Zum Wiederholen: npm test, npm run build:release und npm run test:release; für Core-Prüfungen FOUNDRY_APP_PATH auf resources/app einer eigenen 14.369-Installation setzen. Browser-/CORS-Kommandos bleiben wie in den älteren Berichten, jedoch mit Core 14.369. Kein Core-Download oder Kopieren von Core-Dateien ins Repository.
+
+---
+
 # Workflow-Ergänzung: Foundry-Übermittlung
 
 Stand: 10. Oktober 2026. Nur Veröffentlichungswerkzeuge, Workflows, zugehörige Tests und Dokumentation geändert. Modulcode, module.json, package.json, Download-Adressen und Version 1.3.2 unverändert. Kein neuer Release vorbereitet oder gestartet; keine Veröffentlichung durch diesen Auftrag.

@@ -6,11 +6,11 @@
 
 ## Deutsche Anleitung
 
-Version **1.3.2** · Foundry VTT **14.368** · Nur für GMs · Keine Modulabhängigkeiten
+Version **1.3.3** · Foundry VTT **14.369** · Nur für GMs · Keine Modulabhängigkeiten
 
 **Status: Community Release / In Development**
 
-Dieses Modul wird über GitHub verteilt und ist nicht im offiziellen Foundry-VTT-Paketverzeichnis gelistet. Veröffentlichte Pakete findest du auf der GitHub-Releases-Seite.
+Dieses Modul wird über GitHub verteilt und ist im [offiziellen Foundry-VTT-Paketverzeichnis](https://foundryvtt.com/packages/foundry-world-status) gelistet. Veröffentlichte Pakete findest du auf der GitHub-Releases-Seite.
 
 Kündige deine Spielrunde mit einem Klick auf Discord als **ONLINE** oder **OFFLINE** an – mit anpassbarer Nachricht und direktem Link zu deiner Foundry-Spielwelt.
 
@@ -40,7 +40,7 @@ Der feste Manifest-Link installiert den jeweils veröffentlichten neuesten Relea
 
 3. Die Welt öffnen und unter **Einstellungen → Module verwalten** das Modul aktivieren. Anschließend die Welt neu laden.
 
-Alternativ: [ZIP für v1.3.2](https://github.com/Ginkgo85/foundry-world-status/releases/download/v1.3.2/foundry-world-status.zip) (erst nach Veröffentlichung verfügbar) und in `Data/modules/foundry-world-status/` entpacken. `module.json` liegt direkt im ZIP-Root und muss anschließend direkt im Modulordner liegen. Foundry danach neu starten beziehungsweise die Module neu laden.
+Alternativ: [ZIP für v1.3.3](https://github.com/Ginkgo85/foundry-world-status/releases/download/v1.3.3/foundry-world-status.zip) (erst nach Veröffentlichung verfügbar) und in `Data/modules/foundry-world-status/` entpacken. `module.json` liegt direkt im ZIP-Root und muss anschließend direkt im Modulordner liegen. Foundry danach neu starten beziehungsweise die Module neu laden.
 
 Bei einem manuellen Update den bisherigen Modulordner sichern und durch den neuen ZIP-Inhalt ersetzen. **Keine World-Daten löschen.**
 
@@ -174,11 +174,11 @@ Discord und das Discord-Logo sind Marken von Discord Inc. Dieses Modul ist weder
 
 ## English Guide
 
-Version **1.3.2** · Foundry VTT **14.368** · GM-only controls · No module dependencies
+Version **1.3.3** · Foundry VTT **14.369** · GM-only controls · No module dependencies
 
 **Status: Community Release / In Development**
 
-This module is distributed via GitHub and is not listed in the official Foundry VTT package directory. Published packages are available on the GitHub Releases page.
+This module is distributed via GitHub and is listed in the [official Foundry VTT package directory](https://foundryvtt.com/packages/foundry-world-status). Published packages are available on the GitHub Releases page.
 
 Announce your game session as **ONLINE** or **OFFLINE** on Discord with one click, using a customizable message and a direct link to your Foundry game world.
 
@@ -208,7 +208,7 @@ The permanent manifest link installs the latest published release. A new version
 
 3. Open your world and enable the module under **Settings → Manage Modules**, then reload the world.
 
-Alternatively, download the [ZIP for v1.3.2](https://github.com/Ginkgo85/foundry-world-status/releases/download/v1.3.2/foundry-world-status.zip) (available after publication) and extract it into `Data/modules/foundry-world-status/`. `module.json` is at the ZIP root and must end up directly inside the module folder. Restart Foundry or reload its modules afterward.
+Alternatively, download the [ZIP for v1.3.3](https://github.com/Ginkgo85/foundry-world-status/releases/download/v1.3.3/foundry-world-status.zip) (available after publication) and extract it into `Data/modules/foundry-world-status/`. `module.json` is at the ZIP root and must end up directly inside the module folder. Restart Foundry or reload its modules afterward.
 
 For a manual update, back up the existing module folder and replace it with the new ZIP contents. **Do not delete world data.**
 
