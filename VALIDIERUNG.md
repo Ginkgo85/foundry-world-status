@@ -1,4 +1,16 @@
-# Validierung – Release-Vorbereitung 1.3.3
+# Validierung – veröffentlichte Version 1.3.3
+
+Stand: 16. Oktober 2026. **[Version 1.3.3](https://github.com/Ginkgo85/foundry-world-status/releases/tag/v1.3.3) für Foundry VTT 14.369 wurde am 11. Oktober 2026 veröffentlicht.** Der Release gehört zum Commit cbf194ff9f2ca03f943bce5fa4fc6352f7c4f55c.
+
+- [CI für den Release-Commit](https://github.com/Ginkgo85/foundry-world-status/actions/runs/38136206525): erfolgreich abgeschlossen.
+- [CodeQL für den Release-Commit](https://github.com/Ginkgo85/foundry-world-status/actions/runs/38136206601): erfolgreich abgeschlossen.
+- [Release-Workflow](https://github.com/Ginkgo85/foundry-world-status/actions/runs/38136492994): GitHub-Veröffentlichung mit module.json und foundry-world-status.zip sowie anschließende Übermittlung an das Foundry-Paketverzeichnis erfolgreich abgeschlossen.
+
+Dieser Nachtrag gleicht die Dokumentation mit dem veröffentlichten Stand auf GitHub ab. Die nachfolgenden Berichte dokumentieren ihre jeweiligen historischen Prüfstände, einschließlich der damals noch ausstehenden Veröffentlichungen und GitHub-Prüfungen. Der bestätigte manuelle Praxistest für 1.3.3 steht im Bericht vom 11. Oktober 2026. Version und Modul-Funktionsumfang bleiben unverändert.
+
+---
+
+# Historischer Prüfbericht – Release-Vorbereitung 1.3.3
 
 Stand: 11. Oktober 2026. Kandidat **1.3.3**, geprüft für **Foundry VTT 14.369**. Die nachfolgenden älteren Berichte bleiben unverändert und beschreiben ihre jeweiligen historischen Prüfstände.
 

@@ -1,5 +1,11 @@
 # Release erstellen
 
+## Aktueller Veröffentlichungsstand
+
+**[Version 1.3.3 für Foundry 14.369](https://github.com/Ginkgo85/foundry-world-status/releases/tag/v1.3.3) wurde am 11. Oktober 2026 veröffentlicht.** CI und CodeQL für den Release-Commit cbf194ff9f2ca03f943bce5fa4fc6352f7c4f55c waren erfolgreich. Der [Release-Workflow einschließlich der Übermittlung an das Foundry-Paketverzeichnis](https://github.com/Ginkgo85/foundry-world-status/actions/runs/38136492994) ist erfolgreich abgeschlossen. Die Nachweise und der bestätigte manuelle Praxistest stehen in [VALIDIERUNG.md](VALIDIERUNG.md).
+
+Die folgende Anleitung gilt für einen neuen Release. Für die bereits veröffentlichte 1.3.3 ist kein weiterer Release-Lauf erforderlich; bestehende Tags und Assets bleiben unverändert.
+
 ## Voraussetzungen
 
 - Gewünschte Änderungen befinden sich auf main.
@@ -31,8 +37,6 @@ GitHub prüft den aktuellen Stand erneut, baut und prüft das Paket, erstellt de
 ## Einmalige Einrichtung
 
 Die Workflow-Dateien müssen auf main liegen und GitHub Actions muss für das Repository erlaubt sein. Das normale GITHUB_TOKEN erhält seine nötigen Schreibrechte direkt im Release-Workflow. Für die zusätzliche Übermittlung an Foundry muss das Repository-Secret FOUNDRY_RELEASE_TOKEN den Package Release Token genau dieses Moduls enthalten. Er wird ausschließlich dem Foundry-Schritt übergeben, niemals ins Modul oder ZIP aufgenommen. Keine persönlichen GitHub-Tokens oder pauschale Umstellung aller Workflows auf Schreibrechte erforderlich.
-
-**Version 1.3.3 für Foundry 14.369 ist lokal zur Veröffentlichung vorbereitet.** Der Benutzer hat am 11. Oktober 2026 den erfolgreichen manuellen Praxistest des unveränderten Funktionsumfangs unter 14.369 bestätigt. Die automatischen Prüfungen werden in VALIDIERUNG.md dokumentiert. Nach erfolgreichem Commit/Push und grünen CI-/CodeQL-Läufen für den aktuellen main nur noch **Actions → Release → Run workflow → main** starten. Der Button heißt „Run workflow“, nicht „New workflow“. Keine Dateien manuell hochladen.
 
 ## Foundry-Verbindung ohne Veröffentlichung testen
 
