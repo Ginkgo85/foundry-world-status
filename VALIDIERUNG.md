@@ -1,4 +1,42 @@
-# Validierung – Release-Vorbereitung 1.3.4
+# Validierung – Veröffentlichung und Praxistest 1.3.4
+
+Stand: 5. November 2026. **Version 1.3.4 für Foundry VTT 14.370 ist veröffentlicht und in einer laufenden Testwelt praktisch geprüft.** Der folgende Nachtrag ergänzt den ursprünglichen Vorbereitungsbericht; dessen damalige offenen Punkte sind historische Angaben.
+
+## GitHub-Veröffentlichung
+
+- [Release v1.3.4](https://github.com/Ginkgo85/foundry-world-status/releases/tag/v1.3.4): veröffentlicht am 5. November 2026 um 09:13 UTC, kein Entwurf und kein Prerelease; Tag und Release gehören zum Commit 27d100afd8c6ce8c5ffa721ac37613c80ec44efd.
+- [CI](https://github.com/Ginkgo85/foundry-world-status/actions/runs/41999990971) und [CodeQL](https://github.com/Ginkgo85/foundry-world-status/actions/runs/41999991114) für diesen Commit: erfolgreich abgeschlossen.
+- [Release-Workflow](https://github.com/Ginkgo85/foundry-world-status/actions/runs/42000557036): sowohl GitHub-Release-Job als auch Foundry-Übermittlung erfolgreich abgeschlossen. Die Veröffentlichung bestand bereits vor diesem Browser-Praxistest; hier wurde kein weiterer Release ausgelöst.
+
+## Praxistest nach der Veröffentlichung
+
+Umgebung über die echte Benutzeroberfläche geprüft: Foundry **14.370**, aktiviertes **Foundry World Status 1.3.4**, System **DSA5 8.2.1**, insgesamt **99 aktive Module**, GM-Sitzung in einer gehosteten Testwelt, Microsoft Edge. Der Benutzer hat echte Test-/ONLINE-/OFFLINE-Nachrichten und das kurze Beenden der Welt ausdrücklich freigegeben. Diese gesonderte Laufzeitprüfung verwendet den bereits eingerichteten Webhook; die automatisierten Repository-Tests bleiben ausschließlich synthetisch. Keine Zugangsdaten ausgelesen, ausgegeben oder ins Repository übernommen.
+
+| Live-Prüfung | Beobachtetes Ergebnis |
+| --- | --- |
+| Installation und Werkzeugleiste | Version 1.3.4 aktiv; Button in der Figuren-Steuerung und den Regionen vorhanden. |
+| Neue Regionen-Werkzeuge | Draw Grid Spaces und Discord-Button sowohl im normalen als auch im Messschablonenmodus vorhanden. Keine Regionen erstellt oder verändert. |
+| Einstellungen und Vorschau | Native Einstellungen sowie Modulformular im DSA-Layout bedienbar; URL-Feld, maskierter Webhook und Vorschau lesbar. |
+| Sprache und Entwurf | Automatisch/Deutsch → English → Automatisch: Beschriftungen und Tooltip wechseln; deutsche Nachrichtentexte und noch ungespeicherter Server-URL-Entwurf bleiben erhalten. |
+| Speichern und erneutes Öffnen | Server-URL gespeichert und nach erneutem Öffnen, Browser-Neuladen sowie Welt-Neustart erhalten. Webhook bleibt verdeckt und weiter verwendbar. |
+| Verbindungstest | Erfolgsmeldung von Foundry; tatsächliche Discord-Zustellung vom Benutzer mit Screenshot bestätigt. Status bleibt OFF. |
+| Manuelles ONLINE/OFFLINE | Beide Versände bestätigt; Button wechselt jeweils passend. Manuelles OFFLINE auch bei ausgeschaltetem Automatik-Haken erfolgreich. |
+| Automatisches ONLINE | Vorübergehend eingeschaltet, bei OFF die GM-Seite neu geladen: eine ONLINE-Ankündigung und Status ON. Erneutes Laden bei ON erzeugt keine neue Versandmeldung; der Benutzer-Screenshot zeigt keine zusätzliche ONLINE-Nachricht. |
+| Abmelden | Rückkehr zur Anmeldung, Welt bleibt gestartet; nach erneuter GM-Anmeldung weiterhin ON. Keine zusätzliche OFFLINE-Nachricht in der vom Benutzer bestätigten Folge. |
+| Zurück zum Setup | Bei ON und eingeschalteter OFFLINE-Automatik: abschließende OFFLINE-Nachricht im Benutzer-Screenshot bestätigt, anschließend Setup tatsächlich erreicht. |
+| Wiederanlauf und Abschlusszustand | Dieselbe Testwelt wieder gestartet und als GM angemeldet. Button zeigt OFF. Startautomatik wieder aus, OFFLINE-Automatik an, Sprache Automatisch; diese Werte nach Welt-Neustart kontrolliert. |
+
+Die Server-URL war anfangs leer. Für ONLINE wurde die Adresse der geöffneten Testwelt über das Modulformular eingetragen und gespeichert. Das war eine Laufzeitkonfiguration, kein Modulfehler. Nachrichtentexte und Webhook wurden nicht geändert. Es waren keine weiteren Codeänderungen nötig.
+
+Der Benutzer bestätigte mit „hat geklappt“ und einem Discord-Screenshot die Folge aus Verbindungstest, ONLINE, manuellem OFFLINE, automatischem ONLINE und abschließendem OFFLINE. Der Screenshot und die lokale Aufnahme des Einstellungsfensters bleiben außerhalb der versionierten Dokumentation. Beim Laden wurden Konfliktwarnungen zwischen anderen Modulen (Big Bad Module Manager/Nik's Settings Locks und Gambit's FXMaster/Lock View) angezeigt; sie betreffen nicht Foundry World Status und wurden nicht bearbeitet.
+
+**Nicht live geprüft:** Spieler-Sitzung und parallele Mehrbenutzerfälle, Abbruch einer Warnung bei weiteren verbundenen Benutzern, bewusst fehlschlagender Discord-Versand, Setup bei bereits OFF oder ausgeschalteter Automatik, native Fenster-Popouts sowie zusätzliche Inhalts-/Leerwertvarianten. Für diese Fälle gelten ausschließlich die jeweils beschriebenen automatisierten Nachweise; sie werden nicht als bestandene Live-Tests ausgegeben. Keine allgemeine Aussage zur Kompatibilität aller anderen 98 Module.
+
+Dieser Nachtrag ändert ausschließlich Dokumentation. Modulversion, Laufzeitcode, veröffentlichte Tags und Release-Assets bleiben unverändert. Die README im bereits veröffentlichten ZIP enthält daher weiterhin den damaligen Vorbereitungsstand; das Asset wird nicht nachträglich ersetzt.
+
+---
+
+# Historischer Vorbereitungsbericht 1.3.4
 
 Stand: 5. November 2026. Kandidat **1.3.4** für **Foundry VTT 14.370**. Noch nicht veröffentlicht. Die folgenden älteren Berichte bleiben als historische Nachweise erhalten.
 
