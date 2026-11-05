@@ -13,7 +13,7 @@ body {background: #18181e; margin: 0; font-family: Arial,sans-serif;}
 #scene-controls menu {margin:0; padding:0; list-style:none;}
 #messages {position:absolute; top:825px; left:80px; color:#baffd8; max-width:800px;}
 </style></head>
-<body class="theme-dark"><p class="fixture-note">Lokale UI-Prüfung · echte V14.369-Styles und Formularauswertung · Discord-Anfragen simuliert</p>
+<body class="theme-dark"><p class="fixture-note">Lokale UI-Prüfung · echte V14.370-Styles und Formularauswertung · Discord-Anfragen simuliert</p>
 <aside id="scene-controls"></aside>
 <form id="fixture-form" class="application fws-settings"><header class="window-header"><h1 class="window-title">Foundry World Status</h1></header><section class="window-content"></section></form>
 <div id="messages" role="status"></div>
@@ -164,6 +164,7 @@ if (query.has("menu")) {
   root.classList.add("active");
   root.style.cssText = "position:absolute;right:0;top:0;width:160px;background:#222;z-index:100";
   document.body.append(root);
+  menu.close = async () => root.close(); // Only the surrounding window lifecycle is simulated.
   root.showModal();
   root.onclick = event => {
     if (event.target.closest('[data-action="menuItem"]')) MainMenu.DEFAULT_OPTIONS.actions.menuItem.call(menu, event);

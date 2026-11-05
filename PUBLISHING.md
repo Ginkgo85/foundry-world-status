@@ -2,9 +2,9 @@
 
 ## Aktueller Veröffentlichungsstand
 
-**[Version 1.3.3 für Foundry 14.369](https://github.com/Ginkgo85/foundry-world-status/releases/tag/v1.3.3) wurde am 11. Oktober 2026 veröffentlicht.** CI und CodeQL für den Release-Commit cbf194ff9f2ca03f943bce5fa4fc6352f7c4f55c waren erfolgreich. Der [Release-Workflow einschließlich der Übermittlung an das Foundry-Paketverzeichnis](https://github.com/Ginkgo85/foundry-world-status/actions/runs/38136492994) ist erfolgreich abgeschlossen. Die Nachweise und der bestätigte manuelle Praxistest stehen in [VALIDIERUNG.md](VALIDIERUNG.md).
+**Version 1.3.4 für Foundry 14.370 ist zur Veröffentlichung vorbereitet.** Die Prüfung der offiziellen Änderungen, der installierten Core-Schnittstellen sowie der lokalen Tests steht in [VALIDIERUNG.md](VALIDIERUNG.md). Vor dem Release den dortigen Praxistest mit dem neuen Paket in einer gesicherten 14.370-Testwelt durchführen und erfolgreiche CI-/CodeQL-Läufe für den aktuellen main prüfen. Die frühere Bestätigung für 14.369 ersetzt diesen Praxistest nicht.
 
-Die folgende Anleitung gilt für einen neuen Release. Für die bereits veröffentlichte 1.3.3 ist kein weiterer Release-Lauf erforderlich; bestehende Tags und Assets bleiben unverändert.
+Neuester veröffentlichter Release bleibt [v1.3.3](https://github.com/Ginkgo85/foundry-world-status/releases/tag/v1.3.3) vom 11. Oktober 2026. Nach den genannten Prüfungen **Actions → Release → Run workflow → main** für 1.3.4 starten. Der Workflow erstellt das GitHub-Paket und übermittelt es anschließend an Foundry. Bestehende Tags und Assets bleiben unverändert; ein normaler Push veröffentlicht nichts.
 
 ## Voraussetzungen
 

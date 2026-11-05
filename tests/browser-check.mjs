@@ -108,6 +108,15 @@ try {
     return {withModule, withoutModule};
   });
   assert.deepEqual(controlStyles.withModule, controlStyles.withoutModule);
+  const urlInput = page.locator('[name="serverUrl"]');
+  await urlInput.focus();
+  const urlStyle = await urlInput.evaluate(el => {
+    const css = getComputedStyle(el);
+    return {background: css.backgroundColor, color: css.color, outline: css.outlineStyle};
+  });
+  assert.notEqual(urlStyle.background, "rgba(0, 0, 0, 0)");
+  assert.notEqual(urlStyle.background, urlStyle.color);
+  assert.equal(urlStyle.outline, "solid");
   assert.equal(await page.locator('input[type="password"]').count(), 1);
   assert.equal(await page.locator('[name="autoOfflineOnShutdown"]').count(), 0);
   assert.equal(await page.locator('[name="autoOnlineOnStartup"]').isChecked(), false);
@@ -364,6 +373,38 @@ try {
   assert.deepEqual(errors, []);
   await startupContext.close();
   console.log(browserName + ": startup checks passed: opt-in checkbox DE/EN, elected GM only, player isolation, confirmed ON and reload without another send; requests simulated.");
+
+  // Actual Core templates and click handlers must reach the wrapped shutdown entry point.
+  for (const surface of ["sidebar", "popout", "menu"]) for (const rejected of [false, true]) {
+    const tab = await browser.newPage({viewport: {width: 1040, height: 920}});
+    tab.on("pageerror", error => errors.push(error.message));
+    let shutdownSends = 0;
+    await tab.route("**/*", route => new URL(route.request().url()).hostname === "127.0.0.1" ? route.continue() : route.abort());
+    await tab.route("https://**/api/webhooks/**", async route => {
+      shutdownSends++;
+      await route.fulfill({status: rejected ? 403 : 200, contentType: "application/json",
+        body: JSON.stringify(rejected ? {} : {id: "123456789012345678"})});
+    });
+    await tab.goto("http://127.0.0.1:" + server.address().port + (surface === "menu" ? "/?menu=1" : "/"));
+    await tab.waitForFunction(() => window.fixture?.ready === true);
+    await tab.evaluate(async ({webhook, surface}) => {
+      await game.settings.set("foundry-world-status", "webhooks", {[JSON.stringify(["test-world", "test-gm"])]: webhook});
+      await game.settings.set("foundry-world-status", "online", true);
+      if (surface === "popout") document.querySelector("#settings").id = "settings-popout";
+    }, {webhook: fakeWebhook, surface});
+    if (surface === "menu") await tab.locator('[data-menu-item="world"] h2').click();
+    else await tab.locator((surface === "popout" ? "#settings-popout" : "#settings") + ' [data-app="setup"]').click();
+    await tab.waitForFunction(rejected => rejected
+      ? document.querySelector("#messages").textContent === fixture.locale.t("shutdownStopped")
+      : fixture.shutdownRequests.length === 1, rejected);
+    assert.equal(shutdownSends, 1);
+    assert.equal(await tab.evaluate(() => fixture.values.get("online")), rejected);
+    assert.equal(await tab.evaluate(() => fixture.shutdownRequests.length), rejected ? 0 : 1,
+      surface + " rejected=" + rejected + ": " + await tab.locator("#messages").innerText());
+    assert.deepEqual(errors, []);
+    await tab.close();
+  }
+  console.log(browserName + ": native sidebar, popout and Esc setup send confirmed OFFLINE before shutdown; rejected delivery preserves ON and stops shutdown.");
 
   // All native logout surfaces must remain untouched, even with a saved legacy opt-in.
   for (const surface of ["sidebar", "popout", "menu"]) {

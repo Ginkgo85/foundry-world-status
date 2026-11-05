@@ -95,7 +95,7 @@ test("manifest, imports, templates, CSS and icon files resolve", async () => {
   assert.equal(manifest.id, MODULE_ID); assert.match(manifest.version, /^\d+\.\d+\.\d+$/);
   assert.equal(manifest.authors[0].name, "Ginkgo85");
   assert.equal(manifest.compatibility.minimum, "14.367");
-  assert.equal(manifest.compatibility.verified, "14.369");
+  assert.equal(manifest.compatibility.verified, "14.370");
   for (const file of [...manifest.esmodules, ...manifest.styles, ...manifest.languages.map(l => l.path), manifest.readme, "templates/settings.hbs"]) await access(path.join(root, file));
   for (const file of await readdir(path.join(root, "scripts"))) {
     const text = await readFile(path.join(root, "scripts", file), "utf8");
@@ -399,11 +399,11 @@ test("every form field has a German label and hint; prepared values stay escaped
   assert.match(html, /type="password"/); assert.match(html, /name="sendOffline" type="checkbox" checked/);
 });
 
-test("actual Foundry 14.369 SceneControls builds, renders and clicks the module tool", async t => {
+test("actual Foundry 14.370 SceneControls builds, renders and clicks the module tool", async t => {
   const foundryRoot = process.env.FOUNDRY_APP_PATH;
   if (!foundryRoot) { t.skip("Set FOUNDRY_APP_PATH to the installed resources/app folder."); return; }
   const release = JSON.parse(await readFile(path.join(foundryRoot, "package.json"), "utf8")).release;
-  assert.equal(release.generation, 14); assert.equal(release.build, 369);
+  assert.equal(release.generation, 14); assert.equal(release.build, 370);
   let source = await readFile(path.join(foundryRoot, "client/applications/ui/scene-controls.mjs"), "utf8");
   // Execute the actual core class with boundary mocks. Proprietary source is neither copied into the module nor shipped.
   source = source.replace(/^import .*;\r?$/gm, "");
@@ -588,7 +588,47 @@ test("changed options or another GM's OFF status during confirmation do not caus
   await game.shutDown(); assert.equal(calls.length, 0); assert.equal(result.setup.length, 1);
 });
 
-test("disabled branch executes the actual 14.369 Game.shutDown implementation", async t => {
+test("installed 14.370 Region tools retain grid shapes and order beside the announcement button", async t => {
+  const core = process.env.FOUNDRY_APP_PATH;
+  if (!core) {t.skip("FOUNDRY_APP_PATH required"); return;}
+  const source = await readFile(path.join(core, "client/canvas/layers/regions.mjs"), "utf8");
+  const start = source.indexOf("  static prepareSceneControls() {"), end = source.indexOf("\n  }", start) + 4;
+  assert.ok(start > 0 && end > start);
+  const method = source.slice(start, end).replace("static prepareSceneControls()", "function prepareSceneControls()");
+  const prepare = new Function("SceneControls", "return (" + method + ");")({buildToolclipItems: items => items});
+  const prior = {canvas: globalThis.canvas, CONFIG: globalThis.CONFIG, CONST: globalThis.CONST,
+    shapes: foundry.data.BaseShapeData, can: game.user.can};
+  try {
+    globalThis.CONFIG = {Region: {templateModeConfig: {shapeTypes: ["rectangle", "grid"], gridBased: true,
+      coneAngle: 60, coneCurvature: "round", ringAlignment: 1}}};
+    globalThis.CONST = {TOKEN_SHAPES: {RECTANGLE_1: 0, ELLIPSE_1: 1}};
+    foundry.data.BaseShapeData = {TYPES: {rectangle: {}, grid: {}}};
+    game.user.can = () => true;
+    for (const templateMode of [false, true]) for (const isGridless of [false, true]) {
+      globalThis.canvas = {grid: {size: 100, isHexagonal: false, isGridless}, regions: {templateMode}};
+      const regions = prepare.call({FORCE_SNAP_VERTICES: {name: "snap"}, TOGGLE_PALETTE: {name: "togglePalette"}});
+      const nativeTools = {...regions.tools};
+      const lastOrder = Math.max(...Object.values(nativeTools).map(tool => tool.order));
+      main.addSceneTools({regions});
+      assert.equal(regions.activeTool, "select");
+      assert.equal(regions.tools.grid.shapeData.type, "grid");
+      assert.equal(regions.tools.grid.visible, !isGridless);
+      assert.equal(regions.tools.rectangle.shapeData.gridBased, templateMode);
+      assert.equal(regions.tools[TOOL_ID].order, lastOrder + 1);
+      assert.equal(regions.tools[TOOL_ID].button, true);
+      for (const [key, tool] of Object.entries(nativeTools)) assert.equal(regions.tools[key], tool);
+      main.addSceneTools({regions});
+      assert.equal(regions.tools[TOOL_ID].order, lastOrder + 1);
+      assert.equal(Object.keys(regions.tools).length, Object.keys(nativeTools).length + 1);
+    }
+    assert.equal(calls.length, 0); assert.equal(writes.length, 0);
+  } finally {
+    globalThis.canvas = prior.canvas; globalThis.CONFIG = prior.CONFIG; globalThis.CONST = prior.CONST;
+    foundry.data.BaseShapeData = prior.shapes; game.user.can = prior.can;
+  }
+});
+
+test("disabled branch executes the actual 14.370 Game.shutDown implementation", async t => {
   const core = process.env.FOUNDRY_APP_PATH;
   if (!core) {t.skip("FOUNDRY_APP_PATH required"); return;}
   const source = await readFile(path.join(core, "client/game.mjs"), "utf8");
@@ -617,7 +657,7 @@ test("GM logout retains ON and sends nothing even with shutdown automation enabl
   assert.equal(calls.length, 0); assert.equal(writes.length, 0);
 });
 
-test("native 14.369 logout navigates without announcing OFFLINE", async t => {
+test("native 14.370 logout navigates without announcing OFFLINE", async t => {
   const core = process.env.FOUNDRY_APP_PATH;
   if (!core) {t.skip("FOUNDRY_APP_PATH required"); return;}
   const source = await readFile(path.join(core, "client/game.mjs"), "utf8");
@@ -935,7 +975,7 @@ test("startup timeout leaves OFF and releases the send lock without a retry", as
   assert.ok(!JSON.stringify({logs, notifications}).includes(fakeWebhook));
 });
 
-test("enabled shutdown sends the same request format as installed Foundry 14.369", async t => {
+test("enabled shutdown sends the same request format as installed Foundry 14.370", async t => {
   const core = process.env.FOUNDRY_APP_PATH;
   if (!core) {t.skip("FOUNDRY_APP_PATH required"); return;}
   const source = await readFile(path.join(core, "client/game.mjs"), "utf8");

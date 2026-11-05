@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.4
+
+- Kompatibilität mit Foundry VTT 14.370 geprüft; Mindestversion bleibt 14.367.
+- Neue Regions-Rasterwerkzeuge und native Setup-Aufrufe gezielt in die Core-/Browserprüfungen aufgenommen.
+- Modul-Funktionen, Einstellungen, Webhook-Speicherung und Positionierung des ON/OFF-Buttons bleiben unverändert.
+
 ## 1.3.3
 
 - Kompatibilität mit Foundry VTT 14.369 geprüft; Mindestversion bleibt 14.367.

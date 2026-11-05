@@ -1,4 +1,70 @@
-# Validierung – veröffentlichte Version 1.3.3
+# Validierung – Release-Vorbereitung 1.3.4
+
+Stand: 5. November 2026. Kandidat **1.3.4** für **Foundry VTT 14.370**. Noch nicht veröffentlicht. Die folgenden älteren Berichte bleiben als historische Nachweise erhalten.
+
+## Ausgangspunkt und notwendige Änderungen
+
+- Echtes Repository Ginkgo85/foundry-world-status, sauberer main fde8b7c2e527e5c8e7a208b6207eaacfba2effba, nach aktuellem Fetch identisch mit origin/main. GitHub-Anmeldung bestätigt; neuester veröffentlichter Release v1.3.3.
+- Installierte lizenzierte Foundry-Anwendung anhand ihrer package.json geprüft: Generation 14, Stable, Build 370. Core-Dateien ausschließlich aus der eigenen Installation gelesen, nicht ins Repository oder ZIP kopiert.
+- Vollständiger Ausgangslauf gegen 14.370: **217 bestanden, 2 Fehler, 0 Skips**. Beide Fehler waren exakte Versionsprüfungen auf Build 369 in SceneControls und Localization, keine nachgewiesenen Funktionsfehler. Die vorhandenen Browser- und CORS-Prüfungen bestanden bereits mit dem unveränderten Modulcode.
+- Kompatibles Patch-Update auf 1.3.4: module.json, package.json, README, Changelog und Download-Adresse konsistent angepasst. verified ist jetzt 14.370; minimum bleibt 14.367, maximum bleibt 14. Der feste Manifest-Link bleibt unverändert.
+- Core-Versionsprüfungen und Testbeschriftungen gezielt auf 370 aktualisiert. Ein zusätzlicher Core-Test prüft die echte neue Regions-Werkzeugkonfiguration. Browserprüfungen ergänzen URL-Fokusdarstellung sowie erfolgreiche und abgewiesene Setup-Aufrufe aus Sidebar, Popout und Esc-Menü.
+- Alle Laufzeitdateien unter scripts/, Templates, Übersetzungen, Icons, Styles, Build-Werkzeuge und Workflows bleiben unverändert. Modul-ID, Settings-Namespace und vorhandene Daten werden nicht migriert oder umbenannt.
+
+## Offizielle Änderungen und Bewertung für dieses Modul
+
+Grundlage sind die vollständig gelesenen [offiziellen Release-Informationen zu 14.370](https://foundryvtt.com/releases/14.370) vom 2. November 2026, die dort verlinkten relevanten offiziellen Fehlerberichte und die tatsächlich installierten Core-Dateien. Die folgende Bewertung des Änderungsbedarfs ergibt sich aus dem Abgleich mit dem Modulcode und den ausgeführten Tests.
+
+| Änderung in Foundry | Berührungspunkt im Modul und Ergebnis |
+| --- | --- |
+| Kalender: korrigierter deltaTime-Parameter, ausdrücklich als Breaking Change ausgewiesen | Das Modul verwendet weder CalendarData noch Weltzeit-Hooks. Keine Anpassung. [Offizieller Bericht #14864](https://github.com/foundryvtt/foundryvtt/issues/14864). |
+| Ausgewählte Core-Settings schon vor init verfügbar | Eigene Einstellungen werden weiterhin über register/registerMenu im init-Hook registriert; Ankündigungen bleiben im ready-Hook nach Migration. Die frühere Verfügbarkeit verlangt keinen früheren Versand. [#14849](https://github.com/foundryvtt/foundryvtt/issues/14849). |
+| Neue Regions-Rasterwerkzeuge und Konfiguration des Vorlagenmodus | Der Discord-Button wird generisch am Ende der vorhandenen Werkzeuggruppe ergänzt. Neuer Test führt die installierte RegionLayer.prepareSceneControls-Methode aus und prüft normalen/Vorlagenmodus jeweils mit Raster/rasterlos: native Werkzeuge und Shape-Daten unverändert, Button danach, wiederholtes Ergänzen ohne Duplikat. [#14924](https://github.com/foundryvtt/foundryvtt/issues/14924), [#14386](https://github.com/foundryvtt/foundryvtt/issues/14386). |
+| Vereinheitlichte URL-Eingabedarstellung | Bestehender lokal begrenzter CSS-Fallback bleibt mit 14.370 verträglich und für ältere unterstützte Builds erhalten. Browser prüfen lesbaren Hintergrund/Text, Fokusrahmen und schmale Fenster. [#14937](https://github.com/foundryvtt/foundryvtt/issues/14937). |
+| Esc-Verhalten für ausgelagerte Fenster, Tabwechsel während Rendering, auto-Breite von Dokumentfenstern | Das Modul hat keine eigenen Tabs und keine Actor-/Item-Dokumentfenster. ApplicationV2-Lebenszyklus und Sprach-Neurendern bleiben kompatibel. Die Fixture simuliert weiterhin den umgebenden Fensterlebenszyklus; das vollständige native Popout-Verhalten wird daraus nicht abgeleitet. [#14694](https://github.com/foundryvtt/foundryvtt/issues/14694), [#14815](https://github.com/foundryvtt/foundryvtt/issues/14815). |
+| Benutzer-Passwörter, Passwort-Reset und Administratorprüfung bei Weltkonfiguration | Das Modul verwaltet keine Konten und bearbeitet keine Welt-Metadaten. GM-Prüfungen und natives Abmelden bleiben erhalten. Der Setup-POST wurde direkt mit Game.shutDown aus 14.370 verglichen; Sidebar und Esc-Menü erreichen weiterhin dieselbe öffentliche Methode. [#5409](https://github.com/foundryvtt/foundryvtt/issues/5409), [#14863](https://github.com/foundryvtt/foundryvtt/issues/14863), [#14933](https://github.com/foundryvtt/foundryvtt/issues/14933). |
+| Einladungslinks: Refresh und IPv4-Beschriftung | Die Server-URL des Moduls bleibt eine ausdrücklich konfigurierte Adresse. Keine automatische Übernahme oder Erreichbarkeitsprüfung ergänzen. |
+| Multi-Checkbox-Spalten und ProseMirror-Erweiterungen | Das Modul verwendet native einzelne Checkboxen und Textareas, weder formGroup-Multi-Checkboxen noch ProseMirror. Keine Anpassung. |
+| Dokumente, Compendiums, Journale, Datenoperatoren, Validierung und Ownership | Keine entsprechende API-Nutzung im Modul. Bestehende eigene Settings-/Client-Speicherpfade werden gegen den installierten Core geprüft. |
+| Tokens, Levels, Mesh-Hook, Texturladen, VFX, Audio, Fog, Placeables, HUDs und FilePicker | Das Modul greift nicht in diese Abläufe ein. Relevant bleibt nur die getestete SceneControls-Anbindung; keine Canvas- oder Systemmigration erforderlich. |
+| Würfel, Karten, Chat, Weltzeit, Verzeichnisse und übrige Editor-/Lokalisierungskorrekturen | Keine entsprechende Funktionsnutzung. Eigene DE-/EN-Texte, Platzhalter und Benutzertrennung bestehen die Localization- und Browserprüfungen. |
+| Sicherheitskorrekturen der mitgelieferten Node-Laufzeit | Betrifft den Foundry-Host, nicht den im Browser laufenden Discord-Code. Die installierte 14.370-package.json fordert für einen separaten Node-Server >=24.22.1 und <25.0.0. Das npm-Testwerkzeug dieses Projekts startet keinen Foundry-Server und benötigt deshalb keine Änderung der Modul-Dependencies. Konkrete Docker-Hosts wurden nicht aktualisiert oder getestet. |
+
+Zusätzlich mit der öffentlichen [SceneControls-API](https://foundryvtt.com/api/classes/foundry.applications.ui.SceneControls.html) und [Game-API](https://foundryvtt.com/api/classes/foundry.Game.html) abgeglichen. Maßgeblich für Build 370 bleibt der installierte Core: Tool-Records mit button/onChange, getSceneControlButtons, partielles Rendering, Localization samt format-Alias, ClientSettings, FormDataExtended, SettingsConfig, aktiver GM, Game.shutDown, Game.logOut sowie Sidebar-/Esc-Vorlagen und deren Handler. Ein neuer awaitbarer Pre-Shutdown-Hook wurde in diesen relevanten Core-Pfaden nicht gefunden. Der vorhandene enge Shutdown-Wrapper bleibt deshalb bestehen; kein Socket- oder Unload-Versand.
+
+## Ausgeführte Prüfungen und Grenzen
+
+Node 24.19.0, npm 11.17.0, Playwright 1.62.1, eigener lizenzierter Core 14.370. Alle Discord-Anfragen und Veröffentlichungsanfragen in den Tests sind künstlich beziehungsweise simuliert.
+
+- npm test mit FOUNDRY_APP_PATH auf 14.370: **220 bestanden, 0 Fehler, 0 Skips**.
+- npm test ohne Core, entsprechend GitHub CI: **210 bestanden, 0 Fehler, 10 erwartete Core-Skips**. Der zusätzliche Skip gehört zum neuen echten Regions-Core-Test; keine vorhandene Prüfung entfernt.
+- Erweiterte Browser- und CORS-Prüfungen mit Chrome **156.0.8078.80** und Firefox **153.0**: bestanden. Erfolgreicher sowie abgewiesener Setup-Versand aus Sidebar, Popout und Esc-Menü geprüft; keine Browser-Ausnahmen und kein echter Discord-Versand.
+- npm run build:release und npm run test:release: bestanden; 16 Dateien, module.json direkt im ZIP-Root, exakter Quellenvergleich, CRC32 und bekannte Secret-Muster geprüft.
+- Syntax-/JSON-/Metadatenprüfung und bekannte Secret-Muster werden durch npm test als pretest ausgeführt. Reproduzierbarer ZIP-Build und simulierte Release-/Foundry-Schutzprüfungen bleiben Teil der Suite.
+- Vollständiger Diff und git diff --check geprüft. Vergleich der Laufzeit-, Asset-, Build- und Workflow-Dateien mit dem Ausgangscommit bestätigt deren unveränderten Inhalt. Deutsche und englische Einstellungs-Screenshots visuell geprüft: Formular und Vorschau lesbar. Bilder bleiben im ignorierten validation-Verzeichnis.
+- Browser-Fixtures verwenden echte Core-Styles, Templates, FormDataExtended, Localization, SettingsConfig und native Sidebar-/Esc-Handler. Die umgebende Anwendung, Datenhaltung und Fensterlebenszyklen sind teilweise simuliert; dies ist keine vollständig gestartete echte Spielwelt.
+- Die ergänzte Setup-Browserprüfung wertete im ersten Chrome-Lauf den Zustand vor Abschluss des lokalen POST aus. Sie wartet jetzt synchron auf das tatsächliche Endergebnis: abgeschlossene Setup-Anfrage beziehungsweise die Fehlermeldung bei abgewiesenem Discord-Versand. Die produktiven Abläufe wurden dafür nicht verändert.
+
+CI und CodeQL werden nach dem Push für genau den neuen Commit bis zum Abschluss kontrolliert und im Abschlussbericht verlinkt. Die alten erfolgreichen Läufe unterhalb dieses Berichts gelten nicht als Nachweis für 1.3.4.
+
+**Nicht geprüft:** echte Discord-Zustellung, vollständig gestartete Foundry-14.370-Welt mit echten Mehrbenutzersitzungen, natives Auslagern kompletter Anwendungsfenster, erneute Ausführung gegen ältere Core-Builds, konkrete Docker-/Proxy-/TLS-Umgebungen und eine vollständige Sicherheitsanalyse. Lokales actionlint wurde nicht ausgeführt; Workflows wurden nicht verändert. Die frühere Benutzerbestätigung unter 14.369 ersetzt keinen Praxistest unter 14.370.
+
+## Praxistest vor Veröffentlichung
+
+Das lokale Paket release/foundry-world-status.zip ist ausschließlich Prüfausgabe. Die installierte Modulkopie und bestehende World-Daten werden nicht automatisch ersetzt. In einer gesicherten 14.370-Testwelt das neue Paket installieren und anschließend als GM prüfen:
+
+1. Modul aktivieren, Szene öffnen: Discord-Button sichtbar, auch bei Regions-/Rasterwerkzeugen; Spieler sehen ihn nicht.
+2. Einstellungen in Deutsch und Englisch öffnen; gespeicherte Texte, Leerwerte, lokaler Webhook und Sprachwahl bleiben erhalten. Eigene Werte einschließlich leerem Linktext speichern und erneut öffnen.
+3. Einen ausdrücklich ausgelösten Verbindungstest sowie manuelles ONLINE und OFFLINE in einem privaten Testkanal prüfen; OFFLINE auch bei ausgeschaltetem Automatik-Haken.
+4. Bei ON und eingeschalteter Automatik „Zurück zum Setup“ ausführen: OFFLINE kommt vor dem Schließen; bei OFF keine zweite Nachricht. Mit ausgeschalteter Automatik keine automatische Nachricht.
+5. Abmelden sendet keine Nachricht und beendet nur die Sitzung. Automatisches ONLINE nur bei eingeschalteter Option, aktivem GM und gespeichertem OFF; erneutes Laden mit ON sendet nichts.
+6. Abbruch der verbundenen-Benutzer-Warnung sendet nichts. Bei einem bewusst simulierten Versandfehler bleibt die Welt offen; vor einem erneuten echten Versand zuerst den Discord-Kanal prüfen.
+
+Nach diesem Praxistest und grünen CI-/CodeQL-Läufen für den aktuellen main: **Actions → Release → Run workflow → main**. Dieser Auftrag startet keinen Release, erstellt keinen Tag, lädt keine Assets hoch und ruft keine Foundry-Veröffentlichung auf. Der feste Manifest-Link liefert bis zum erfolgreichen Release weiterhin v1.3.3. Historische Tags und Assets bleiben unverändert.
+
+---
+
+# Historischer Veröffentlichungsstand 1.3.3
 
 Stand: 16. Oktober 2026. **[Version 1.3.3](https://github.com/Ginkgo85/foundry-world-status/releases/tag/v1.3.3) für Foundry VTT 14.369 wurde am 11. Oktober 2026 veröffentlicht.** Der Release gehört zum Commit cbf194ff9f2ca03f943bce5fa4fc6352f7c4f55c.
 
