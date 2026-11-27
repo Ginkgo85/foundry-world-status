@@ -2,9 +2,9 @@
 
 ## Aktueller Veröffentlichungsstand
 
-**Version 1.3.5 für Foundry 14.371 ist zur manuellen Veröffentlichung vorbereitet.** Der [Prüfbericht](VALIDIERUNG.md) enthält den Test mit einem echten lokalen Foundry-Server und einem lokalen Nachrichtenempfänger. Die Prüfung umfasste auch den Fall, dass der Empfänger den Versand ablehnt.
+**[Version 1.3.5 für Foundry 14.371](https://github.com/Ginkgo85/foundry-world-status/releases/tag/v1.3.5) wurde am 27. November 2026 veröffentlicht.** Der [Release-Workflow](https://github.com/Ginkgo85/foundry-world-status/actions/runs/46076774329) hat `module.json` und `foundry-world-status.zip` auf GitHub veröffentlicht und die Version erfolgreich an das Foundry-Paketverzeichnis übermittelt.
 
-Der jüngste veröffentlichte Release ist [v1.3.4](https://github.com/Ginkgo85/foundry-world-status/releases/tag/v1.3.4) für Foundry 14.370. Für 1.3.5 gilt die folgende Anleitung nach gesonderter Freigabe der Veröffentlichung.
+Der [Prüfbericht](VALIDIERUNG.md) dokumentiert den Shutdown-Test mit Foundry 14.371 und einem lokalen Nachrichtenempfänger. Die folgenden Schritte gelten für die nächste Version nach ihrer Freigabe.
 
 ## Voraussetzungen
 

@@ -8,7 +8,7 @@
 
 Version **1.3.5** · Foundry VTT **14.371** · Nur für GMs · Keine Modulabhängigkeiten
 
-**1.3.5 ist zur Veröffentlichung vorbereitet.** Über den Installationslink erhältst du derzeit [Version 1.3.4 für Foundry 14.370](https://github.com/Ginkgo85/foundry-world-status/releases/tag/v1.3.4).
+Der Installationslink liefert die am 27. November 2026 veröffentlichte [Version 1.3.5 für Foundry 14.371](https://github.com/Ginkgo85/foundry-world-status/releases/tag/v1.3.5).
 
 **Status: Community Release / In Development**
 
@@ -42,7 +42,7 @@ Der feste Manifest-Link installiert den jeweils veröffentlichten neuesten Relea
 
 3. Die Welt öffnen und unter **Einstellungen → Module verwalten** das Modul aktivieren. Anschließend die Welt neu laden.
 
-Alternativ: [ZIP für v1.3.5 (nach Veröffentlichung)](https://github.com/Ginkgo85/foundry-world-status/releases/download/v1.3.5/foundry-world-status.zip) herunterladen und in `Data/modules/foundry-world-status/` entpacken. `module.json` liegt direkt im ZIP-Root und muss anschließend direkt im Modulordner liegen. Foundry danach neu starten beziehungsweise die Module neu laden.
+Alternativ kannst du das [ZIP für v1.3.5](https://github.com/Ginkgo85/foundry-world-status/releases/download/v1.3.5/foundry-world-status.zip) herunterladen und in `Data/modules/foundry-world-status/` entpacken. `module.json` liegt direkt im ZIP-Root und muss anschließend direkt im Modulordner liegen. Foundry danach neu starten beziehungsweise die Module neu laden.
 
 Bei einem manuellen Update den bisherigen Modulordner sichern und durch den neuen ZIP-Inhalt ersetzen. **Keine World-Daten löschen.**
 
@@ -178,7 +178,7 @@ Discord und das Discord-Logo sind Marken von Discord Inc. Dieses Modul ist weder
 
 Version **1.3.5** · Foundry VTT **14.371** · GM-only controls · No module dependencies
 
-**1.3.5 is a release candidate.** The installation link currently provides [version 1.3.4 for Foundry 14.370](https://github.com/Ginkgo85/foundry-world-status/releases/tag/v1.3.4).
+The installation link installs [version 1.3.5 for Foundry 14.371](https://github.com/Ginkgo85/foundry-world-status/releases/tag/v1.3.5), released on November 27, 2026.
 
 **Status: Community Release / In Development**
 
@@ -212,7 +212,7 @@ The permanent manifest link installs the latest published release. A new version
 
 3. Open your world and enable the module under **Settings → Manage Modules**, then reload the world.
 
-Alternatively, download the [ZIP for v1.3.5 (once published)](https://github.com/Ginkgo85/foundry-world-status/releases/download/v1.3.5/foundry-world-status.zip) and extract it into `Data/modules/foundry-world-status/`. `module.json` is at the ZIP root and must end up directly inside the module folder. Restart Foundry or reload its modules afterward.
+Alternatively, download the [ZIP for v1.3.5](https://github.com/Ginkgo85/foundry-world-status/releases/download/v1.3.5/foundry-world-status.zip) and extract it into `Data/modules/foundry-world-status/`. `module.json` is at the ZIP root and must end up directly inside the module folder. Restart Foundry or reload its modules afterward.
 
 For a manual update, back up the existing module folder and replace it with the new ZIP contents. **Do not delete world data.**
 
