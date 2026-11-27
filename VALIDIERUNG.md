@@ -1,6 +1,6 @@
 # Validierung für Foundry VTT 14.371
 
-Stand 27. November 2026. **Release-Kandidat 1.3.5**. Im lokalen Foundry-Server schloss ein einzelner GM-Klick auf „Zurück zum Setup“ die Testwelt. Der lokale HTTP-Empfänger nahm für diesen Klick genau eine OFFLINE-Nachricht an.
+**[Version 1.3.5 für Foundry VTT 14.371](https://github.com/Ginkgo85/foundry-world-status/releases/tag/v1.3.5) wurde am 27. November 2026 veröffentlicht.** Im lokalen Foundry-Server schloss ein einzelner GM-Klick auf „Zurück zum Setup“ die Testwelt. Der lokale HTTP-Empfänger nahm für diesen Klick genau eine OFFLINE-Nachricht an.
 
 | Prüfung | Beobachtung |
 | --- | --- |
