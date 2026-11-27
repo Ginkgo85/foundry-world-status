@@ -1,3 +1,9 @@
+# Aktueller Stand – 1.3.5 für Foundry VTT 14.371
+
+Am 27. November 2026 wurde [Version 1.3.5](https://github.com/Ginkgo85/foundry-world-status/releases/tag/v1.3.5) veröffentlicht und an das Foundry-Paketverzeichnis übermittelt. Alle 220 Tests mit Foundry 14.371 bestanden. Beim Praxistest „Zurück zum Setup“ empfing der lokale Testempfänger genau eine OFFLINE-Nachricht und die Welt schloss. Details stehen im [Prüfbericht](VALIDIERUNG.md).
+
+---
+
 # GitHub-Actions-Einrichtung – 1.1.0
 
 Historischer Einrichtungsbericht vom 12. September 2026. Der aktuelle Prüfstand steht in [VALIDIERUNG.md](VALIDIERUNG.md).
