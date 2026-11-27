@@ -1,4 +1,28 @@
-# Validierung – Veröffentlichung und Praxistest 1.3.4
+# Validierung für Foundry VTT 14.371
+
+Stand 27. November 2026. **Release-Kandidat 1.3.5**. Im lokalen Foundry-Server schloss ein einzelner GM-Klick auf „Zurück zum Setup“ die Testwelt. Der lokale HTTP-Empfänger nahm für diesen Klick genau eine OFFLINE-Nachricht an.
+
+| Prüfung | Beobachtung |
+| --- | --- |
+| Ausgangslauf mit 1.3.4 und installiertem Build 371 | 218 von 220 Tests bestanden. Ausschließlich zwei feste Erwartungen an Build 370 schlugen fehl. |
+| Versionsabgleich | Die [offiziellen Hinweise](https://foundryvtt.com/releases/14.371) beschreiben strengere Berechtigungsprüfungen für Setup und Settings. Die installierte öffentliche Methode `Game.shutDown` verwendet weiterhin denselben Shutdown-POST wie das Modul. Das Modul aktualisiert Werte registrierter Settings unter ihren bestehenden Schlüsseln. Eine Änderung am Laufzeitcode war nicht erforderlich. |
+| Echter Server, Moduleinstellungen | Foundry 14.371 mit Node 24.22.3, separates Datenverzeichnis, leeres Testsystem und eigene Welt. Das gebaute ZIP 1.3.5 wurde im Modulordner der Testinstanz entpackt. Angemeldet war ein Welt-GM ohne Server-Adminrechte und ohne weitere aktive Benutzer. Ausgangszustand ON, automatisches OFFLINE an. |
+| Abgewiesener Versand | Der lokale Empfänger antwortete beim ersten Klick mit HTTP 403. Keine Nachricht angenommen, kein Shutdown-POST. Die Welt blieb offen, der Status auf ON. |
+| Bestätigter Versand | Beim nächsten Klick empfing und bestätigte der lokale Empfänger genau einen OFFLINE-Embed. Der Browser sandte genau einen POST mit `action=worldShutdown` an den echten Foundry-Server und erreichte die Setup-Adminanmeldung unter `/auth`. |
+| Unabhängige Kontrolle der Schließung | Eine frische Anfrage ohne GM-Sitzung an `/join` meldete „There is currently no active game session“. Der Server leitete einen neuen Aufruf von `/` auf `/setup` um. Der Ankündigungsstatus oder die Navigation des GM allein dienten nicht als Nachweis. |
+| Automatisierte Prüfungen | Mit Core 14.371 bestanden alle 220 Tests. In Chrome 158.0.8127.38 und Firefox 153.0 bestanden die UI- und CORS-Prüfungen einschließlich Sidebar, ausgelagerter Sidebar und Esc-Menü. |
+
+**Nicht geprüft unter 14.371:** Zustellung im echten Discord-Kanal, gehostete Welt, parallele GM-Sitzungen. Beim Server-Praxistest leitete der Testbrowser ausschließlich den synthetischen Discord-Aufruf an einen lokalen HTTP-Empfänger weiter. Der darunter dokumentierte Discord-Praxistest gehört zu 14.370.
+
+### Lokalen Shutdown-Test wiederholen
+
+Der optionale Test `node tests/live-shutdown-check.mjs` beendet seine Testwelt. Dafür eine separate, nur lokal erreichbare Foundry-14.371-Instanz mit englischer Oberfläche unter `http://127.0.0.1:39171` starten. In einem eigenen Datenverzeichnis ein leeres Testsystem mit der ID `fws-minimal`, eine Welt `fws-qa` mit Titel „FWS Shutdown QA“ und das entpackte Modul-ZIP 1.3.5 bereitstellen. Die Welt mit ihrem Standard-GM „Gamemaster“ ohne Spielerpasswort starten. Ein separates Setup-Adminpasswort schützt das Setup. Der Test prüft Welt, System, Modulversion, GM-Rolle, getrennte Adminrechte und weitere aktive Benutzer, bevor er Settings schreibt.
+
+Für `NODE_DEPENDENCIES` den Ordner mit Playwright angeben, Chrome muss installiert sein. Der Test meldet sich mit einem neuen Browserprofil an, aktiviert das Modul bei Bedarf und bedient die normale Setup-Schaltfläche in der Sidebar. Der Test bleibt außerhalb von `npm test` und des Release-ZIP.
+
+---
+
+# Historischer Bericht für 1.3.4 – Veröffentlichung und Praxistest
 
 Stand: 5. November 2026. **Version 1.3.4 für Foundry VTT 14.370 ist veröffentlicht und in einer laufenden Testwelt praktisch geprüft.** Der folgende Nachtrag ergänzt den ursprünglichen Vorbereitungsbericht; dessen damalige offenen Punkte sind historische Angaben.
 

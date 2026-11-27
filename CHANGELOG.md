@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.5
+
+- Kompatibilität mit Foundry VTT 14.371 geprüft. Mindestversion ist weiterhin 14.367.
+- „Zurück zum Setup“ als Welt-GM in einer lokalen 14.371-Welt geprüft. Nach genau einer bestätigten OFFLINE-Nachricht schließt die Welt. Bei abgelehntem Versand bleibt sie offen.
+
 ## 1.3.4
 
 - Kompatibilität mit Foundry VTT 14.370 geprüft; Mindestversion bleibt 14.367.
