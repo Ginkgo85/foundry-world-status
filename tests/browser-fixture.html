@@ -56,6 +56,10 @@ class ApplicationV2 {
   static instances() {return applications.values();}
   async _prepareContext() {return {};} async _onRender() {} _canRender() {}
   async render() {await renderSettings(); return this;}
+  async close() {
+    this.rendered = false;
+    this.element.remove();
+  }
 }
 window.CONFIG = {debug: {i18n: false}};
 game.i18n.translations = languages[language] ?? {};
@@ -95,6 +99,10 @@ if (query.has("startup")) {
 main.addSceneTools(ui.controls.controls); await hooks.get("ready")(); await ui.controls.render();
 const app = new WorldStatusSettings(); app.element = document.querySelector("#fixture-form");
 async function renderSettings() {
+  if (!app.rendered) {
+    document.body.append(app.element);
+    app.rendered = true;
+  }
   const context = await app._prepareContext({});
   app.element.querySelector(".window-title").textContent = app.title;
   const template = Handlebars.compile(await (await fetch("/modules/foundry-world-status/templates/settings.hbs")).text());

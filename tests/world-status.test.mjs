@@ -26,6 +26,7 @@ class AppMock {
   async _prepareContext() { return {}; }
   async _onRender() {}
   async render() { return this; }
+  async close(options) { this.closeOptions = options; }
 }
 globalThis.Hooks = {
   once: (key, callback) => hookCallbacks.set(key, callback),
@@ -313,6 +314,7 @@ test("all saved configuration fields are validated together before the single wo
   const app = new WorldStatusSettings(); app.element = {querySelector: () => ({})};
   const bad = {...goodConfig(), onlineColor: "oops"};
   await WorldStatusSettings.save.call(app, {}, {}, {object: bad}); assert.equal(writes.length, 0);
+  assert.equal(app.closeOptions, undefined);
   await WorldStatusSettings.save.call(app, {}, {}, {object: {...goodConfig(), onlineTitle: "Neue Runde"}});
   assert.equal(writes.length, 2); assert.equal(stored.get("configuration").webhookUrl, undefined); assert.equal(stored.get("configuration").onlineTitle, "Neue Runde");
   assert.equal(calls.length, 0);
@@ -764,12 +766,14 @@ test("partial settings save reports no success and succeeds on retry", async () 
     await WorldStatusSettings.save.call(app, {}, {}, {object: config});
     assert.equal(readConfig().webhookUrl, config.webhookUrl);
     assert.notEqual(readConfig().onlineTitle, config.onlineTitle);
+    assert.equal(app.closeOptions, undefined);
     assert.equal(notifications.some(n => n.level === "info"), false);
     assert.equal(notifications.at(-1).message, lookup("FWS.errors.settingsSave"));
     assert.equal(JSON.stringify({logs, notifications}).includes(fakeWebhook), false);
   } finally { game.settings.set = originalSet; }
   await WorldStatusSettings.save.call(app, {}, {}, {object: config});
   assert.equal(readConfig().onlineTitle, config.onlineTitle);
+  assert.deepEqual(app.closeOptions, {submitted: true});
   assert.equal(notifications.at(-1).level, "info");
 });
 

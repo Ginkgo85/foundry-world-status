@@ -153,6 +153,7 @@ export class WorldStatusSettings extends HandlebarsApplicationMixin(ApplicationV
       try { await saveConfig(config); }
       catch { throw new WorldStatusError("settingsSave"); }
       ui.notifications.info(t("saved"));
+      await this.close({submitted: true});
     } catch (error) {
       reportError(error);
     } finally {

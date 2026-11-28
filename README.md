@@ -65,6 +65,8 @@ Geöffnete Modulfenster und der Button-Tooltip werden aktualisiert, ohne die Wel
 4. Nachricht nach Wunsch gestalten. Der ONLINE-Linktext ist optional: Mit Text wird dieser anklickbar, ohne Text erscheint die Server-URL. Ein bewusst leer gespeichertes Feld bleibt leer. **Discord-Verbindung testen** sendet eine echte Testnachricht, ohne den ON/OFF-Status zu ändern.
 5. **Einstellungen speichern** und den Discord-Button in der linken Werkzeugleiste verwenden.
 
+Im Entwicklungsstand nach 1.3.5 schließt sich das Modulfenster, sobald alle Einstellungen gespeichert sind. Bei einem Fehler bleibt es mit deinen Eingaben geöffnet.
+
 Für einen Rollenping die numerische Discord-Rollen-ID eintragen. Nur diese Rolle darf bei ONLINE erwähnt werden; `@everyone`, `@here` und Benutzer-Pings sind gesperrt. Discord-Berechtigungen gelten zusätzlich.
 
 ### Einblick in die Einstellungen
@@ -234,6 +236,8 @@ Open module windows and the button tooltip update without reloading the world. U
    The eye button temporarily reveals the webhook URL; it is hidden again when you reopen the window.
 4. Customize the message. The ONLINE link display text is optional: with text, that text becomes the link; without it, the server URL is displayed. An explicitly saved empty field stays empty. **Test Discord Connection** sends a real test message without changing ON/OFF status.
 5. Click **Save Settings** and use the Discord button in the left toolbar.
+
+In the development version after 1.3.5, the module window closes once all settings have been saved. If an error occurs, the window stays open with your entries intact.
 
 For a role mention, enter the numeric Discord role ID. Only that role may be mentioned in ONLINE announcements; `@everyone`, `@here` and user mentions are blocked. Discord permissions still apply.
 
