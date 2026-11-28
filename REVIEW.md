@@ -1,4 +1,8 @@
-# Aktueller Stand – 1.3.5 für Foundry VTT 14.371
+# Aktueller Stand – 1.3.6 für Foundry VTT 14.371
+
+Der Release-Kandidat schließt das Modulfenster nach vollständigem Speichern. Bei einem Fehler bleiben die Eingaben zur Korrektur erhalten. Die Prüfergebnisse stehen in [VALIDIERUNG.md](VALIDIERUNG.md), die Schritte zur manuellen Freigabe in [PUBLISHING.md](PUBLISHING.md).
+
+## Veröffentlichung 1.3.5
 
 Am 27. November 2026 wurde [Version 1.3.5](https://github.com/Ginkgo85/foundry-world-status/releases/tag/v1.3.5) veröffentlicht und an das Foundry-Paketverzeichnis übermittelt. Alle 220 Tests mit Foundry 14.371 bestanden. Beim Praxistest „Zurück zum Setup“ empfing der lokale Testempfänger genau eine OFFLINE-Nachricht und die Welt schloss. Details stehen im [Prüfbericht](VALIDIERUNG.md).
 

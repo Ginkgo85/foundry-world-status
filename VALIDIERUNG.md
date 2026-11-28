@@ -1,5 +1,24 @@
 # Validierung für Foundry VTT 14.371
 
+## Release-Kandidat 1.3.6 · 28. November 2026
+
+Geprüft wurde das für 1.3.6 gebaute ZIP in einer separaten lokalen Welt mit Foundry 14.371, Node 24.22.3 und einem Welt-GM ohne Setup-Adminrechte.
+
+| Prüfung | Ergebnis |
+| --- | --- |
+| Modulfenster in Foundry | Bei einer ungültigen Discord-Rollen-ID zeigte das Formular einen Fehler und behielt den geänderten ONLINE-Titel. Nach Korrektur der Eingabe schloss „Einstellungen speichern“ das Fenster. Beim Wiederöffnen erschien der gespeicherte Titel. Der lokale Empfänger erhielt beim Speichern keine Nachricht. |
+| Speicherfehler und Wiederholung | Der automatisierte Test simulierte einen fehlgeschlagenen Schreibzugriff auf die Welteinstellungen. Das Fenster blieb offen. Der erneute erfolgreiche Versuch schloss es. |
+| Zurück zum Setup | Bei einer Antwort mit HTTP 403 blieb die Welt ONLINE und es gab keinen Shutdown-POST. Nach bestätigtem Versand zählte der Empfänger genau eine angenommene OFFLINE-Nachricht. Ein Shutdown-POST beendete die Welt. Eine unabhängige Anfrage bestätigte, dass keine Spielsitzung mehr lief. |
+| `npm test` | Mit installiertem Core 220 von 220 bestanden. Ohne Core 210 bestanden und zehn installationsabhängige Prüfungen übersprungen. |
+| Browser und CORS | UI- und CORS-Prüfungen in Chrome 158.0.8127.38 und Firefox 153.0 bestanden, einschließlich Speichern, erneutem Öffnen, Abmelden und Shutdown. |
+| Release-Paket | `npm run build:release` und `npm run test:release` bestanden. Das ZIP enthielt 16 Dateien mit dem Manifest im Stammverzeichnis. Inhalt und Manifest-Kopie entsprachen den Quellen. |
+
+**Nicht geprüft mit 1.3.6:** Installation auf dem gehosteten Server und Zustellung an einen echten Discord-Kanal. Für die lokalen Tests wurden synthetische Webhooks verwendet.
+
+Zum Wiederholen des Servertests die unten beschriebene lokale Testinstanz mit dem **ZIP des aktuellen Kandidaten** starten und `node tests/live-shutdown-check.mjs` im Checkout ausführen. Der Test vergleicht die installierte Modulversion mit `module.json`.
+
+## Veröffentlichte Version 1.3.5
+
 **[Version 1.3.5 für Foundry VTT 14.371](https://github.com/Ginkgo85/foundry-world-status/releases/tag/v1.3.5) wurde am 27. November 2026 veröffentlicht.** Im lokalen Foundry-Server schloss ein einzelner GM-Klick auf „Zurück zum Setup“ die Testwelt. Der lokale HTTP-Empfänger nahm für diesen Klick genau eine OFFLINE-Nachricht an.
 
 | Prüfung | Beobachtung |

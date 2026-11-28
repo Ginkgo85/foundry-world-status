@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {createServer} from "node:http";
 import {createRequire} from "node:module";
 import path from "node:path";
+import manifest from "../module.json" with {type: "json"};
 
 const base = "http://127.0.0.1:39171";
 const moduleId = "foundry-world-status";
@@ -59,7 +60,7 @@ try {
     world: game.world.id, system: game.system.id, build: game.release.build, version: game.modules.get(id)?.version,
     gm: game.user.isGM, admin: !!game.data.isAdmin, otherUsers: game.users.filter(user => user.active && !user.isSelf).length
   }), moduleId);
-  assert.deepEqual(session, {world: "fws-qa", system: "fws-minimal", build: 371, version: "1.3.5", gm: true, admin: false, otherUsers: 0});
+  assert.deepEqual(session, {world: "fws-qa", system: "fws-minimal", build: 371, version: manifest.version, gm: true, admin: false, otherUsers: 0});
   if (!await page.evaluate(id => game.modules.get(id).active, moduleId)) {
     await page.evaluate(id => game.settings.set("core", "moduleConfiguration", {...game.settings.get("core", "moduleConfiguration"), [id]: true}), moduleId);
     await page.reload();
@@ -73,6 +74,33 @@ try {
     ui.sidebar.activateTab("settings");
     ui.sidebar.expand();
   }, {id: moduleId, hook: fakeHook});
+
+  // Exercise the registered module form with Foundry's actual ApplicationV2 lifecycle.
+  const openSettings = () => page.evaluate(async id => {
+    const menu = game.settings.menus.get(id + ".settings");
+    await new menu.type().render({force: true});
+  }, moduleId);
+  await openSettings();
+  const form = page.locator("#foundry-world-status-settings");
+  const title = form.locator('[name="onlineTitle"]');
+  const role = form.locator('[name="roleId"]');
+  const save = form.getByRole("button", {name: "Save Settings", exact: true});
+  await title.fill("QA settings dialog");
+  await role.fill("invalid");
+  const exitTour = page.locator('.step-button[data-action="exit"]:visible');
+  if (await exitTour.isVisible()) await exitTour.click();
+  await save.click();
+  await page.getByText("The Discord Role ID must contain 17 to 20 digits.", {exact: true}).waitFor();
+  assert.equal(await form.isVisible(), true);
+  assert.equal(await title.inputValue(), "QA settings dialog");
+  await role.fill("");
+  await save.click();
+  await form.waitFor({state: "detached"});
+  await openSettings();
+  assert.equal(await title.inputValue(), "QA settings dialog");
+  await form.locator('[data-action="close"]').click();
+  assert.equal(deliveries.length, 0);
+  console.log("Settings dialog: invalid draft retained, corrected save closed the window, saved title persisted on reopen.");
 
   const button = page.locator('button[data-app="setup"]:visible');
   await button.click();

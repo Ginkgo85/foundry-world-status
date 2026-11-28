@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.6
+
+- „Einstellungen speichern“ schließt das Modulfenster, sobald alle Einstellungen erfolgreich gespeichert sind. Bei ungültigen Eingaben oder einem Speicherfehler bleiben das Fenster und die eingegebenen Werte für die Korrektur erhalten.
+
 ## 1.3.5
 
 - Kompatibilität mit Foundry VTT 14.371 geprüft. Mindestversion ist weiterhin 14.367.

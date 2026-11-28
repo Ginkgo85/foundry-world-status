@@ -2,9 +2,11 @@
 
 ## Aktueller Veröffentlichungsstand
 
+Für Foundry 14.371 ist **1.3.6** zur manuellen Freigabe vorbereitet. Diese Version schließt das Modulfenster nach erfolgreichem Speichern. Zum Veröffentlichen den Workflow **Release** auf `main` starten. Er liest Version 1.3.6 aus dem Manifest und erstellt den Tag `v1.3.6`.
+
 **[Version 1.3.5 für Foundry 14.371](https://github.com/Ginkgo85/foundry-world-status/releases/tag/v1.3.5) wurde am 27. November 2026 veröffentlicht.** Der [Release-Workflow](https://github.com/Ginkgo85/foundry-world-status/actions/runs/46076774329) hat `module.json` und `foundry-world-status.zip` auf GitHub veröffentlicht und die Version erfolgreich an das Foundry-Paketverzeichnis übermittelt.
 
-Der [Prüfbericht](VALIDIERUNG.md) dokumentiert den Shutdown-Test mit Foundry 14.371 und einem lokalen Nachrichtenempfänger. Die folgenden Schritte gelten für die nächste Version nach ihrer Freigabe.
+Der [Prüfbericht](VALIDIERUNG.md) dokumentiert die Prüfungen am Kandidaten und die früheren Praxistests getrennt nach Version.
 
 ## Voraussetzungen
 

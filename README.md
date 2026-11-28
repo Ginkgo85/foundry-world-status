@@ -6,9 +6,9 @@
 
 ## Deutsche Anleitung
 
-Version **1.3.5** · Foundry VTT **14.371** · Nur für GMs · Keine Modulabhängigkeiten
+Version **1.3.6** · Foundry VTT **14.371** · Nur für GMs · Keine Modulabhängigkeiten
 
-Der Installationslink liefert die am 27. November 2026 veröffentlichte [Version 1.3.5 für Foundry 14.371](https://github.com/Ginkgo85/foundry-world-status/releases/tag/v1.3.5).
+Der Installationslink liefert die zuletzt veröffentlichte Version. Bis zur Freigabe von 1.3.6 ist das [Version 1.3.5](https://github.com/Ginkgo85/foundry-world-status/releases/tag/v1.3.5).
 
 **Status: Community Release / In Development**
 
@@ -42,7 +42,7 @@ Der feste Manifest-Link installiert den jeweils veröffentlichten neuesten Relea
 
 3. Die Welt öffnen und unter **Einstellungen → Module verwalten** das Modul aktivieren. Anschließend die Welt neu laden.
 
-Alternativ kannst du das [ZIP für v1.3.5](https://github.com/Ginkgo85/foundry-world-status/releases/download/v1.3.5/foundry-world-status.zip) herunterladen und in `Data/modules/foundry-world-status/` entpacken. `module.json` liegt direkt im ZIP-Root und muss anschließend direkt im Modulordner liegen. Foundry danach neu starten beziehungsweise die Module neu laden.
+Nach der Veröffentlichung kannst du alternativ das [ZIP für v1.3.6](https://github.com/Ginkgo85/foundry-world-status/releases/download/v1.3.6/foundry-world-status.zip) herunterladen und in `Data/modules/foundry-world-status/` entpacken. `module.json` liegt direkt im ZIP-Root und muss anschließend direkt im Modulordner liegen. Foundry danach neu starten beziehungsweise die Module neu laden.
 
 Bei einem manuellen Update den bisherigen Modulordner sichern und durch den neuen ZIP-Inhalt ersetzen. **Keine World-Daten löschen.**
 
@@ -65,7 +65,7 @@ Geöffnete Modulfenster und der Button-Tooltip werden aktualisiert, ohne die Wel
 4. Nachricht nach Wunsch gestalten. Der ONLINE-Linktext ist optional: Mit Text wird dieser anklickbar, ohne Text erscheint die Server-URL. Ein bewusst leer gespeichertes Feld bleibt leer. **Discord-Verbindung testen** sendet eine echte Testnachricht, ohne den ON/OFF-Status zu ändern.
 5. **Einstellungen speichern** und den Discord-Button in der linken Werkzeugleiste verwenden.
 
-Im Entwicklungsstand nach 1.3.5 schließt sich das Modulfenster, sobald alle Einstellungen gespeichert sind. Bei einem Fehler bleibt es mit deinen Eingaben geöffnet.
+Ab 1.3.6 schließt sich das Modulfenster, sobald alle Einstellungen gespeichert sind. Bei einem Fehler bleibt es mit deinen Eingaben geöffnet.
 
 Für einen Rollenping die numerische Discord-Rollen-ID eintragen. Nur diese Rolle darf bei ONLINE erwähnt werden; `@everyone`, `@here` und Benutzer-Pings sind gesperrt. Discord-Berechtigungen gelten zusätzlich.
 
@@ -178,9 +178,9 @@ Discord und das Discord-Logo sind Marken von Discord Inc. Dieses Modul ist weder
 
 ## English Guide
 
-Version **1.3.5** · Foundry VTT **14.371** · GM-only controls · No module dependencies
+Version **1.3.6** · Foundry VTT **14.371** · GM-only controls · No module dependencies
 
-The installation link installs [version 1.3.5 for Foundry 14.371](https://github.com/Ginkgo85/foundry-world-status/releases/tag/v1.3.5), released on November 27, 2026.
+The installation link installs the latest published version. Until 1.3.6 is released, this is [version 1.3.5](https://github.com/Ginkgo85/foundry-world-status/releases/tag/v1.3.5).
 
 **Status: Community Release / In Development**
 
@@ -214,7 +214,7 @@ The permanent manifest link installs the latest published release. A new version
 
 3. Open your world and enable the module under **Settings → Manage Modules**, then reload the world.
 
-Alternatively, download the [ZIP for v1.3.5](https://github.com/Ginkgo85/foundry-world-status/releases/download/v1.3.5/foundry-world-status.zip) and extract it into `Data/modules/foundry-world-status/`. `module.json` is at the ZIP root and must end up directly inside the module folder. Restart Foundry or reload its modules afterward.
+After release, you can also download the [ZIP for v1.3.6](https://github.com/Ginkgo85/foundry-world-status/releases/download/v1.3.6/foundry-world-status.zip) and extract it into `Data/modules/foundry-world-status/`. `module.json` is at the ZIP root and must end up directly inside the module folder. Restart Foundry or reload its modules afterward.
 
 For a manual update, back up the existing module folder and replace it with the new ZIP contents. **Do not delete world data.**
 
@@ -237,7 +237,7 @@ Open module windows and the button tooltip update without reloading the world. U
 4. Customize the message. The ONLINE link display text is optional: with text, that text becomes the link; without it, the server URL is displayed. An explicitly saved empty field stays empty. **Test Discord Connection** sends a real test message without changing ON/OFF status.
 5. Click **Save Settings** and use the Discord button in the left toolbar.
 
-In the development version after 1.3.5, the module window closes once all settings have been saved. If an error occurs, the window stays open with your entries intact.
+Starting with 1.3.6, the module window closes once all settings have been saved. If an error occurs, the window stays open with your entries intact.
 
 For a role mention, enter the numeric Discord role ID. Only that role may be mentioned in ONLINE announcements; `@everyone`, `@here` and user mentions are blocked. Discord permissions still apply.
 
