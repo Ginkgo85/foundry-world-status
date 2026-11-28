@@ -1,6 +1,8 @@
 # Validierung für Foundry VTT 14.371
 
-## Release-Kandidat 1.3.6 · 28. November 2026
+## Veröffentlichte Version 1.3.6 · 28. November 2026
+
+Der [Release-Workflow](https://github.com/Ginkgo85/foundry-world-status/actions/runs/46138297256) schloss beide Jobs erfolgreich ab. Das [GitHub-Release v1.3.6](https://github.com/Ginkgo85/foundry-world-status/releases/tag/v1.3.6) enthält das Manifest und das Modul-ZIP vom Tag auf Commit `5808cc8`. Das öffentliche Installationsmanifest liefert Version 1.3.6. Das [Foundry-Paketverzeichnis](https://foundryvtt.com/packages/foundry-world-status) listet sie als verifiziert für 14.371 und verlinkt das versionsgebundene Manifest.
 
 Geprüft wurde das für 1.3.6 gebaute ZIP in einer separaten lokalen Welt mit Foundry 14.371, Node 24.22.3 und einem Welt-GM ohne Setup-Adminrechte.
 
@@ -13,9 +15,11 @@ Geprüft wurde das für 1.3.6 gebaute ZIP in einer separaten lokalen Welt mit Fo
 | Browser und CORS | UI- und CORS-Prüfungen in Chrome 158.0.8127.38 und Firefox 153.0 bestanden, einschließlich Speichern, erneutem Öffnen, Abmelden und Shutdown. |
 | Release-Paket | `npm run build:release` und `npm run test:release` bestanden. Das ZIP enthielt 16 Dateien mit dem Manifest im Stammverzeichnis. Inhalt und Manifest-Kopie entsprachen den Quellen. |
 
-**Nicht geprüft mit 1.3.6:** Installation auf dem gehosteten Server und Zustellung an einen echten Discord-Kanal. Für die lokalen Tests wurden synthetische Webhooks verwendet.
+**Praxistest nach der Veröffentlichung.** Die Modulverwaltung der gehosteten Hogwarts-Testwelt zeigte Foundry World Status 1.3.6 als aktiv unter Foundry 14.371. Beim Speichern einer ungültigen Rollen-ID zeigte der Dialog die Validierungsmeldung und behielt die Eingabe. Nach Wiederherstellen des ursprünglichen Werts bestätigte Foundry das Speichern und schloss das Modulfenster. Die übergeordneten Spieleinstellungen blieben offen. Beim erneuten Öffnen war der ursprüngliche Rollenwert vorhanden.
 
-Zum Wiederholen des Servertests die unten beschriebene lokale Testinstanz mit dem **ZIP des aktuellen Kandidaten** starten und `node tests/live-shutdown-check.mjs` im Checkout ausführen. Der Test vergleicht die installierte Modulversion mit `module.json`.
+**Nicht geprüft mit 1.3.6:** Zustellung an einen echten Discord-Kanal. Der gehostete Dialogtest löste keinen Discord-Versand aus. Für die lokalen Tests wurden synthetische Webhooks verwendet.
+
+Zum Wiederholen des Servertests die unten beschriebene lokale Testinstanz mit dem ZIP für v1.3.6 starten und `node tests/live-shutdown-check.mjs` im zugehörigen Checkout ausführen. Der Test vergleicht die installierte Modulversion mit `module.json`.
 
 ## Veröffentlichte Version 1.3.5
 

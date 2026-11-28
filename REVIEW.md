@@ -1,6 +1,8 @@
 # Aktueller Stand – 1.3.6 für Foundry VTT 14.371
 
-Der Release-Kandidat schließt das Modulfenster nach vollständigem Speichern. Bei einem Fehler bleiben die Eingaben zur Korrektur erhalten. Die Prüfergebnisse stehen in [VALIDIERUNG.md](VALIDIERUNG.md), die Schritte zur manuellen Freigabe in [PUBLISHING.md](PUBLISHING.md).
+Am 28. November 2026 erschien [Version 1.3.6 auf GitHub](https://github.com/Ginkgo85/foundry-world-status/releases/tag/v1.3.6). Das [Foundry-Paketverzeichnis](https://foundryvtt.com/packages/foundry-world-status) führt sie als verifiziert für 14.371.
+
+In der gehosteten Testwelt blieb das Modulfenster bei einer ungültigen Rollen-ID zur Korrektur offen. Nach erfolgreichem Speichern schloss es sich. Die Ergebnisse stehen im [Prüfbericht](VALIDIERUNG.md).
 
 ## Veröffentlichung 1.3.5
 
